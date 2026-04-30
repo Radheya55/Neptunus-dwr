@@ -10,13 +10,13 @@
 <title>NPPS DWR Generator</title>
 <link rel="manifest" href="manifest.json"/>
 
-<!-- docx.js — proper Word document generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<!-- SheetJS for XLSX -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<!-- jsPDF — proper PDF generation -->
+<!-- jsPDF for PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- jsPDF AutoTable — for proper PDF tables -->
+<!-- jsPDF AutoTable for proper PDF tables -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
 <style>
@@ -35,17 +35,10 @@
   --r:      12px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--navy); color: var(--light);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 15px; line-height: 1.6; min-height: 100vh; padding-bottom: 40px;
-}
-.hdr {
-  background: var(--navy2); border-bottom: 2px solid var(--accent);
-  padding: 0 1.2rem; display: flex; align-items: center; gap: 1rem;
-  height: 58px; position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
+body { background: var(--navy); color: var(--light); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; padding-bottom: 40px; }
+
+/* HEADER */
+.hdr { background: var(--navy2); border-bottom: 2px solid var(--accent); padding: 0 1.2rem; display: flex; align-items: center; gap: 1rem; height: 58px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 .brand { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: var(--navy); flex-shrink: 0; }
 .brand-t h1 { font-size: 1rem; font-weight: 700; color: var(--white); line-height: 1; }
 .brand-t p  { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
@@ -90,14 +83,14 @@ body {
 .btn-record { width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--accent); background: var(--steel); color: var(--white); font-size: 1.8rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
 .btn-record.recording { background: var(--danger); border-color: var(--danger); animation: pulse-rec 1.5s infinite; }
 .btn-record.paused { background: var(--accent2); border-color: var(--accent); }
-@keyframes pulse-rec { 0%{box-shadow:0 0 0 0 rgba(224,85,85,0.7)} 70%{box-shadow:0 0 0 14px rgba(224,85,85,0)} 100%{box-shadow:0 0 0 0 rgba(224,85,85,0)} }
+@keyframes pulse-rec { 0%{box-shadow:0 0 0 0 rgba(224,85,85,0.7)}70%{box-shadow:0 0 0 14px rgba(224,85,85,0)}100%{box-shadow:0 0 0 0 rgba(224,85,85,0)} }
 .btn-rec-sm { width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: var(--light); font-size: 1.1rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
 .btn-rec-sm:hover { border-color: var(--accent); color: var(--accent); }
 .btn-rec-sm:disabled { opacity: 0.3; cursor: not-allowed; }
 .rec-timer { font-size: 2rem; font-weight: 700; font-family: 'Courier New', monospace; color: var(--white); margin-bottom: 0.4rem; }
 .rec-status { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.6rem; min-height: 20px; }
 .rec-status .dot { display: inline-block; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; margin-right: 5px; animation: blink 1s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.2} }
 .lang-box { background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.25); border-radius: 8px; padding: 0.5rem 0.8rem; font-size: 0.78rem; color: var(--accent); margin-bottom: 0.8rem; display: none; text-align: left; }
 .lang-box.show { display: block; }
 .audio-playback { display: none; margin-top: 0.8rem; }
@@ -162,7 +155,7 @@ body {
 .download-wrap { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1rem; }
 .btn-dl { width: 100%; padding: 0.9rem; border-radius: var(--r); border: none; font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
 .btn-dl-pdf  { background: #c0392b; color: #fff; box-shadow: 0 4px 14px rgba(192,57,43,0.4); }
-.btn-dl-docx { background: #2b5797; color: #fff; box-shadow: 0 4px 14px rgba(43,87,151,0.4); }
+.btn-dl-xlsx { background: #1e7145; color: #fff; box-shadow: 0 4px 14px rgba(30,113,69,0.4); }
 .btn-dl:hover { filter: brightness(1.12); transform: translateY(-1px); }
 .btn-dl:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
 .btn-new-dwr { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: var(--r); padding: 0.75rem; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; margin-top: 1rem; transition: all 0.2s; }
@@ -174,7 +167,7 @@ body {
 .report-ready .rr-icon { font-size: 2rem; margin-bottom: 0.3rem; }
 .report-ready .rr-text { font-size: 1rem; font-weight: 700; color: var(--teal); }
 .report-ready .rr-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
-@keyframes pop-in { from{transform:scale(0.9);opacity:0} to{transform:scale(1);opacity:1} }
+@keyframes pop-in { from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1} }
 
 /* TOAST */
 .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--navy2); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1.2rem; font-size: 0.85rem; color: var(--light); box-shadow: 0 8px 28px rgba(0,0,0,0.5); z-index: 200; opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 320px; text-align: center; }
@@ -200,10 +193,7 @@ body {
   </div>
 </header>
 
-<div class="loader-overlay" id="loader">
-  <div class="spin"></div>
-  <div class="loader-msg" id="loader-msg">Processing…</div>
-</div>
+<div class="loader-overlay" id="loader"><div class="spin"></div><div class="loader-msg" id="loader-msg">Processing…</div></div>
 <div class="toast" id="toast"></div>
 
 <!-- LANDING -->
@@ -218,30 +208,19 @@ body {
 <div id="screen-form">
 <div class="wrap">
 
-  <!-- SECTION 1: IDENTITY -->
+  <!-- IDENTITY -->
   <div class="section-card" id="card-identity">
     <div class="section-title"><span class="step-num">1</span> Who Are You?</div>
-    <div class="field">
-      <label>Your Name *</label>
-      <select id="sel-name" onchange="onNameChange()">
-        <option value="">— Select your name —</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Your Neptunus Email</label>
-      <div class="auto-fill" id="auto-email">—</div>
-    </div>
-    <div class="field">
-      <label>Employee Number *</label>
-      <input type="text" id="inp-empno" placeholder="Enter your employee number" oninput="checkIdentity()"/>
-    </div>
+    <div class="field"><label>Your Name *</label><select id="sel-name" onchange="onNameChange()"><option value="">— Select your name —</option></select></div>
+    <div class="field"><label>Your Neptunus Email</label><div class="auto-fill" id="auto-email">—</div></div>
+    <div class="field"><label>Employee Number *</label><input type="text" id="inp-empno" placeholder="Enter your employee number" oninput="checkIdentity()"/></div>
     <button class="btn-proceed" id="btn-proceed" onclick="unlockForm()">✓ Verify &amp; Proceed</button>
   </div>
 
   <!-- LOCKED SECTIONS -->
   <div id="form-body" class="locked">
 
-    <!-- SECTION 2: JOB DETAILS -->
+    <!-- JOB DETAILS -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">2</span> Job Details</div>
       <div class="field"><label>Date</label><input type="text" id="f-date" readonly/></div>
@@ -249,7 +228,7 @@ body {
       <div class="field"><label>Rig / Vessel Name *</label><input type="text" id="f-vessel" placeholder="e.g. MV Ocean Star" oninput="updateChecklist()"/></div>
     </div>
 
-    <!-- SECTION 3: AUDIO -->
+    <!-- AUDIO -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">3</span> Voice Recording</div>
       <div class="recorder-wrap">
@@ -269,31 +248,29 @@ body {
       </div>
     </div>
 
-    <!-- SECTION 4: TABLE IMAGES -->
+    <!-- TABLE IMAGES -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">4</span> Images to Convert to Tables</div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload photos of handwritten tables, measurement sheets, or calibration data. Gemini will convert them to proper tables in the report.</p>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload photos of handwritten tables, measurement sheets, or calibration data. Gemini will convert them to proper tables.</p>
       <div class="upload-zone" onclick="document.getElementById('inp-table-imgs').click()">
-        <div class="uz-icon">📊</div>
-        <div class="uz-text">Tap to upload table images</div>
+        <div class="uz-icon">📊</div><div class="uz-text">Tap to upload table images</div>
         <input type="file" id="inp-table-imgs" accept="image/*" multiple onchange="addTableImages(this)"/>
       </div>
       <div class="img-grid" id="table-img-grid"></div>
     </div>
 
-    <!-- SECTION 5: SITE PHOTOS -->
+    <!-- SITE PHOTOS -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">5</span> Site Photos with Titles</div>
       <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload site photos. Each photo needs a mandatory title and an optional description.</p>
       <div class="upload-zone" onclick="document.getElementById('inp-site-imgs').click()">
-        <div class="uz-icon">📷</div>
-        <div class="uz-text">Tap to upload site photos</div>
+        <div class="uz-icon">📷</div><div class="uz-text">Tap to upload site photos</div>
         <input type="file" id="inp-site-imgs" accept="image/*" multiple onchange="addSiteImages(this)"/>
       </div>
       <div class="img-grid" id="site-img-grid"></div>
     </div>
 
-    <!-- SECTION 6: FINALISE -->
+    <!-- FINALISE -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">6</span> Finalise &amp; Generate</div>
       <div class="checklist" id="checklist">
@@ -317,21 +294,18 @@ body {
       </div>
     </div>
 
-  </div><!-- /form-body -->
+  </div>
 
   <!-- OUTPUT -->
   <div id="output-section">
     <div style="font-size:0.8rem;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;">✦ Your DWR Report</div>
-    <div class="output-card">
-      <div class="oc-label">Report Details</div>
-      <div class="oc-text" id="out-meta"></div>
-    </div>
+    <div class="output-card"><div class="oc-label">Report Details</div><div class="oc-text" id="out-meta"></div></div>
     <div id="out-sections"></div>
     <div id="out-tables"></div>
     <div id="out-photos"></div>
     <div class="download-wrap">
       <button class="btn-dl btn-dl-pdf"  id="btn-pdf"  onclick="downloadPDF()">📄 Download PDF</button>
-      <button class="btn-dl btn-dl-docx" id="btn-docx" onclick="downloadDOCX()">📝 Download DOCX</button>
+      <button class="btn-dl btn-dl-xlsx" id="btn-xlsx" onclick="downloadXLSX()">📊 Download XLSX</button>
     </div>
     <button class="btn-new-dwr" onclick="resetApp()">＋ Start New DWR</button>
   </div>
@@ -362,8 +336,8 @@ var recTimerInt  = null;
 var animFrame    = null;
 var audioCtx     = null;
 var analyser     = null;
-var tableImages  = [];   // [{file, objectUrl, base64}]
-var siteImages   = [];   // [{file, objectUrl, base64, title, desc}]
+var tableImages  = [];
+var siteImages   = [];
 var generatedDWR = null;
 var finaliseOk   = false;
 var cdInterval   = null;
@@ -392,12 +366,10 @@ function setDate() {
 }
 
 function buildBars() {
-  var wrap = document.getElementById('visualiser-wrap');
-  wrap.innerHTML = '';
+  var wrap = document.getElementById('visualiser-wrap'); wrap.innerHTML = '';
   for (var i = 0; i < NUM_BARS; i++) {
     var bar = document.createElement('div');
-    bar.className = 'vis-bar idle'; bar.id = 'bar-' + i;
-    wrap.appendChild(bar);
+    bar.className = 'vis-bar idle'; bar.id = 'bar-' + i; wrap.appendChild(bar);
   }
 }
 
@@ -409,8 +381,7 @@ function loadEmployees() {
       var sel = document.getElementById('sel-name');
       data.forEach(function(emp) {
         var opt = document.createElement('option');
-        opt.value = emp.empNo; opt.textContent = emp.name;
-        opt.setAttribute('data-email', emp.email);
+        opt.value = emp.empNo; opt.textContent = emp.name; opt.setAttribute('data-email', emp.email);
         sel.appendChild(opt);
       });
     })
@@ -420,506 +391,385 @@ function loadEmployees() {
 // ══════════════════════════════════════════════
 //  IDENTITY
 // ══════════════════════════════════════════════
-function startDWR() {
-  document.getElementById('screen-land').style.display = 'none';
-  document.getElementById('screen-form').style.display = 'block';
-}
+function startDWR() { document.getElementById('screen-land').style.display='none'; document.getElementById('screen-form').style.display='block'; }
 function onNameChange() {
-  var sel = document.getElementById('sel-name');
-  var opt = sel.options[sel.selectedIndex];
-  var emailEl = document.getElementById('auto-email');
-  if (opt && opt.getAttribute('data-email')) {
-    emailEl.textContent = opt.getAttribute('data-email');
-    emailEl.style.display = 'block';
-  } else { emailEl.style.display = 'none'; }
+  var sel=document.getElementById('sel-name'), opt=sel.options[sel.selectedIndex], emailEl=document.getElementById('auto-email');
+  if (opt&&opt.getAttribute('data-email')) { emailEl.textContent=opt.getAttribute('data-email'); emailEl.style.display='block'; }
+  else { emailEl.style.display='none'; }
   checkIdentity();
 }
 function checkIdentity() {
-  var sel = document.getElementById('sel-name');
-  var opt = sel.options[sel.selectedIndex];
-  var empNo = document.getElementById('inp-empno').value.trim();
-  document.getElementById('btn-proceed').classList.toggle('active', !!(opt && opt.value && opt.value === empNo));
+  var sel=document.getElementById('sel-name'), opt=sel.options[sel.selectedIndex], empNo=document.getElementById('inp-empno').value.trim();
+  document.getElementById('btn-proceed').classList.toggle('active', !!(opt&&opt.value&&opt.value===empNo));
 }
 function unlockForm() {
-  var sel = document.getElementById('sel-name');
-  var opt = sel.options[sel.selectedIndex];
-  var empNo = document.getElementById('inp-empno').value.trim();
-  if (!opt || !opt.value || opt.value !== empNo) { toast('Employee number does not match.', 'err'); return; }
-  verifiedUser = { name: opt.textContent, email: opt.getAttribute('data-email'), empNo: empNo };
+  var sel=document.getElementById('sel-name'), opt=sel.options[sel.selectedIndex], empNo=document.getElementById('inp-empno').value.trim();
+  if (!opt||!opt.value||opt.value!==empNo) { toast('Employee number does not match.','err'); return; }
+  verifiedUser={name:opt.textContent, email:opt.getAttribute('data-email'), empNo:empNo};
   document.getElementById('form-body').classList.remove('locked');
-  document.getElementById('card-identity').style.borderColor = 'var(--teal)';
-  var bp = document.getElementById('btn-proceed');
-  bp.textContent = '✓ Verified — ' + verifiedUser.name;
-  bp.classList.remove('active');
-  bp.style.background = 'rgba(0,184,169,0.15)'; bp.style.color = 'var(--teal)'; bp.style.cursor = 'default'; bp.onclick = null;
-  updateChecklist();
-  toast('Identity verified!', 'ok');
-  setTimeout(function() { document.getElementById('form-body').scrollIntoView({ behavior:'smooth', block:'start' }); }, 300);
+  document.getElementById('card-identity').style.borderColor='var(--teal)';
+  var bp=document.getElementById('btn-proceed');
+  bp.textContent='✓ Verified — '+verifiedUser.name; bp.classList.remove('active');
+  bp.style.background='rgba(0,184,169,0.15)'; bp.style.color='var(--teal)'; bp.style.cursor='default'; bp.onclick=null;
+  updateChecklist(); toast('Identity verified!','ok');
+  setTimeout(function(){document.getElementById('form-body').scrollIntoView({behavior:'smooth',block:'start'});},300);
 }
 
 // ══════════════════════════════════════════════
 //  RECORDING
 // ══════════════════════════════════════════════
 function getBestMime() {
-  var types = ['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];
-  for (var i = 0; i < types.length; i++) { if (MediaRecorder.isTypeSupported(types[i])) return types[i]; }
+  var types=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];
+  for (var i=0;i<types.length;i++) { if (MediaRecorder.isTypeSupported(types[i])) return types[i]; }
   return '';
 }
 function toggleRecord() { if (!isRecording) startRecording(); else if (!isPaused) pauseRecording(); else resumeRecording(); }
 function startRecording() {
-  navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 } })
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:44100}})
     .then(function(stream) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = audioCtx.createAnalyser(); analyser.fftSize = 64;
+      audioCtx=new(window.AudioContext||window.webkitAudioContext)(); analyser=audioCtx.createAnalyser(); analyser.fftSize=64;
       audioCtx.createMediaStreamSource(stream).connect(analyser);
-      var mime = getBestMime(); audioMime = mime || 'audio/webm';
-      mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
-      audioChunks = [];
-      mediaRecorder.ondataavailable = function(e) { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
-      mediaRecorder.onstop = function() {
-        var actual = mediaRecorder.mimeType || audioMime;
-        audioMime = actual.split(';')[0];
-        audioBlob = new Blob(audioChunks, { type: actual });
-        document.getElementById('audio-preview').src = URL.createObjectURL(audioBlob);
+      var mime=getBestMime(); audioMime=mime||'audio/webm';
+      mediaRecorder=new MediaRecorder(stream, mime?{mimeType:mime}:{}); audioChunks=[];
+      mediaRecorder.ondataavailable=function(e){if(e.data&&e.data.size>0)audioChunks.push(e.data);};
+      mediaRecorder.onstop=function(){
+        var actual=mediaRecorder.mimeType||audioMime; audioMime=actual.split(';')[0];
+        audioBlob=new Blob(audioChunks,{type:actual});
+        document.getElementById('audio-preview').src=URL.createObjectURL(audioBlob);
         document.getElementById('audio-playback').classList.add('show');
-        var reader = new FileReader();
-        reader.onload = function(e) { audioBase64 = e.target.result.split(',')[1]; updateChecklist(); detectLanguage(); };
+        var reader=new FileReader();
+        reader.onload=function(e){audioBase64=e.target.result.split(',')[1]; updateChecklist(); detectLanguage();};
         reader.readAsDataURL(audioBlob);
       };
-      mediaRecorder.start(500); isRecording = true; isPaused = false;
-      document.getElementById('btn-record').className = 'btn-record recording';
-      document.getElementById('btn-record').innerHTML = '⏸';
-      document.getElementById('btn-pause').disabled = false;
-      document.getElementById('btn-stop').disabled = false;
-      document.getElementById('rec-status').innerHTML = '<span class="dot"></span> Recording…';
-      document.getElementById('audio-playback').classList.remove('show');
-      document.getElementById('lang-box').classList.remove('show');
+      mediaRecorder.start(500); isRecording=true; isPaused=false;
+      document.getElementById('btn-record').className='btn-record recording';
+      document.getElementById('btn-record').innerHTML='⏸';
+      document.getElementById('btn-pause').disabled=false; document.getElementById('btn-stop').disabled=false;
+      document.getElementById('rec-status').innerHTML='<span class="dot"></span> Recording…';
+      document.getElementById('audio-playback').classList.remove('show'); document.getElementById('lang-box').classList.remove('show');
       startRecTimer(); drawBars();
     })
-    .catch(function() { toast('Microphone access denied. Please allow microphone permission.', 'err'); });
+    .catch(function(){toast('Microphone access denied. Please allow microphone permission.','err');});
 }
 function pauseRecording() {
-  if (mediaRecorder && isRecording && !isPaused) {
-    mediaRecorder.pause(); isPaused = true;
-    clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').className = 'btn-record paused';
-    document.getElementById('btn-record').innerHTML = '▶';
-    document.getElementById('rec-status').textContent = 'Paused — tap ▶ to resume';
-    idleBars();
+  if (mediaRecorder&&isRecording&&!isPaused) {
+    mediaRecorder.pause(); isPaused=true; clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
+    document.getElementById('btn-record').className='btn-record paused'; document.getElementById('btn-record').innerHTML='▶';
+    document.getElementById('rec-status').textContent='Paused — tap ▶ to resume'; idleBars();
   }
 }
 function resumeRecording() {
-  if (mediaRecorder && isPaused) {
-    mediaRecorder.resume(); isPaused = false;
-    startRecTimer(); drawBars();
-    document.getElementById('btn-record').className = 'btn-record recording';
-    document.getElementById('btn-record').innerHTML = '⏸';
-    document.getElementById('rec-status').innerHTML = '<span class="dot"></span> Recording…';
+  if (mediaRecorder&&isPaused) {
+    mediaRecorder.resume(); isPaused=false; startRecTimer(); drawBars();
+    document.getElementById('btn-record').className='btn-record recording'; document.getElementById('btn-record').innerHTML='⏸';
+    document.getElementById('rec-status').innerHTML='<span class="dot"></span> Recording…';
   }
 }
 function stopRecording() {
-  if (mediaRecorder && isRecording) {
-    mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
-    isRecording = false; isPaused = false;
-    clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').className = 'btn-record';
-    document.getElementById('btn-record').innerHTML = '🎙️';
-    document.getElementById('btn-pause').disabled = true;
-    document.getElementById('btn-stop').disabled = true;
-    document.getElementById('rec-status').textContent = 'Recording complete — listen below';
-    idleBars();
+  if (mediaRecorder&&isRecording) {
+    mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(function(t){t.stop();});
+    isRecording=false; isPaused=false; clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
+    document.getElementById('btn-record').className='btn-record'; document.getElementById('btn-record').innerHTML='🎙️';
+    document.getElementById('btn-pause').disabled=true; document.getElementById('btn-stop').disabled=true;
+    document.getElementById('rec-status').textContent='Recording complete — listen below'; idleBars();
   }
 }
 function reRecord() {
-  audioBlob = null; audioBase64 = null; recSeconds = 0;
-  document.getElementById('rec-timer').textContent = '00:00';
-  document.getElementById('audio-playback').classList.remove('show');
-  document.getElementById('lang-box').classList.remove('show');
-  document.getElementById('rec-status').textContent = 'Tap the microphone to start recording';
+  audioBlob=null; audioBase64=null; recSeconds=0;
+  document.getElementById('rec-timer').textContent='00:00';
+  document.getElementById('audio-playback').classList.remove('show'); document.getElementById('lang-box').classList.remove('show');
+  document.getElementById('rec-status').textContent='Tap the microphone to start recording';
   idleBars(); updateChecklist();
 }
 function startRecTimer() {
-  recTimerInt = setInterval(function() {
-    recSeconds++;
-    var m = Math.floor(recSeconds/60), s = recSeconds%60;
-    document.getElementById('rec-timer').textContent = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-  }, 1000);
+  recTimerInt=setInterval(function(){
+    recSeconds++; var m=Math.floor(recSeconds/60),s=recSeconds%60;
+    document.getElementById('rec-timer').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  },1000);
 }
 function drawBars() {
   if (!analyser) return;
-  var bufLen = analyser.frequencyBinCount;
-  var data = new Uint8Array(bufLen);
-  var wrap = document.getElementById('visualiser-wrap');
-  var maxH = wrap.clientHeight - 10;
+  var bufLen=analyser.frequencyBinCount, data=new Uint8Array(bufLen);
+  var wrap=document.getElementById('visualiser-wrap'), maxH=wrap.clientHeight-10;
   function frame() {
-    animFrame = requestAnimationFrame(frame);
-    analyser.getByteFrequencyData(data);
-    var step = Math.floor(bufLen / NUM_BARS);
-    for (var i = 0; i < NUM_BARS; i++) {
-      var val = data[i * step] / 255;
-      var h = Math.max(4, Math.round(val * maxH));
-      var bar = document.getElementById('bar-' + i);
-      if (bar) {
-        bar.style.height = h + 'px'; bar.className = 'vis-bar';
-        bar.style.background = val < 0.4 ? '#00b8a9' : val < 0.7 ? '#f5a623' : '#e05555';
-      }
+    animFrame=requestAnimationFrame(frame); analyser.getByteFrequencyData(data);
+    var step=Math.floor(bufLen/NUM_BARS);
+    for (var i=0;i<NUM_BARS;i++) {
+      var val=data[i*step]/255, h=Math.max(4,Math.round(val*maxH));
+      var bar=document.getElementById('bar-'+i);
+      if (bar) { bar.style.height=h+'px'; bar.className='vis-bar'; bar.style.background=val<0.4?'#00b8a9':val<0.7?'#f5a623':'#e05555'; }
     }
   }
   frame();
 }
 function idleBars() {
   cancelAnimationFrame(animFrame);
-  for (var i = 0; i < NUM_BARS; i++) {
-    var bar = document.getElementById('bar-' + i);
-    if (bar) { bar.className = 'vis-bar idle'; bar.style.height = '4px'; bar.style.background = ''; }
-  }
+  for (var i=0;i<NUM_BARS;i++) { var bar=document.getElementById('bar-'+i); if(bar){bar.className='vis-bar idle';bar.style.height='4px';bar.style.background='';} }
 }
 function detectLanguage() {
   if (!audioBase64) return;
-  document.getElementById('lang-box').classList.add('show');
-  document.getElementById('lang-text').textContent = 'Detecting language…';
-  callWorker({ action:'detect_language', audio:audioBase64, mimeType:audioMime })
-    .then(function(r) { document.getElementById('lang-text').textContent = r.language || 'Unable to detect'; })
-    .catch(function() { document.getElementById('lang-text').textContent = 'Detection failed'; });
+  document.getElementById('lang-box').classList.add('show'); document.getElementById('lang-text').textContent='Detecting language…';
+  callWorker({action:'detect_language',audio:audioBase64,mimeType:audioMime})
+    .then(function(r){document.getElementById('lang-text').textContent=r.language||'Unable to detect';})
+    .catch(function(){document.getElementById('lang-text').textContent='Detection failed';});
 }
 
 // ══════════════════════════════════════════════
-//  TABLE IMAGES
+//  IMAGES
 // ══════════════════════════════════════════════
 function addTableImages(input) {
-  Array.from(input.files).forEach(function(file) {
-    var url = URL.createObjectURL(file);
-    var entry = { file:file, objectUrl:url, base64:null };
-    tableImages.push(entry);
-    readB64(file, function(b64) { entry.base64 = b64; });
-  });
-  renderTableImgs(); input.value = '';
+  Array.from(input.files).forEach(function(file){
+    var url=URL.createObjectURL(file); var entry={file:file,objectUrl:url,base64:null};
+    tableImages.push(entry); readB64(file,function(b64){entry.base64=b64;});
+  }); renderTableImgs(); input.value='';
 }
 function renderTableImgs() {
-  var grid = document.getElementById('table-img-grid'); grid.innerHTML = '';
-  tableImages.forEach(function(e, idx) {
-    var div = document.createElement('div'); div.className = 'img-item';
-    div.innerHTML = '<img src="'+e.objectUrl+'" alt="Table '+(idx+1)+'"/><div class="img-item-body"><button class="btn-remove-img" onclick="removeTableImg('+idx+')">✕ Remove</button></div>';
+  var grid=document.getElementById('table-img-grid'); grid.innerHTML='';
+  tableImages.forEach(function(e,idx){
+    var div=document.createElement('div'); div.className='img-item';
+    div.innerHTML='<img src="'+e.objectUrl+'" alt="Table '+(idx+1)+'"/><div class="img-item-body"><button class="btn-remove-img" onclick="removeTableImg('+idx+')">✕ Remove</button></div>';
     grid.appendChild(div);
   });
 }
-function removeTableImg(idx) { URL.revokeObjectURL(tableImages[idx].objectUrl); tableImages.splice(idx,1); renderTableImgs(); }
+function removeTableImg(idx){URL.revokeObjectURL(tableImages[idx].objectUrl);tableImages.splice(idx,1);renderTableImgs();}
 
-// ══════════════════════════════════════════════
-//  SITE IMAGES
-// ══════════════════════════════════════════════
 function addSiteImages(input) {
-  Array.from(input.files).forEach(function(file) {
-    var url = URL.createObjectURL(file);
-    var entry = { file:file, objectUrl:url, base64:null, title:'', desc:'' };
-    siteImages.push(entry);
-    readB64(file, function(b64) { entry.base64 = b64; });
-  });
-  renderSiteImgs(); input.value = '';
+  Array.from(input.files).forEach(function(file){
+    var url=URL.createObjectURL(file); var entry={file:file,objectUrl:url,base64:null,title:'',desc:''};
+    siteImages.push(entry); readB64(file,function(b64){entry.base64=b64;});
+  }); renderSiteImgs(); input.value='';
 }
 function renderSiteImgs() {
-  var grid = document.getElementById('site-img-grid'); grid.innerHTML = '';
-  siteImages.forEach(function(e, idx) {
-    var div = document.createElement('div'); div.className = 'img-item';
-    div.innerHTML = '<img src="'+e.objectUrl+'" alt="Site '+(idx+1)+'"/><div class="img-item-body"><input type="text" placeholder="Title (mandatory) *" value="'+escAttr(e.title)+'" oninput="siteImages['+idx+'].title=this.value;updateChecklist()"/><input type="text" placeholder="Description (optional)" value="'+escAttr(e.desc)+'" oninput="siteImages['+idx+'].desc=this.value"/><button class="btn-remove-img" onclick="removeSiteImg('+idx+')">✕ Remove</button></div>';
+  var grid=document.getElementById('site-img-grid'); grid.innerHTML='';
+  siteImages.forEach(function(e,idx){
+    var div=document.createElement('div'); div.className='img-item';
+    div.innerHTML='<img src="'+e.objectUrl+'" alt="Site '+(idx+1)+'"/><div class="img-item-body"><input type="text" placeholder="Title (mandatory) *" value="'+escAttr(e.title)+'" oninput="siteImages['+idx+'].title=this.value;updateChecklist()"/><input type="text" placeholder="Description (optional)" value="'+escAttr(e.desc)+'" oninput="siteImages['+idx+'].desc=this.value"/><button class="btn-remove-img" onclick="removeSiteImg('+idx+')">✕ Remove</button></div>';
     grid.appendChild(div);
   });
 }
-function removeSiteImg(idx) { URL.revokeObjectURL(siteImages[idx].objectUrl); siteImages.splice(idx,1); renderSiteImgs(); updateChecklist(); }
+function removeSiteImg(idx){URL.revokeObjectURL(siteImages[idx].objectUrl);siteImages.splice(idx,1);renderSiteImgs();updateChecklist();}
 
 // ══════════════════════════════════════════════
 //  CHECKLIST
 // ══════════════════════════════════════════════
 function updateChecklist() {
-  var ok1 = !!verifiedUser;
-  var ok2 = (document.getElementById('f-location')||{value:''}).value.trim().length > 0;
-  var ok3 = (document.getElementById('f-vessel')||{value:''}).value.trim().length > 0;
-  var ok4 = !!audioBase64;
-  setCheck('chk-identity', ok1, 'Identity verified');
-  setCheck('chk-location', ok2, 'Job location entered');
-  setCheck('chk-vessel',   ok3, 'Vessel / rig name entered');
-  setCheck('chk-audio',    ok4, 'Audio recorded');
-  var siteOk = siteImages.length === 0 || siteImages.every(function(img) { return img.title.trim().length > 0; });
-  document.getElementById('btn-finalise').classList.toggle('active', ok1 && ok2 && ok3 && ok4 && siteOk);
+  var ok1=!!verifiedUser;
+  var ok2=(document.getElementById('f-location')||{value:''}).value.trim().length>0;
+  var ok3=(document.getElementById('f-vessel')||{value:''}).value.trim().length>0;
+  var ok4=!!audioBase64;
+  setCheck('chk-identity',ok1,'Identity verified'); setCheck('chk-location',ok2,'Job location entered');
+  setCheck('chk-vessel',ok3,'Vessel / rig name entered'); setCheck('chk-audio',ok4,'Audio recorded');
+  var siteOk=siteImages.length===0||siteImages.every(function(img){return img.title.trim().length>0;});
+  document.getElementById('btn-finalise').classList.toggle('active',ok1&&ok2&&ok3&&ok4&&siteOk);
 }
-function setCheck(id, done, label) {
-  var el = document.getElementById(id); if (!el) return;
-  el.className = 'check-item' + (done?' done':'');
-  el.innerHTML = '<span class="ci">'+(done?'✅':'⬜')+'</span> '+label;
+function setCheck(id,done,label){
+  var el=document.getElementById(id); if(!el)return;
+  el.className='check-item'+(done?' done':'');
+  el.innerHTML='<span class="ci">'+(done?'✅':'⬜')+'</span> '+label;
 }
-function finalise() {
+function finalise(){
   updateChecklist();
-  if (!document.getElementById('btn-finalise').classList.contains('active')) { toast('Please complete all required fields first.','err'); return; }
-  finaliseOk = true;
-  var bf = document.getElementById('btn-finalise');
-  bf.textContent = '✅ Draft Finalised'; bf.classList.remove('active');
-  bf.style.background = 'rgba(0,184,169,0.15)'; bf.style.color = 'var(--teal)'; bf.style.cursor = 'default';
+  if (!document.getElementById('btn-finalise').classList.contains('active')){toast('Please complete all required fields first.','err');return;}
+  finaliseOk=true;
+  var bf=document.getElementById('btn-finalise');
+  bf.textContent='✅ Draft Finalised'; bf.classList.remove('active');
+  bf.style.background='rgba(0,184,169,0.15)'; bf.style.color='var(--teal)'; bf.style.cursor='default';
   document.getElementById('btn-convert').classList.add('active');
-  toast('Draft finalised! Tap Convert to DWR.', 'ok');
-  setTimeout(function() { document.getElementById('btn-convert').scrollIntoView({behavior:'smooth',block:'center'}); }, 300);
+  toast('Draft finalised! Tap Convert to DWR.','ok');
+  setTimeout(function(){document.getElementById('btn-convert').scrollIntoView({behavior:'smooth',block:'center'});},300);
 }
 
 // ══════════════════════════════════════════════
 //  COUNTDOWN
 // ══════════════════════════════════════════════
-function startCountdown(seconds) {
-  var wrap = document.getElementById('countdown-wrap');
-  var num  = document.getElementById('countdown-num');
-  var sub  = document.getElementById('countdown-sub');
-  var bar  = document.getElementById('countdown-bar');
-  wrap.classList.add('show');
-  document.getElementById('report-ready').classList.remove('show');
-  var rem = seconds;
-  num.textContent = rem; num.className = 'countdown-num'; bar.style.width = '100%';
+function startCountdown(seconds){
+  var wrap=document.getElementById('countdown-wrap'),num=document.getElementById('countdown-num'),sub=document.getElementById('countdown-sub'),bar=document.getElementById('countdown-bar');
+  wrap.classList.add('show'); document.getElementById('report-ready').classList.remove('show');
+  var rem=seconds; num.textContent=rem; num.className='countdown-num'; bar.style.width='100%';
   clearInterval(cdInterval);
-  cdInterval = setInterval(function() {
-    rem--;
-    if (rem <= 0) { clearInterval(cdInterval); num.textContent = '0'; bar.style.width = '0%'; return; }
-    num.textContent = rem;
-    if (rem <= 10) num.className = 'countdown-num urgent';
-    bar.style.width = Math.round((rem/seconds)*100)+'%';
-    sub.textContent = rem===1 ? 'second remaining' : 'seconds remaining';
-  }, 1000);
+  cdInterval=setInterval(function(){
+    rem--; if(rem<=0){clearInterval(cdInterval);num.textContent='0';bar.style.width='0%';return;}
+    num.textContent=rem; if(rem<=10)num.className='countdown-num urgent';
+    bar.style.width=Math.round((rem/seconds)*100)+'%';
+    sub.textContent=rem===1?'second remaining':'seconds remaining';
+  },1000);
 }
-function stopCountdown() { clearInterval(cdInterval); document.getElementById('countdown-wrap').classList.remove('show'); }
+function stopCountdown(){clearInterval(cdInterval);document.getElementById('countdown-wrap').classList.remove('show');}
 
 // ══════════════════════════════════════════════
 //  CONVERT TO DWR
 // ══════════════════════════════════════════════
-function convertToDWR() {
-  if (!finaliseOk) { toast('Please finalise the draft first.', 'err'); return; }
-  var estSecs = 45 + (tableImages.length * 12);
-  startCountdown(estSecs);
-  document.getElementById('btn-convert').disabled = true;
-
+function convertToDWR(){
+  if (!finaliseOk){toast('Please finalise the draft first.','err');return;}
+  startCountdown(45+(tableImages.length*12));
+  document.getElementById('btn-convert').disabled=true;
   callWorker({
-    action:      'process_dwr',
-    audio:       audioBase64,
-    audioMime:   audioMime,
-    tableImages: tableImages.map(function(img) { return { base64:img.base64, mimeType:img.file.type||'image/jpeg' }; }),
-    engineerName: verifiedUser.name,
-    location:    document.getElementById('f-location').value.trim(),
-    vessel:      document.getElementById('f-vessel').value.trim(),
-    date:        document.getElementById('f-date').value
+    action:'process_dwr', audio:audioBase64, audioMime:audioMime,
+    tableImages:tableImages.map(function(img){return{base64:img.base64,mimeType:img.file.type||'image/jpeg'};}),
+    engineerName:verifiedUser.name, location:document.getElementById('f-location').value.trim(),
+    vessel:document.getElementById('f-vessel').value.trim(), date:document.getElementById('f-date').value
   })
-  .then(function(result) {
-    stopCountdown();
-    document.getElementById('btn-convert').disabled = false;
-    generatedDWR = result;
-    renderOutput(result);
+  .then(function(result){
+    stopCountdown(); document.getElementById('btn-convert').disabled=false;
+    generatedDWR=result; renderOutput(result);
     document.getElementById('report-ready').classList.add('show');
-    toast('DWR generated! Scroll down to view your report.', 'ok');
+    toast('DWR generated! Scroll down to view your report.','ok');
   })
-  .catch(function(err) {
-    stopCountdown();
-    document.getElementById('btn-convert').disabled = false;
+  .catch(function(err){
+    stopCountdown(); document.getElementById('btn-convert').disabled=false;
     document.getElementById('btn-convert').classList.add('active');
-    toast('Error: ' + (err.message||'Please try again.'), 'err');
+    toast('Error: '+(err.message||'Please try again.'),'err');
   });
 }
 
 // ══════════════════════════════════════════════
-//  RENDER OUTPUT (preview on screen)
+//  RENDER OUTPUT (screen preview)
 // ══════════════════════════════════════════════
-function renderOutput(data) {
-  document.getElementById('out-meta').textContent =
-    'Engineer: '+verifiedUser.name+'\nDate: '+document.getElementById('f-date').value+
-    '\nLocation: '+document.getElementById('f-location').value+'\nVessel / Rig: '+document.getElementById('f-vessel').value;
-
-  var secOut = document.getElementById('out-sections'); secOut.innerHTML = '';
-  SEC_ORDER.forEach(function(key) {
-    var d = (data.sections && data.sections[key]) || {};
-    var txt = (d.polished_text||'').trim();
-    var div = document.createElement('div'); div.className = 'output-card';
-    div.innerHTML = '<div class="oc-label">'+SEC_LABELS[key]+'</div>'+(txt && txt!=='• Nothing reported for this section.'?'<div class="oc-text">'+escHtml(txt)+'</div>':'<div class="oc-empty">Nothing reported for this section.</div>');
+function renderOutput(data){
+  document.getElementById('out-meta').textContent='Engineer: '+verifiedUser.name+'\nDate: '+document.getElementById('f-date').value+'\nLocation: '+document.getElementById('f-location').value+'\nVessel / Rig: '+document.getElementById('f-vessel').value;
+  var secOut=document.getElementById('out-sections'); secOut.innerHTML='';
+  SEC_ORDER.forEach(function(key){
+    var d=(data.sections&&data.sections[key])||{},txt=(d.polished_text||'').trim();
+    var div=document.createElement('div'); div.className='output-card';
+    div.innerHTML='<div class="oc-label">'+SEC_LABELS[key]+'</div>'+(txt&&txt!=='• Nothing reported for this section.'?'<div class="oc-text">'+escHtml(txt)+'</div>':'<div class="oc-empty">Nothing reported for this section.</div>');
     secOut.appendChild(div);
   });
-
-  var tabOut = document.getElementById('out-tables'); tabOut.innerHTML = '';
-  if (data.tables && data.tables.length > 0) {
-    data.tables.forEach(function(tbl, i) {
-      var div = document.createElement('div'); div.className = 'output-card';
-      div.innerHTML = '<div class="oc-label">Table '+(i+1)+'</div><div class="oc-text">'+escHtml(tbl.text||'')+'</div>';
+  var tabOut=document.getElementById('out-tables'); tabOut.innerHTML='';
+  if (data.tables&&data.tables.length>0){
+    data.tables.forEach(function(tbl,i){
+      var div=document.createElement('div'); div.className='output-card';
+      div.innerHTML='<div class="oc-label">Table '+(i+1)+'</div><div class="oc-text">'+escHtml(tbl.text||'')+'</div>';
       tabOut.appendChild(div);
     });
   }
-
-  var photoOut = document.getElementById('out-photos'); photoOut.innerHTML = '';
-  siteImages.forEach(function(img, i) {
-    var div = document.createElement('div'); div.className = 'output-card';
-    div.innerHTML = '<div class="oc-label">Site Photo '+(i+1)+'</div><img class="output-img" src="'+img.objectUrl+'" alt="'+escAttr(img.title)+'"/><div class="output-img-title">'+escHtml(img.title)+'</div>'+(img.desc?'<div class="output-img-desc">'+escHtml(img.desc)+'</div>':'');
+  var photoOut=document.getElementById('out-photos'); photoOut.innerHTML='';
+  siteImages.forEach(function(img,i){
+    var div=document.createElement('div'); div.className='output-card';
+    div.innerHTML='<div class="oc-label">Site Photo '+(i+1)+'</div><img class="output-img" src="'+img.objectUrl+'" alt="'+escAttr(img.title)+'"/><div class="output-img-title">'+escHtml(img.title)+'</div>'+(img.desc?'<div class="output-img-desc">'+escHtml(img.desc)+'</div>':'');
     photoOut.appendChild(div);
   });
-
-  document.getElementById('output-section').style.display = 'block';
+  document.getElementById('output-section').style.display='block';
 }
 
 // ══════════════════════════════════════════════
-//  DOWNLOAD DOCX — using docx.js library
+//  DOWNLOAD XLSX — using SheetJS
 // ══════════════════════════════════════════════
-async function downloadDOCX() {
-  if (!generatedDWR) { toast('No report generated yet.','err'); return; }
-  var btn = document.getElementById('btn-docx');
-  btn.disabled = true; btn.textContent = '⏳ Generating DOCX…';
+function downloadXLSX(){
+  if (!generatedDWR){toast('No report generated yet.','err');return;}
+  var btn=document.getElementById('btn-xlsx');
+  btn.disabled=true; btn.textContent='⏳ Generating XLSX…';
 
   try {
-    const { Document, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType,
-            BorderStyle, AlignmentType, ImageRun, Packer, ShadingType, convertInchesToTwip } = docx;
+    var wb = XLSX.utils.book_new();
 
-    const children = [];
+    // ── SHEET 1: DWR REPORT ──────────────────────────────
+    var wsData = [];
 
-    // ── Title ──
-    children.push(new Paragraph({
-      children: [new TextRun({ text: 'NEPTUNUS POWER PLANT SERVICES', bold: true, size: 36, color: '0A1628' })],
-      heading: HeadingLevel.HEADING_1,
-      alignment: AlignmentType.CENTER,
-    }));
-    children.push(new Paragraph({
-      children: [new TextRun({ text: 'Daily Working Report', size: 28 })],
-      alignment: AlignmentType.CENTER,
-    }));
-    children.push(new Paragraph({ children: [new TextRun({ text: '' })] }));
+    // Title rows
+    wsData.push(['NEPTUNUS POWER PLANT SERVICES']);
+    wsData.push(['Daily Working Report']);
+    wsData.push([]);
 
-    // ── Meta table ──
-    const metaRows = [
-      ['Engineer', verifiedUser.name],
-      ['Date', document.getElementById('f-date').value],
-      ['Location', document.getElementById('f-location').value],
-      ['Vessel / Rig', document.getElementById('f-vessel').value]
+    // Meta
+    wsData.push(['Engineer', verifiedUser.name]);
+    wsData.push(['Date', document.getElementById('f-date').value]);
+    wsData.push(['Location', document.getElementById('f-location').value]);
+    wsData.push(['Vessel / Rig', document.getElementById('f-vessel').value]);
+    wsData.push([]);
+    wsData.push(['─────────────────────────────────────────────────────────────────────']);
+    wsData.push([]);
+
+    // 7 sections
+    SEC_ORDER.forEach(function(key){
+      var label=SEC_LABELS[key];
+      var d=(generatedDWR.sections&&generatedDWR.sections[key])||{};
+      var txt=(d.polished_text||'• Nothing reported for this section.').trim();
+      wsData.push([label.toUpperCase()]);
+      txt.split('\n').forEach(function(line){
+        var clean=line.trim();
+        if (clean) wsData.push(['', clean]);
+      });
+      wsData.push([]);
+    });
+
+    var ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Column widths
+    ws['!cols'] = [{ wch: 35 }, { wch: 90 }];
+
+    // Merge title cells
+    ws['!merges'] = [
+      { s:{r:0,c:0}, e:{r:0,c:1} },
+      { s:{r:1,c:0}, e:{r:1,c:1} }
     ];
-    children.push(new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: metaRows.map(function(row) {
-        return new TableRow({ children: [
-          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: row[0], bold: true })] })], width: { size: 30, type: WidthType.PERCENTAGE } }),
-          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: row[1] })] })] })
-        ]});
-      })
-    }));
-    children.push(new Paragraph({ children: [new TextRun('')] }));
 
-    // ── 7 Sections ──
-    for (var ki = 0; ki < SEC_ORDER.length; ki++) {
-      var key   = SEC_ORDER[ki];
-      var label = SEC_LABELS[key];
-      var d     = (generatedDWR.sections && generatedDWR.sections[key]) || {};
-      var txt   = (d.polished_text || '• Nothing reported for this section.').trim();
+    XLSX.utils.book_append_sheet(wb, ws, 'DWR Report');
 
-      children.push(new Paragraph({
-        children: [new TextRun({ text: label.toUpperCase(), bold: true, color: '1E3A5F', size: 24 })],
-        heading: HeadingLevel.HEADING_3,
-        thematicBreak: false,
-      }));
-
-      var lines = txt.split('\n');
-      for (var li = 0; li < lines.length; li++) {
-        var line = lines[li].replace(/^[•\-\*]\s*/, '').trim();
-        if (line) {
-          children.push(new Paragraph({
-            children: [new TextRun({ text: '• ' + line })],
-            indent: { left: convertInchesToTwip(0.25) }
-          }));
-        }
-      }
-      children.push(new Paragraph({ children: [new TextRun('')] }));
-    }
-
-    // ── Tables from images ──
+    // ── SHEET 2: TABLES (one sheet per table image) ──────
     if (generatedDWR.tables && generatedDWR.tables.length > 0) {
-      children.push(new Paragraph({
-        children: [new TextRun({ text: 'MEASUREMENT TABLES', bold: true, color: '1E3A5F', size: 24 })],
-        heading: HeadingLevel.HEADING_3
-      }));
+      generatedDWR.tables.forEach(function(tbl, ti){
+        var tableLines=(tbl.text||'').split('\n').filter(function(l){return l.trim().length>0;});
+        var tableData=[];
 
-      generatedDWR.tables.forEach(function(tbl, ti) {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: 'Table ' + (ti + 1), bold: true })]
-        }));
-
-        // Parse CSV-like table text into a proper Word table
-        var tableLines = (tbl.text || '').split('\n').filter(function(l) { return l.trim().length > 0; });
         if (tableLines.length > 0) {
-          var tableRows = tableLines.map(function(line) {
-            // Split by comma or tab or pipe
-            var cells = line.split(/,|\t|\|/).map(function(c) { return c.trim(); });
-            return new TableRow({
-              children: cells.map(function(cell, ci) {
-                return new TableCell({
-                  children: [new Paragraph({ children: [new TextRun({ text: cell, bold: ci === 0 || tableLines.indexOf(line) === 0 })] })],
-                  shading: tableLines.indexOf(line) === 0 ? { fill: 'E8ECF5', type: ShadingType.CLEAR } : undefined
-                });
-              })
+          tableLines.forEach(function(line){
+            // Split by comma, pipe, or tab
+            var cells=line.split(/\||,|\t/).map(function(c){
+              return c.replace(/^\s*\*+\s*|\s*\*+\s*$/g,'').trim();
+            }).filter(function(c,i,arr){
+              // Remove empty first/last cells from pipe-delimited tables
+              return !(i===0&&c==='')||!(i===arr.length-1&&c==='');
             });
+            if (cells.some(function(c){return c.length>0;})) tableData.push(cells);
           });
-          children.push(new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: tableRows
-          }));
-        } else {
-          children.push(new Paragraph({ children: [new TextRun({ text: tbl.text || '' })] }));
         }
-        children.push(new Paragraph({ children: [new TextRun('')] }));
+
+        if (tableData.length > 0) {
+          var tws = XLSX.utils.aoa_to_sheet(tableData);
+          // Auto column widths
+          var maxCols = Math.max.apply(null, tableData.map(function(r){return r.length;}));
+          tws['!cols'] = [];
+          for (var ci=0; ci<maxCols; ci++) {
+            var maxW = 10;
+            tableData.forEach(function(row){
+              if (row[ci] && String(row[ci]).length > maxW) maxW = Math.min(String(row[ci]).length, 40);
+            });
+            tws['!cols'].push({ wch: maxW });
+          }
+          XLSX.utils.book_append_sheet(wb, tws, 'Table ' + (ti+1));
+        }
       });
     }
 
-    // ── Site Photos ──
+    // ── SHEET 3: SITE PHOTOS INFO ────────────────────────
     if (siteImages.length > 0) {
-      children.push(new Paragraph({
-        children: [new TextRun({ text: 'SITE PHOTOGRAPHS', bold: true, color: '1E3A5F', size: 24 })],
-        heading: HeadingLevel.HEADING_3
-      }));
-
-      for (var si = 0; si < siteImages.length; si++) {
-        var sImg = siteImages[si];
-        children.push(new Paragraph({
-          children: [new TextRun({ text: 'Photo ' + (si + 1) + ': ' + sImg.title, bold: true })]
-        }));
-        if (sImg.desc) {
-          children.push(new Paragraph({ children: [new TextRun({ text: sImg.desc, italics: true })] }));
-        }
-        // Embed image
-        if (sImg.base64) {
-          try {
-            var imgBytes = base64ToUint8(sImg.base64);
-            children.push(new Paragraph({
-              children: [new ImageRun({
-                data: imgBytes,
-                transformation: { width: 500, height: 350 },
-                type: sImg.file.type && sImg.file.type.includes('png') ? 'png' : 'jpg'
-              })],
-              alignment: AlignmentType.CENTER
-            }));
-          } catch(imgErr) {
-            children.push(new Paragraph({ children: [new TextRun({ text: '[Image could not be embedded]', italics: true, color: '888888' })] }));
-          }
-        }
-        children.push(new Paragraph({ children: [new TextRun('')] }));
-      }
+      var photoData = [['Photo #', 'Title', 'Description', 'Note']];
+      siteImages.forEach(function(img, i){
+        photoData.push([
+          'Photo ' + (i+1),
+          img.title,
+          img.desc || '',
+          'See PDF download for embedded photos'
+        ]);
+      });
+      var pws = XLSX.utils.aoa_to_sheet(photoData);
+      pws['!cols'] = [{wch:10},{wch:40},{wch:40},{wch:35}];
+      XLSX.utils.book_append_sheet(wb, pws, 'Site Photos');
     }
 
-    // ── Build and download ──
-    const doc = new Document({
-      sections: [{
-        properties: {},
-        children: children
-      }]
-    });
+    // Generate and download
+    var safeName=verifiedUser.name.replace(/[^a-zA-Z0-9]/g,'_');
+    var safeDate=new Date().toISOString().split('T')[0];
+    var fileName='NPPS_DWR_'+safeName+'_'+safeDate+'.xlsx';
 
-    const blob = await Packer.toBlob(doc);
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    var safeName = verifiedUser.name.replace(/[^a-zA-Z0-9]/g,'_');
-    var safeDate = new Date().toISOString().split('T')[0];
-    a.href = url; a.download = 'NPPS_DWR_' + safeName + '_' + safeDate + '.docx';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+    XLSX.writeFile(wb, fileName);
 
-    btn.disabled = false; btn.textContent = '📝 Download DOCX';
-    toast('DOCX downloaded!', 'ok');
+    btn.disabled=false; btn.textContent='📊 Download XLSX';
+    toast('XLSX downloaded! Open in Google Sheets.','ok');
 
   } catch(e) {
-    btn.disabled = false; btn.textContent = '📝 Download DOCX';
-    toast('DOCX error: ' + e.message, 'err');
+    btn.disabled=false; btn.textContent='📊 Download XLSX';
+    toast('XLSX error: '+e.message,'err');
     console.error(e);
   }
 }
@@ -927,199 +777,157 @@ async function downloadDOCX() {
 // ══════════════════════════════════════════════
 //  DOWNLOAD PDF — using jsPDF + autoTable
 // ══════════════════════════════════════════════
-async function downloadPDF() {
-  if (!generatedDWR) { toast('No report generated yet.','err'); return; }
-  var btn = document.getElementById('btn-pdf');
-  btn.disabled = true; btn.textContent = '⏳ Generating PDF…';
+async function downloadPDF(){
+  if (!generatedDWR){toast('No report generated yet.','err');return;}
+  var btn=document.getElementById('btn-pdf');
+  btn.disabled=true; btn.textContent='⏳ Generating PDF…';
 
   try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    var jsPDFLib=window.jspdf; if(!jsPDFLib)jsPDFLib={jsPDF:jsPDF};
+    var doc=new jsPDFLib.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var pageW=doc.internal.pageSize.getWidth(), pageH=doc.internal.pageSize.getHeight(), margin=15, y=margin;
 
-    var pageW = doc.internal.pageSize.getWidth();
-    var pageH = doc.internal.pageSize.getHeight();
-    var margin = 15;
-    var y = margin;
+    function checkPage(needed){if(y+needed>pageH-margin){doc.addPage();y=margin;}}
 
-    function checkPage(needed) {
-      if (y + needed > pageH - margin) { doc.addPage(); y = margin; }
-    }
+    // Header
+    doc.setFillColor(10,22,40); doc.rect(0,0,pageW,22,'F');
+    doc.setTextColor(245,166,35); doc.setFontSize(15); doc.setFont('helvetica','bold');
+    doc.text('NEPTUNUS POWER PLANT SERVICES',pageW/2,9,{align:'center'});
+    doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(200,210,230);
+    doc.text('Daily Working Report',pageW/2,16,{align:'center'});
+    y=30;
 
-    // ── Header ──
-    doc.setFillColor(10, 22, 40);
-    doc.rect(0, 0, pageW, 20, 'F');
-    doc.setTextColor(245, 166, 35);
-    doc.setFontSize(14); doc.setFont('helvetica','bold');
-    doc.text('NEPTUNUS POWER PLANT SERVICES', pageW/2, 8, { align:'center' });
-    doc.setFontSize(10); doc.setFont('helvetica','normal');
-    doc.setTextColor(200, 210, 230);
-    doc.text('Daily Working Report', pageW/2, 14, { align:'center' });
-    y = 28;
-
-    // ── Meta table ──
+    // Meta table
     doc.autoTable({
-      startY: y,
-      head: [],
-      body: [
-        ['Engineer', verifiedUser.name],
-        ['Date', document.getElementById('f-date').value],
-        ['Location', document.getElementById('f-location').value],
-        ['Vessel / Rig', document.getElementById('f-vessel').value]
+      startY:y,
+      head:[],
+      body:[
+        ['Engineer',verifiedUser.name],
+        ['Date',document.getElementById('f-date').value],
+        ['Location',document.getElementById('f-location').value],
+        ['Vessel / Rig',document.getElementById('f-vessel').value]
       ],
-      columnStyles: { 0: { fontStyle:'bold', cellWidth:35, fillColor:[232,236,245] }, 1: { cellWidth:'auto' } },
-      margin: { left:margin, right:margin },
-      styles: { fontSize:9, cellPadding:3 },
-      theme: 'grid'
+      columnStyles:{0:{fontStyle:'bold',cellWidth:35,fillColor:[232,236,245]},1:{cellWidth:'auto'}},
+      margin:{left:margin,right:margin},
+      styles:{fontSize:9,cellPadding:3},
+      theme:'grid'
     });
-    y = doc.lastAutoTable.finalY + 6;
+    y=doc.lastAutoTable.finalY+8;
 
-    // ── 7 Sections ──
-    for (var ki = 0; ki < SEC_ORDER.length; ki++) {
-      var key   = SEC_ORDER[ki];
-      var label = SEC_LABELS[key];
-      var d     = (generatedDWR.sections && generatedDWR.sections[key]) || {};
-      var txt   = (d.polished_text || '• Nothing reported for this section.').trim();
-
+    // 7 sections
+    for (var ki=0;ki<SEC_ORDER.length;ki++){
+      var key=SEC_ORDER[ki],label=SEC_LABELS[key];
+      var d=(generatedDWR.sections&&generatedDWR.sections[key])||{};
+      var txt=(d.polished_text||'• Nothing reported for this section.').trim();
       checkPage(16);
-      doc.setFillColor(30, 58, 95);
-      doc.rect(margin, y, pageW - margin*2, 7, 'F');
+      doc.setFillColor(30,58,95); doc.rect(margin,y,pageW-margin*2,7,'F');
       doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-      doc.text(label.toUpperCase(), margin+2, y+5);
-      y += 9;
-
-      doc.setTextColor(50,50,50); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      var lines = txt.split('\n');
-      for (var li = 0; li < lines.length; li++) {
-        var line = lines[li].trim();
-        if (!line) continue;
-        var wrapped = doc.splitTextToSize(line, pageW - margin*2 - 4);
-        checkPage(wrapped.length * 5 + 3);
-        doc.text(wrapped, margin+3, y);
-        y += wrapped.length * 5 + 1;
-      }
-      y += 4;
+      doc.text(label.toUpperCase(),margin+2,y+5); y+=9;
+      doc.setTextColor(40,40,40); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+      txt.split('\n').forEach(function(line){
+        var l=line.trim(); if(!l)return;
+        var wrapped=doc.splitTextToSize(l,pageW-margin*2-4);
+        checkPage(wrapped.length*5+2); doc.text(wrapped,margin+3,y); y+=wrapped.length*5+1;
+      });
+      y+=5;
     }
 
-    // ── Tables ──
-    if (generatedDWR.tables && generatedDWR.tables.length > 0) {
-      generatedDWR.tables.forEach(function(tbl, ti) {
-        checkPage(20);
-        doc.setFillColor(30, 58, 95);
-        doc.rect(margin, y, pageW-margin*2, 7, 'F');
-        doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-        doc.text('TABLE ' + (ti+1), margin+2, y+5);
-        y += 9;
+    // Tables
+    if (generatedDWR.tables&&generatedDWR.tables.length>0){
+      generatedDWR.tables.forEach(function(tbl,ti){
+        var tableLines=(tbl.text||'').split('\n').filter(function(l){return l.trim().length>0;});
+        if (tableLines.length<2) return;
 
-        var tableLines = (tbl.text||'').split('\n').filter(function(l){return l.trim().length>0;});
-        if (tableLines.length > 1) {
-          var headers = tableLines[0].split(/,|\t|\|/).map(function(c){return c.trim();});
-          var rows    = tableLines.slice(1).map(function(l){return l.split(/,|\t|\|/).map(function(c){return c.trim();});});
+        checkPage(20);
+        doc.setFillColor(30,58,95); doc.rect(margin,y,pageW-margin*2,7,'F');
+        doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
+        doc.text('TABLE '+(ti+1),margin+2,y+5); y+=9;
+
+        // Parse table rows
+        var parsedRows=tableLines.map(function(line){
+          return line.split(/\||,|\t/).map(function(c){return c.replace(/^\s*\*+\s*|\s*\*+\s*$/g,'').trim();})
+            .filter(function(c,i,arr){return !((i===0||i===arr.length-1)&&c==='');});
+        }).filter(function(row){return row.some(function(c){return c.length>0;});});
+
+        if (parsedRows.length>1){
           doc.autoTable({
-            startY: y,
-            head: [headers],
-            body: rows,
-            margin: { left:margin, right:margin },
-            styles: { fontSize:7.5, cellPadding:2 },
-            headStyles: { fillColor:[30,58,95], textColor:255 },
-            alternateRowStyles: { fillColor:[240,244,248] },
-            theme: 'grid'
+            startY:y,
+            head:[parsedRows[0]],
+            body:parsedRows.slice(1),
+            margin:{left:margin,right:margin},
+            styles:{fontSize:7,cellPadding:2,overflow:'linebreak'},
+            headStyles:{fillColor:[30,58,95],textColor:255,fontStyle:'bold'},
+            alternateRowStyles:{fillColor:[240,244,248]},
+            theme:'grid'
           });
-          y = doc.lastAutoTable.finalY + 6;
-        } else {
-          doc.setTextColor(50,50,50); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-          var wrapped2 = doc.splitTextToSize(tbl.text||'', pageW-margin*2);
-          checkPage(wrapped2.length*5+4);
-          doc.text(wrapped2, margin+2, y); y += wrapped2.length*5+4;
+          y=doc.lastAutoTable.finalY+6;
         }
       });
     }
 
-    // ── Site Photos ──
-    if (siteImages.length > 0) {
+    // Site photos
+    if (siteImages.length>0){
       checkPage(16);
-      doc.setFillColor(30, 58, 95);
-      doc.rect(margin, y, pageW-margin*2, 7, 'F');
+      doc.setFillColor(30,58,95); doc.rect(margin,y,pageW-margin*2,7,'F');
       doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-      doc.text('SITE PHOTOGRAPHS', margin+2, y+5);
-      y += 9;
+      doc.text('SITE PHOTOGRAPHS',margin+2,y+5); y+=9;
 
-      for (var si = 0; si < siteImages.length; si++) {
-        var sImg = siteImages[si];
-        checkPage(100);
+      for (var si=0;si<siteImages.length;si++){
+        var sImg=siteImages[si];
+        checkPage(110);
         doc.setTextColor(30,58,95); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-        doc.text('Photo '+(si+1)+': '+sImg.title, margin, y); y += 5;
-        if (sImg.desc) {
-          doc.setFont('helvetica','italic'); doc.setTextColor(100,100,100); doc.setFontSize(8);
-          doc.text(sImg.desc, margin, y); y += 4;
+        doc.text('Photo '+(si+1)+': '+sImg.title,margin,y); y+=5;
+        if (sImg.desc){doc.setFont('helvetica','italic');doc.setTextColor(100,100,100);doc.setFontSize(8);doc.text(sImg.desc,margin,y);y+=4;}
+        if (sImg.base64){
+          try{
+            var fmt=sImg.file.type&&sImg.file.type.includes('png')?'PNG':'JPEG';
+            var imgUrl='data:'+(sImg.file.type||'image/jpeg')+';base64,'+sImg.base64;
+            var maxImgW=pageW-margin*2, maxImgH=85;
+            checkPage(maxImgH+8);
+            doc.addImage(imgUrl,fmt,margin,y,maxImgW,maxImgH,undefined,'FAST');
+            y+=maxImgH+4;
+          }catch(ie){doc.setTextColor(180,0,0);doc.setFontSize(8);doc.text('[Image could not be embedded]',margin,y);y+=5;}
         }
-        if (sImg.base64) {
-          try {
-            var imgFormat = sImg.file.type && sImg.file.type.includes('png') ? 'PNG' : 'JPEG';
-            var imgDataUrl = 'data:' + (sImg.file.type||'image/jpeg') + ';base64,' + sImg.base64;
-            var maxW = pageW - margin*2;
-            var maxH = 80;
-            checkPage(maxH + 8);
-            doc.addImage(imgDataUrl, imgFormat, margin, y, maxW, maxH, undefined, 'FAST');
-            y += maxH + 4;
-          } catch(imgErr) {
-            doc.setTextColor(180,0,0); doc.setFont('helvetica','italic'); doc.setFontSize(8);
-            doc.text('[Image could not be embedded]', margin, y); y += 5;
-          }
-        }
-        y += 4;
+        y+=4;
       }
     }
 
-    // ── Footer on each page ──
-    var totalPages = doc.internal.getNumberOfPages();
-    for (var pi = 1; pi <= totalPages; pi++) {
-      doc.setPage(pi);
-      doc.setFontSize(7); doc.setTextColor(150,150,150); doc.setFont('helvetica','normal');
-      doc.text('NPPS DWR — '+verifiedUser.name+' — '+new Date().toLocaleDateString(), margin, pageH-8);
-      doc.text('Page '+pi+' of '+totalPages, pageW-margin, pageH-8, { align:'right' });
+    // Footer
+    var totalPages=doc.internal.getNumberOfPages();
+    for (var pi=1;pi<=totalPages;pi++){
+      doc.setPage(pi); doc.setFontSize(7); doc.setTextColor(150,150,150); doc.setFont('helvetica','normal');
+      doc.text('NPPS DWR — '+verifiedUser.name+' — '+new Date().toLocaleDateString(),margin,pageH-8);
+      doc.text('Page '+pi+' of '+totalPages,pageW-margin,pageH-8,{align:'right'});
     }
 
-    var safeName = verifiedUser.name.replace(/[^a-zA-Z0-9]/g,'_');
-    var safeDate = new Date().toISOString().split('T')[0];
+    var safeName=verifiedUser.name.replace(/[^a-zA-Z0-9]/g,'_');
+    var safeDate=new Date().toISOString().split('T')[0];
     doc.save('NPPS_DWR_'+safeName+'_'+safeDate+'.pdf');
 
-    btn.disabled = false; btn.textContent = '📄 Download PDF';
-    toast('PDF downloaded!', 'ok');
+    btn.disabled=false; btn.textContent='📄 Download PDF';
+    toast('PDF downloaded!','ok');
 
-  } catch(e) {
-    btn.disabled = false; btn.textContent = '📄 Download PDF';
-    toast('PDF error: ' + e.message, 'err');
-    console.error(e);
+  } catch(e){
+    btn.disabled=false; btn.textContent='📄 Download PDF';
+    toast('PDF error: '+e.message,'err'); console.error(e);
   }
 }
 
 // ══════════════════════════════════════════════
 //  UTILITIES
 // ══════════════════════════════════════════════
-function callWorker(data) {
-  return fetch(WORKER_URL, {
-    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
-  }).then(function(r) { if (!r.ok) throw new Error('Server error '+r.status); return r.json(); });
+function callWorker(data){
+  return fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+    .then(function(r){if(!r.ok)throw new Error('Server error '+r.status);return r.json();});
 }
-function readB64(file, cb) {
-  var reader = new FileReader();
-  reader.onload = function(e) { cb(e.target.result.split(',')[1]); };
-  reader.readAsDataURL(file);
+function readB64(file,cb){var reader=new FileReader();reader.onload=function(e){cb(e.target.result.split(',')[1]);};reader.readAsDataURL(file);}
+function resetApp(){location.reload();}
+function toast(msg,type){
+  var el=document.getElementById('toast'); el.textContent=msg; el.className='toast on '+(type||'');
+  clearTimeout(el._t); el._t=setTimeout(function(){el.className='toast';},5000);
 }
-function base64ToUint8(b64) {
-  var binary = atob(b64);
-  var bytes = new Uint8Array(binary.length);
-  for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
-function resetApp() { location.reload(); }
-function toast(msg, type) {
-  var el = document.getElementById('toast');
-  el.textContent = msg; el.className = 'toast on '+(type||'');
-  clearTimeout(el._t); el._t = setTimeout(function(){el.className='toast';},5000);
-}
-function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>'); }
-function escAttr(s) { return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');}
+function escAttr(s){return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 </script>
 </body>
 </html>
