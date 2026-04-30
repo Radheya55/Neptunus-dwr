@@ -1,0 +1,22 @@
+{
+  "name": "NPPS DWR Generator",
+  "short_name": "NPPS DWR",
+  "description": "Neptunus Power Plant Services — Daily Working Report",
+  "start_url": "/Neptunus-dwr/",
+  "display": "standalone",
+  "background_color": "#0a1628",
+  "theme_color": "#f5a623",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/0a1628/f5a623?text=NP",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/0a1628/f5a623?text=NP",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
