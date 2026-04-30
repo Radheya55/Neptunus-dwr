@@ -86,10 +86,7 @@ body {
   font-size: 2.4rem;
   box-shadow: 0 0 40px rgba(245,166,35,0.2);
 }
-.land-title {
-  font-size: 2rem; font-weight: 800;
-  color: var(--white); line-height: 1.1;
-}
+.land-title { font-size: 2rem; font-weight: 800; color: var(--white); line-height: 1.1; }
 .land-title span { color: var(--accent); }
 .land-sub { color: var(--muted); font-size: 0.9rem; max-width: 320px; }
 .btn-cta {
@@ -158,25 +155,21 @@ body {
   transition: border-color 0.2s;
   -webkit-appearance: none;
 }
-.field input:focus, .field select:focus {
-  outline: none;
-  border-color: var(--accent);
-}
+.field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
 .field input::placeholder { color: var(--muted); }
 .field select option { background: var(--navy2); color: var(--white); }
 .field .auto-fill {
   background: rgba(0,184,169,0.1);
-  border-color: rgba(0,184,169,0.3);
+  border: 1px solid rgba(0,184,169,0.3);
   color: var(--teal);
   font-size: 0.85rem;
   padding: 0.5rem 0.9rem;
   border-radius: 8px;
-  border: 1px solid rgba(0,184,169,0.3);
   margin-top: 0.3rem;
   display: none;
 }
 
-/* ── PROCEED BUTTON ── */
+/* ── BUTTONS ── */
 .btn-proceed {
   width: 100%;
   background: var(--steel);
@@ -191,19 +184,52 @@ body {
   margin-top: 0.5rem;
 }
 .btn-proceed.active {
-  background: var(--accent);
-  color: var(--navy);
+  background: var(--accent); color: var(--navy);
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(245,166,35,0.35);
 }
 .btn-proceed.active:hover { background: var(--accent2); }
 
-/* ── LOCKED SECTIONS ── */
+/* ── LOCKED ── */
 .locked { opacity: 0.35; pointer-events: none; }
 
-/* ── AUDIO RECORDER ── */
+/* ── BAR CHART VISUALISER ── */
+.visualiser-wrap {
+  background: rgba(0,0,0,0.4);
+  border-radius: 10px;
+  padding: 0.8rem 0.5rem 0.4rem;
+  margin-bottom: 0.8rem;
+  height: 80px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  overflow: hidden;
+}
+.vis-bar {
+  width: 8px;
+  background: var(--accent);
+  border-radius: 3px 3px 0 0;
+  height: 4px;
+  transition: height 0.05s ease;
+  position: relative;
+}
+.vis-bar::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
+  opacity: 0.9;
+}
+.vis-bar.idle { background: var(--steel); height: 4px; }
+
+/* ── RECORDER ── */
 .recorder-wrap { text-align: center; }
-.rec-btn-wrap { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+.rec-btn-row { display: flex; align-items: center; justify-content: center; gap: 1.2rem; margin-bottom: 0.8rem; }
 .btn-record {
   width: 72px; height: 72px;
   border-radius: 50%;
@@ -214,287 +240,246 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   display: flex; align-items: center; justify-content: center;
-  position: relative;
 }
 .btn-record.recording {
   background: var(--danger);
   border-color: var(--danger);
-  box-shadow: 0 0 0 0 rgba(224,85,85,0.7);
   animation: pulse-rec 1.5s infinite;
 }
-.btn-record.paused {
-  background: var(--accent2);
-  border-color: var(--accent);
-}
+.btn-record.paused { background: var(--accent2); border-color: var(--accent); }
 @keyframes pulse-rec {
   0%   { box-shadow: 0 0 0 0 rgba(224,85,85,0.7); }
   70%  { box-shadow: 0 0 0 14px rgba(224,85,85,0); }
   100% { box-shadow: 0 0 0 0 rgba(224,85,85,0); }
 }
-.btn-rec-small {
-  width: 44px; height: 44px;
+.btn-rec-sm {
+  width: 46px; height: 46px;
   border-radius: 50%;
   border: 2px solid rgba(255,255,255,0.2);
   background: rgba(255,255,255,0.06);
   color: var(--light);
-  font-size: 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.2s;
   display: flex; align-items: center; justify-content: center;
 }
-.btn-rec-small:hover { border-color: var(--accent); color: var(--accent); }
-.btn-rec-small:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-rec-sm:hover { border-color: var(--accent); color: var(--accent); }
+.btn-rec-sm:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* Waveform */
-.waveform-wrap {
-  background: rgba(0,0,0,0.3);
-  border-radius: 8px;
-  padding: 0.6rem;
-  margin-bottom: 0.8rem;
-  height: 50px;
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
+.rec-timer {
+  font-size: 2rem; font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: var(--white); margin-bottom: 0.4rem;
 }
-#waveform-canvas { width: 100%; height: 100%; }
-
-.rec-status {
-  font-size: 0.8rem;
-  color: var(--muted);
-  margin-bottom: 0.5rem;
-  min-height: 20px;
-}
+.rec-status { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.6rem; min-height: 20px; }
 .rec-status .dot {
-  display: inline-block;
-  width: 8px; height: 8px;
-  background: var(--danger);
-  border-radius: 50%;
-  margin-right: 5px;
-  animation: blink 1s infinite;
+  display: inline-block; width: 8px; height: 8px;
+  background: var(--danger); border-radius: 50%;
+  margin-right: 5px; animation: blink 1s infinite;
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-.rec-timer {
-  font-size: 1.8rem; font-weight: 700;
-  font-family: 'Courier New', monospace;
-  color: var(--white);
-  margin-bottom: 0.5rem;
-}
-
-.lang-detect {
+.lang-box {
   background: rgba(245,166,35,0.08);
-  border: 1px solid rgba(245,166,35,0.2);
-  border-radius: 8px;
-  padding: 0.5rem 0.8rem;
-  font-size: 0.78rem;
-  color: var(--accent);
-  margin-bottom: 0.8rem;
-  display: none;
-  text-align: left;
+  border: 1px solid rgba(245,166,35,0.25);
+  border-radius: 8px; padding: 0.5rem 0.8rem;
+  font-size: 0.78rem; color: var(--accent);
+  margin-bottom: 0.8rem; display: none; text-align: left;
 }
-.lang-detect.show { display: block; }
+.lang-box.show { display: block; }
 
-/* Audio playback */
-.audio-playback {
-  display: none;
-  margin-top: 0.8rem;
-}
+.audio-playback { display: none; margin-top: 0.8rem; }
 .audio-playback.show { display: block; }
-.audio-playback audio {
-  width: 100%;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-}
+.audio-playback audio { width: 100%; border-radius: 8px; margin-bottom: 0.5rem; }
 .btn-rerecord {
   width: 100%;
   background: transparent;
   border: 1px solid rgba(224,85,85,0.4);
-  color: var(--danger);
-  border-radius: 8px;
-  padding: 0.5rem;
-  font-size: 0.85rem; font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  color: var(--danger); border-radius: 8px;
+  padding: 0.5rem; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
 }
 .btn-rerecord:hover { background: rgba(224,85,85,0.1); }
 
-/* ── IMAGE UPLOAD SECTIONS ── */
+/* ── IMAGE UPLOAD ── */
 .upload-zone {
   border: 2px dashed rgba(245,166,35,0.35);
-  border-radius: var(--r);
-  padding: 1.5rem 1rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 0.8rem;
+  border-radius: var(--r); padding: 1.5rem 1rem;
+  text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 0.8rem;
 }
 .upload-zone:hover { border-color: var(--accent); background: rgba(245,166,35,0.04); }
 .upload-zone .uz-icon { font-size: 2rem; margin-bottom: 0.4rem; }
 .upload-zone .uz-text { font-size: 0.85rem; color: var(--muted); }
 .upload-zone input[type="file"] { display: none; }
 
-/* Image preview grid */
 .img-grid { display: flex; flex-direction: column; gap: 0.8rem; }
 .img-item {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  overflow: hidden;
+  border-radius: 10px; overflow: hidden;
 }
-.img-item img {
-  width: 100%;
-  max-height: 180px;
-  object-fit: cover;
-  display: block;
-}
+.img-item img { width: 100%; max-height: 180px; object-fit: cover; display: block; }
 .img-item-body { padding: 0.7rem; }
 .img-item-body input {
   width: 100%;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 6px;
-  color: var(--white);
-  padding: 0.5rem 0.7rem;
-  font-size: 0.88rem;
-  margin-bottom: 0.4rem;
+  border-radius: 6px; color: var(--white);
+  padding: 0.5rem 0.7rem; font-size: 0.88rem; margin-bottom: 0.4rem;
 }
 .img-item-body input:focus { outline: none; border-color: var(--accent); }
 .img-item-body input::placeholder { color: var(--muted); }
 .btn-remove-img {
   background: transparent;
   border: 1px solid rgba(224,85,85,0.35);
-  color: var(--danger);
-  border-radius: 6px;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.75rem; font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 0.3rem;
+  color: var(--danger); border-radius: 6px;
+  padding: 0.3rem 0.7rem; font-size: 0.75rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; margin-top: 0.3rem;
 }
 .btn-remove-img:hover { background: rgba(224,85,85,0.1); }
 
-/* ── FINALISE BUTTON ── */
+/* ── FINALISE ── */
 .btn-finalise {
   width: 100%;
-  background: var(--steel);
-  color: var(--muted);
+  background: var(--steel); color: var(--muted);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--r);
-  padding: 1rem;
+  border-radius: var(--r); padding: 1rem;
   font-size: 1rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.06em;
-  cursor: not-allowed;
-  transition: all 0.3s;
-  margin-top: 0.5rem;
+  cursor: not-allowed; transition: all 0.3s; margin-top: 0.5rem;
 }
 .btn-finalise.active {
-  background: var(--teal);
-  color: var(--navy);
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,184,169,0.35);
+  background: var(--teal); color: var(--navy);
+  cursor: pointer; box-shadow: 0 4px 16px rgba(0,184,169,0.35);
 }
 .btn-finalise.active:hover { filter: brightness(1.1); }
 
-/* ── CONVERT BUTTON ── */
 .btn-convert {
   width: 100%;
-  background: var(--steel);
-  color: var(--muted);
+  background: var(--steel); color: var(--muted);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--r);
-  padding: 1rem;
+  border-radius: var(--r); padding: 1rem;
   font-size: 1rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.06em;
-  cursor: not-allowed;
-  transition: all 0.3s;
-  margin-top: 0.5rem;
-  display: none;
+  cursor: not-allowed; transition: all 0.3s;
+  margin-top: 0.5rem; display: none;
 }
 .btn-convert.show { display: block; }
 .btn-convert.active {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: var(--navy);
-  cursor: pointer;
+  color: var(--navy); cursor: pointer;
   box-shadow: 0 4px 20px rgba(245,166,35,0.4);
 }
 .btn-convert.active:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-/* ── OUTPUT SECTION ── */
+/* ── CHECKLIST ── */
+.checklist { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.8rem; }
+.check-item { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; color: var(--muted); }
+.check-item.done { color: var(--teal); }
+.check-item .ci { font-size: 1rem; }
+
+/* ── COUNTDOWN TIMER ── */
+.countdown-wrap {
+  display: none;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+.countdown-wrap.show { display: block; }
+.countdown-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 0.3rem; }
+.countdown-num {
+  font-family: 'Courier New', monospace;
+  font-size: 3.5rem; font-weight: 800;
+  color: var(--accent); line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.countdown-num.urgent { color: var(--danger); }
+.countdown-sub { font-size: 0.8rem; color: var(--muted); }
+.countdown-bar-bg { background: rgba(255,255,255,0.1); border-radius: 20px; height: 6px; margin-top: 1rem; overflow: hidden; }
+.countdown-bar { background: linear-gradient(90deg, var(--teal), var(--accent)); height: 6px; border-radius: 20px; transition: width 1s linear; width: 100%; }
+
+/* ── OUTPUT ── */
 #output-section { display: none; margin-top: 1rem; }
 #output-section.show { display: block; }
 
 .output-card {
   background: var(--navy2);
   border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 1.2rem;
+  border-radius: var(--r); padding: 1.2rem;
   margin-bottom: 0.8rem;
   border-left: 3px solid var(--teal);
 }
 .output-card .oc-label {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--teal);
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--teal);
+  font-weight: 700; margin-bottom: 0.5rem;
 }
-.output-card .oc-text {
-  font-size: 0.88rem;
-  color: var(--light);
-  line-height: 1.8;
-  white-space: pre-wrap;
-}
-.output-card .oc-empty {
-  font-size: 0.85rem;
-  color: var(--muted);
-  font-style: italic;
-}
-.output-img {
-  width: 100%;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-.output-img-title {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--white);
-  margin-bottom: 0.2rem;
-}
-.output-img-desc {
-  font-size: 0.78rem;
-  color: var(--muted);
-  font-style: italic;
-}
+.output-card .oc-text { font-size: 0.88rem; color: var(--light); line-height: 1.8; white-space: pre-wrap; }
+.output-card .oc-empty { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+.output-img { width: 100%; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(255,255,255,0.1); }
+.output-img-title { font-size: 0.85rem; font-weight: 600; color: var(--white); margin-bottom: 0.2rem; }
+.output-img-desc { font-size: 0.78rem; color: var(--muted); font-style: italic; }
 
-/* ── DOWNLOAD BUTTONS ── */
-.download-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  margin-top: 1rem;
-}
+/* ── DOWNLOADS ── */
+.download-wrap { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1rem; }
 .btn-dl {
-  width: 100%;
-  padding: 0.9rem;
-  border-radius: var(--r);
-  border: none;
-  font-size: 1rem; font-weight: 700;
-  letter-spacing: 0.05em; text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s;
+  width: 100%; padding: 0.9rem; border-radius: var(--r); border: none;
+  font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
   display: flex; align-items: center; justify-content: center; gap: 0.5rem;
 }
 .btn-dl-pdf  { background: #c0392b; color: #fff; box-shadow: 0 4px 14px rgba(192,57,43,0.4); }
 .btn-dl-docx { background: #2b5797; color: #fff; box-shadow: 0 4px 14px rgba(43,87,151,0.4); }
 .btn-dl:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.btn-dl:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
 
-/* ── LOADER ── */
-.loader-overlay {
+.btn-new-dwr {
+  width: 100%; background: transparent;
+  border: 1px solid var(--border); color: var(--muted);
+  border-radius: var(--r); padding: 0.75rem;
+  font-size: 0.9rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  cursor: pointer; margin-top: 1rem; transition: all 0.2s;
+}
+.btn-new-dwr:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── REPORT READY BANNER ── */
+.report-ready {
   display: none;
-  position: fixed; inset: 0;
-  background: rgba(10,22,40,0.92);
-  z-index: 999;
+  background: rgba(0,184,169,0.15);
+  border: 2px solid var(--teal);
+  border-radius: var(--r); padding: 1rem;
+  text-align: center; margin-top: 1rem;
+  animation: pop-in 0.4s ease;
+}
+.report-ready.show { display: block; }
+.report-ready .rr-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+.report-ready .rr-text { font-size: 1rem; font-weight: 700; color: var(--teal); }
+.report-ready .rr-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+@keyframes pop-in { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 1.5rem; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--navy2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.7rem 1.2rem;
+  font-size: 0.85rem; color: var(--light);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+  z-index: 200; opacity: 0; transition: all 0.3s;
+  pointer-events: none; max-width: 320px; text-align: center;
+}
+.toast.on  { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.err { border-color: var(--danger); }
+.toast.ok  { border-color: var(--teal); }
+
+/* ── LOADER (fallback) ── */
+.loader-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,22,40,0.92); z-index: 999;
   align-items: center; justify-content: center;
   flex-direction: column; gap: 1.2rem;
 }
@@ -503,68 +488,19 @@ body {
   width: 48px; height: 48px;
   border: 4px solid rgba(245,166,35,0.2);
   border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: sp 0.8s linear infinite;
+  border-radius: 50%; animation: sp 0.8s linear infinite;
 }
 @keyframes sp { to { transform: rotate(360deg); } }
-.loader-msg {
-  font-size: 1rem; color: var(--light);
-  text-align: center; max-width: 280px; line-height: 1.6;
-}
-
-/* ── TOAST ── */
-.toast {
-  position: fixed; bottom: 1.5rem; left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--navy2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.7rem 1.2rem;
-  font-size: 0.85rem; color: var(--light);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
-  z-index: 200; opacity: 0;
-  transition: all 0.3s;
-  pointer-events: none;
-  max-width: 300px; text-align: center;
-  white-space: nowrap;
-}
-.toast.on  { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.err { border-color: var(--danger); }
-.toast.ok  { border-color: var(--teal); }
-
-/* ── CHECKLIST ── */
-.checklist { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.8rem; }
-.check-item {
-  display: flex; align-items: center; gap: 0.6rem;
-  font-size: 0.82rem; color: var(--muted);
-}
-.check-item.done { color: var(--teal); }
-.check-item .ci { font-size: 1rem; }
-
-/* New DWR button */
-.btn-new-dwr {
-  width: 100%;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  border-radius: var(--r);
-  padding: 0.75rem;
-  font-size: 0.9rem; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.06em;
-  cursor: pointer; margin-top: 1rem;
-  transition: all 0.2s;
-}
-.btn-new-dwr:hover { border-color: var(--accent); color: var(--accent); }
+.loader-msg { font-size: 1rem; color: var(--light); text-align: center; max-width: 280px; line-height: 1.6; }
 
 @media (max-width: 400px) {
   .land-title { font-size: 1.6rem; }
-  .btn-cta { padding: 0.85rem 1.8rem; font-size: 1rem; }
+  .countdown-num { font-size: 2.8rem; }
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="hdr">
   <div class="brand">NP</div>
   <div class="brand-t">
@@ -573,73 +509,62 @@ body {
   </div>
 </header>
 
-<!-- LOADER -->
 <div class="loader-overlay" id="loader">
   <div class="spin"></div>
   <div class="loader-msg" id="loader-msg">Processing…</div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- ══ LANDING SCREEN ══ -->
+<!-- ══ LANDING ══ -->
 <div id="screen-land">
   <div class="land-icon">⚙️</div>
   <h2 class="land-title">Daily Working<br/><span>Report</span></h2>
   <p class="land-sub">Record your day, upload site photos, and generate a professional DWR instantly.</p>
-  <button class="btn-cta" onclick="startDWR()">
-    <span>＋</span> Create DWR
-  </button>
+  <button class="btn-cta" onclick="startDWR()"><span>＋</span> Create DWR</button>
 </div>
 
 <!-- ══ FORM SCREEN ══ -->
 <div id="screen-form">
 <div class="wrap">
 
-  <!-- ── SECTION 1: IDENTITY ── -->
+  <!-- SECTION 1: IDENTITY -->
   <div class="section-card" id="card-identity">
     <div class="section-title"><span class="step-num">1</span> Who Are You?</div>
-
     <div class="field">
       <label>Your Name *</label>
       <select id="sel-name" onchange="onNameChange()">
         <option value="">— Select your name —</option>
       </select>
     </div>
-
     <div class="field">
       <label>Your Neptunus Email</label>
       <div class="auto-fill" id="auto-email">—</div>
     </div>
-
     <div class="field">
       <label>Employee Number *</label>
       <input type="text" id="inp-empno" placeholder="Enter your employee number" oninput="checkIdentity()"/>
     </div>
-
-    <button class="btn-proceed" id="btn-proceed" onclick="unlockForm()">
-      ✓ Verify &amp; Proceed
-    </button>
+    <button class="btn-proceed" id="btn-proceed" onclick="unlockForm()">✓ Verify &amp; Proceed</button>
   </div>
 
-  <!-- ── SECTIONS 2–6: LOCKED UNTIL VERIFIED ── -->
+  <!-- SECTIONS 2-6: LOCKED -->
   <div id="form-body" class="locked">
 
     <!-- SECTION 2: JOB DETAILS -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">2</span> Job Details</div>
-
       <div class="field">
         <label>Date</label>
         <input type="text" id="f-date" readonly/>
       </div>
       <div class="field">
         <label>Job Location *</label>
-        <input type="text" id="f-location" placeholder="e.g. Mumbai Dockyard, Berth 4"/>
+        <input type="text" id="f-location" placeholder="e.g. Mumbai Dockyard, Berth 4" oninput="updateChecklist()"/>
       </div>
       <div class="field">
         <label>Rig / Vessel Name *</label>
-        <input type="text" id="f-vessel" placeholder="e.g. MV Ocean Star"/>
+        <input type="text" id="f-vessel" placeholder="e.g. MV Ocean Star" oninput="updateChecklist()"/>
       </div>
     </div>
 
@@ -648,21 +573,21 @@ body {
       <div class="section-title"><span class="step-num">3</span> Voice Recording</div>
       <div class="recorder-wrap">
 
-        <div class="waveform-wrap">
-          <canvas id="waveform-canvas"></canvas>
+        <!-- BAR CHART VISUALISER -->
+        <div class="visualiser-wrap" id="visualiser-wrap">
+          <!-- bars injected by JS -->
         </div>
 
         <div class="rec-timer" id="rec-timer">00:00</div>
-
         <div class="rec-status" id="rec-status">Tap the microphone to start recording</div>
 
-        <div class="rec-btn-wrap">
-          <button class="btn-rec-small" id="btn-pause" onclick="pauseRecording()" disabled title="Pause">⏸</button>
+        <div class="rec-btn-row">
+          <button class="btn-rec-sm" id="btn-pause" onclick="pauseRecording()" disabled title="Pause">⏸</button>
           <button class="btn-record" id="btn-record" onclick="toggleRecord()" title="Record">🎙️</button>
-          <button class="btn-rec-small" id="btn-stop" onclick="stopRecording()" disabled title="Stop">⏹</button>
+          <button class="btn-rec-sm" id="btn-stop" onclick="stopRecording()" disabled title="Stop">⏹</button>
         </div>
 
-        <div class="lang-detect" id="lang-detect">
+        <div class="lang-box" id="lang-box">
           🌐 <span id="lang-text">Detecting language…</span>
         </div>
 
@@ -677,14 +602,12 @@ body {
     <!-- SECTION 4: TABLE IMAGES -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">4</span> Images to Convert to Tables</div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload photos of handwritten tables, measurement sheets, or calibration data. Gemini will convert them to text tables in the report.</p>
-
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload photos of handwritten tables, measurement sheets, or calibration data. Gemini will convert them to text tables.</p>
       <div class="upload-zone" onclick="document.getElementById('inp-table-imgs').click()">
         <div class="uz-icon">📊</div>
         <div class="uz-text">Tap to upload table images</div>
         <input type="file" id="inp-table-imgs" accept="image/*" multiple onchange="addTableImages(this)"/>
       </div>
-
       <div class="img-grid" id="table-img-grid"></div>
     </div>
 
@@ -692,99 +615,98 @@ body {
     <div class="section-card">
       <div class="section-title"><span class="step-num">5</span> Site Photos with Titles</div>
       <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload site photos. Each photo needs a mandatory title and an optional description.</p>
-
       <div class="upload-zone" onclick="document.getElementById('inp-site-imgs').click()">
         <div class="uz-icon">📷</div>
         <div class="uz-text">Tap to upload site photos</div>
         <input type="file" id="inp-site-imgs" accept="image/*" multiple onchange="addSiteImages(this)"/>
       </div>
-
       <div class="img-grid" id="site-img-grid"></div>
     </div>
 
     <!-- SECTION 6: FINALISE -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">6</span> Finalise &amp; Generate</div>
-
       <div class="checklist" id="checklist">
         <div class="check-item" id="chk-identity"><span class="ci">⬜</span> Identity verified</div>
         <div class="check-item" id="chk-location"><span class="ci">⬜</span> Job location entered</div>
         <div class="check-item" id="chk-vessel"><span class="ci">⬜</span> Vessel / rig name entered</div>
         <div class="check-item" id="chk-audio"><span class="ci">⬜</span> Audio recorded</div>
       </div>
+      <button class="btn-finalise" id="btn-finalise" onclick="finalise()">✓ Finalise Draft</button>
+      <button class="btn-convert show" id="btn-convert" onclick="convertToDWR()">⚡ Convert to DWR</button>
 
-      <button class="btn-finalise" id="btn-finalise" onclick="finalise()">
-        ✓ Finalise Draft
-      </button>
+      <!-- COUNTDOWN TIMER -->
+      <div class="countdown-wrap" id="countdown-wrap">
+        <div class="countdown-label">Generating your DWR — please wait</div>
+        <div class="countdown-num" id="countdown-num">60</div>
+        <div class="countdown-sub" id="countdown-sub">seconds remaining</div>
+        <div class="countdown-bar-bg"><div class="countdown-bar" id="countdown-bar"></div></div>
+      </div>
 
-      <button class="btn-convert show" id="btn-convert" onclick="convertToDWR()">
-        ⚡ Convert to DWR
-      </button>
+      <!-- REPORT READY BANNER -->
+      <div class="report-ready" id="report-ready">
+        <div class="rr-icon">✅</div>
+        <div class="rr-text">Report Ready!</div>
+        <div class="rr-sub">Scroll down to view and download your DWR</div>
+      </div>
+
     </div>
 
   </div><!-- /form-body -->
 
-  <!-- ══ OUTPUT SECTION ══ -->
+  <!-- ══ OUTPUT ══ -->
   <div id="output-section">
+    <div style="font-size:0.8rem;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;">✦ Your DWR Report</div>
 
-    <div style="font-size:0.8rem;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;">
-      ✦ Your DWR Report
-    </div>
-
-    <!-- Meta -->
     <div class="output-card">
       <div class="oc-label">Report Details</div>
       <div class="oc-text" id="out-meta"></div>
     </div>
 
-    <!-- 7 sections from audio -->
     <div id="out-sections"></div>
-
-    <!-- Tables from images -->
     <div id="out-tables"></div>
-
-    <!-- Site photos -->
     <div id="out-photos"></div>
 
-    <!-- Downloads -->
     <div class="download-wrap">
-      <button class="btn-dl btn-dl-pdf" onclick="downloadPDF()">📄 Download PDF</button>
-      <button class="btn-dl btn-dl-docx" onclick="downloadDOCX()">📝 Download DOCX</button>
+      <button class="btn-dl btn-dl-pdf"  id="btn-pdf"  onclick="downloadPDF()">📄 Download PDF</button>
+      <button class="btn-dl btn-dl-docx" id="btn-docx" onclick="downloadDOCX()">📝 Download DOCX</button>
     </div>
 
     <button class="btn-new-dwr" onclick="resetApp()">＋ Start New DWR</button>
+  </div>
 
-  </div><!-- /output-section -->
-
-</div><!-- /wrap -->
-</div><!-- /screen-form -->
+</div>
+</div>
 
 <script>
 // ══════════════════════════════════════════════
-//  CONFIG — replace with your Cloudflare Worker URL after setup
+//  CONFIG
 // ══════════════════════════════════════════════
 var WORKER_URL = 'https://npps-dwr-worker.radheya-supnekar.workers.dev';
 
 // ══════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════
-var employees      = [];
-var verifiedUser   = null;
-var mediaRecorder  = null;
-var audioChunks    = [];
-var audioBlob      = null;
-var audioBase64    = null;
-var isRecording    = false;
-var isPaused       = false;
-var recSeconds     = 0;
-var recTimer       = null;
-var animFrame      = null;
-var audioContext   = null;
-var analyser       = null;
-var tableImages    = [];   // [{file, base64, objectUrl}]
-var siteImages     = [];   // [{file, base64, objectUrl, title, desc}]
-var generatedDWR   = null;
-var finaliseOk     = false;
+var employees    = [];
+var verifiedUser = null;
+var mediaRecorder= null;
+var audioChunks  = [];
+var audioBlob    = null;
+var audioBase64  = null;
+var audioMime    = 'audio/webm';
+var isRecording  = false;
+var isPaused     = false;
+var recSeconds   = 0;
+var recTimerInt  = null;
+var animFrame    = null;
+var audioCtx     = null;
+var analyser     = null;
+var tableImages  = [];
+var siteImages   = [];
+var generatedDWR = null;
+var finaliseOk   = false;
+var cdInterval   = null;
+var NUM_BARS     = 28;
 
 // ══════════════════════════════════════════════
 //  INIT
@@ -792,17 +714,29 @@ var finaliseOk     = false;
 window.addEventListener('load', function() {
   setDate();
   loadEmployees();
+  buildBars();
   updateChecklist();
 });
 
 function setDate() {
-  var now = new Date();
+  var now  = new Date();
   var opts = { weekday:'long', year:'numeric', month:'long', day:'numeric', timeZoneName:'short' };
   document.getElementById('f-date').value = now.toLocaleDateString('en-US', opts);
 }
 
+function buildBars() {
+  var wrap = document.getElementById('visualiser-wrap');
+  wrap.innerHTML = '';
+  for (var i = 0; i < NUM_BARS; i++) {
+    var bar = document.createElement('div');
+    bar.className = 'vis-bar idle';
+    bar.id = 'bar-' + i;
+    wrap.appendChild(bar);
+  }
+}
+
 // ══════════════════════════════════════════════
-//  LOAD EMPLOYEES from employees.json
+//  EMPLOYEES
 // ══════════════════════════════════════════════
 function loadEmployees() {
   fetch('employees.json?v=' + Date.now())
@@ -818,9 +752,7 @@ function loadEmployees() {
         sel.appendChild(opt);
       });
     })
-    .catch(function() {
-      toast('Could not load employee list. Please refresh.', 'err');
-    });
+    .catch(function() { toast('Could not load employee list. Please refresh.', 'err'); });
 }
 
 // ══════════════════════════════════════════════
@@ -848,44 +780,32 @@ function onNameChange() {
 }
 
 function checkIdentity() {
-  var sel    = document.getElementById('sel-name');
-  var empNo  = document.getElementById('inp-empno').value.trim();
-  var btn    = document.getElementById('btn-proceed');
-  var opt    = sel.options[sel.selectedIndex];
-
+  var sel   = document.getElementById('sel-name');
+  var empNo = document.getElementById('inp-empno').value.trim();
+  var opt   = sel.options[sel.selectedIndex];
   var valid = opt && opt.value && opt.value === empNo;
-  btn.classList.toggle('active', valid);
+  document.getElementById('btn-proceed').classList.toggle('active', valid);
 }
 
 function unlockForm() {
   var sel   = document.getElementById('sel-name');
   var opt   = sel.options[sel.selectedIndex];
   var empNo = document.getElementById('inp-empno').value.trim();
-
   if (!opt || !opt.value || opt.value !== empNo) {
-    toast('Employee number does not match. Please check.', 'err');
-    return;
+    toast('Employee number does not match. Please check.', 'err'); return;
   }
-
-  verifiedUser = {
-    name:  opt.textContent,
-    email: opt.getAttribute('data-email'),
-    empNo: empNo
-  };
-
+  verifiedUser = { name: opt.textContent, email: opt.getAttribute('data-email'), empNo: empNo };
   document.getElementById('form-body').classList.remove('locked');
   document.getElementById('card-identity').style.borderColor = 'var(--teal)';
-  document.getElementById('btn-proceed').textContent = '✓ Verified — ' + verifiedUser.name;
-  document.getElementById('btn-proceed').classList.remove('active');
-  document.getElementById('btn-proceed').style.background = 'rgba(0,184,169,0.15)';
-  document.getElementById('btn-proceed').style.color = 'var(--teal)';
-  document.getElementById('btn-proceed').style.cursor = 'default';
-  document.getElementById('btn-proceed').onclick = null;
-
+  var bp = document.getElementById('btn-proceed');
+  bp.textContent = '✓ Verified — ' + verifiedUser.name;
+  bp.classList.remove('active');
+  bp.style.background = 'rgba(0,184,169,0.15)';
+  bp.style.color = 'var(--teal)';
+  bp.style.cursor = 'default';
+  bp.onclick = null;
   updateChecklist();
   toast('Identity verified! Fill in the details below.', 'ok');
-
-  // Scroll to job details
   setTimeout(function() {
     document.getElementById('form-body').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 300);
@@ -894,61 +814,74 @@ function unlockForm() {
 // ══════════════════════════════════════════════
 //  AUDIO RECORDING
 // ══════════════════════════════════════════════
-function toggleRecord() {
-  if (!isRecording) {
-    startRecording();
-  } else if (!isPaused) {
-    pauseRecording();
-  } else {
-    resumeRecording();
+function getBestMimeType() {
+  // Try formats in order of Gemini compatibility
+  var types = [
+    'audio/mp4',
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/ogg'
+  ];
+  for (var i = 0; i < types.length; i++) {
+    if (MediaRecorder.isTypeSupported(types[i])) return types[i];
   }
+  return '';
+}
+
+function toggleRecord() {
+  if (!isRecording) startRecording();
+  else if (!isPaused) pauseRecording();
+  else resumeRecording();
 }
 
 function startRecording() {
-  navigator.mediaDevices.getUserMedia({ audio: true })
+  navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 } })
     .then(function(stream) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      analyser     = audioContext.createAnalyser();
-      var source   = audioContext.createMediaStreamSource(stream);
+      audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+      analyser  = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      var source = audioCtx.createMediaStreamSource(stream);
       source.connect(analyser);
-      analyser.fftSize = 256;
-      drawWaveform();
 
-      mediaRecorder = new MediaRecorder(stream);
+      var mimeType = getBestMimeType();
+      audioMime = mimeType || 'audio/webm';
+
+      var options = mimeType ? { mimeType: mimeType } : {};
+      mediaRecorder = new MediaRecorder(stream, options);
       audioChunks   = [];
+
       mediaRecorder.ondataavailable = function(e) {
-        if (e.data.size > 0) audioChunks.push(e.data);
+        if (e.data && e.data.size > 0) audioChunks.push(e.data);
       };
       mediaRecorder.onstop = function() {
-        audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        var url   = URL.createObjectURL(audioBlob);
+        // Use the actual recorded mime type
+        var actualMime = mediaRecorder.mimeType || audioMime;
+        audioMime = actualMime.split(';')[0]; // strip codec params for Gemini
+        audioBlob = new Blob(audioChunks, { type: actualMime });
+        var url = URL.createObjectURL(audioBlob);
         document.getElementById('audio-preview').src = url;
         document.getElementById('audio-playback').classList.add('show');
-
-        // Convert to base64
         var reader = new FileReader();
         reader.onload = function(e) {
           audioBase64 = e.target.result.split(',')[1];
           updateChecklist();
-
-          // Detect language
           detectLanguage();
         };
         reader.readAsDataURL(audioBlob);
       };
 
-      mediaRecorder.start(1000);
-      isRecording = true;
-      isPaused    = false;
-
-      document.getElementById('btn-record').classList.add('recording');
+      mediaRecorder.start(500);
+      isRecording = true; isPaused = false;
+      document.getElementById('btn-record').className = 'btn-record recording';
       document.getElementById('btn-record').innerHTML = '⏸';
       document.getElementById('btn-pause').disabled  = false;
       document.getElementById('btn-stop').disabled   = false;
       document.getElementById('rec-status').innerHTML = '<span class="dot"></span> Recording…';
       document.getElementById('audio-playback').classList.remove('show');
-
-      startTimer();
+      document.getElementById('lang-box').classList.remove('show');
+      startRecTimer();
+      drawBars();
     })
     .catch(function(err) {
       toast('Microphone access denied. Please allow microphone permission.', 'err');
@@ -958,25 +891,20 @@ function startRecording() {
 
 function pauseRecording() {
   if (mediaRecorder && isRecording && !isPaused) {
-    mediaRecorder.pause();
-    isPaused = true;
-    clearInterval(recTimer);
-    cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').classList.remove('recording');
-    document.getElementById('btn-record').classList.add('paused');
+    mediaRecorder.pause(); isPaused = true;
+    clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
+    document.getElementById('btn-record').className = 'btn-record paused';
     document.getElementById('btn-record').innerHTML = '▶';
     document.getElementById('rec-status').textContent = 'Paused — tap ▶ to resume';
+    idleBars();
   }
 }
 
 function resumeRecording() {
   if (mediaRecorder && isPaused) {
-    mediaRecorder.resume();
-    isPaused = false;
-    startTimer();
-    drawWaveform();
-    document.getElementById('btn-record').classList.remove('paused');
-    document.getElementById('btn-record').classList.add('recording');
+    mediaRecorder.resume(); isPaused = false;
+    startRecTimer(); drawBars();
+    document.getElementById('btn-record').className = 'btn-record recording';
     document.getElementById('btn-record').innerHTML = '⏸';
     document.getElementById('rec-status').innerHTML = '<span class="dot"></span> Recording…';
   }
@@ -986,86 +914,79 @@ function stopRecording() {
   if (mediaRecorder && isRecording) {
     mediaRecorder.stop();
     mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
-    isRecording = false;
-    isPaused    = false;
-    clearInterval(recTimer);
-    cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').classList.remove('recording', 'paused');
+    isRecording = false; isPaused = false;
+    clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
+    document.getElementById('btn-record').className = 'btn-record';
     document.getElementById('btn-record').innerHTML = '🎙️';
-    document.getElementById('btn-pause').disabled  = true;
-    document.getElementById('btn-stop').disabled   = true;
+    document.getElementById('btn-pause').disabled = true;
+    document.getElementById('btn-stop').disabled  = true;
     document.getElementById('rec-status').textContent = 'Recording complete — listen below';
+    idleBars();
   }
 }
 
 function reRecord() {
-  audioBlob   = null;
-  audioBase64 = null;
-  recSeconds  = 0;
+  audioBlob = null; audioBase64 = null; recSeconds = 0;
   document.getElementById('rec-timer').textContent = '00:00';
   document.getElementById('audio-playback').classList.remove('show');
-  document.getElementById('lang-detect').classList.remove('show');
+  document.getElementById('lang-box').classList.remove('show');
   document.getElementById('rec-status').textContent = 'Tap the microphone to start recording';
-  clearCanvas();
-  updateChecklist();
+  idleBars(); updateChecklist();
 }
 
-function startTimer() {
-  recTimer = setInterval(function() {
+function startRecTimer() {
+  recTimerInt = setInterval(function() {
     recSeconds++;
-    var m = Math.floor(recSeconds / 60);
-    var s = recSeconds % 60;
+    var m = Math.floor(recSeconds / 60), s = recSeconds % 60;
     document.getElementById('rec-timer').textContent =
       (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
   }, 1000);
 }
 
-function drawWaveform() {
-  var canvas  = document.getElementById('waveform-canvas');
-  var ctx     = canvas.getContext('2d');
+// ── BAR CHART VISUALISER ──
+function drawBars() {
+  if (!analyser) return;
   var bufLen  = analyser.frequencyBinCount;
   var dataArr = new Uint8Array(bufLen);
+  var wrap    = document.getElementById('visualiser-wrap');
+  var maxH    = wrap.clientHeight - 10;
 
-  function draw() {
-    animFrame = requestAnimationFrame(draw);
-    analyser.getByteTimeDomainData(dataArr);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.lineWidth   = 2;
-    ctx.strokeStyle = '#f5a623';
-    ctx.beginPath();
-    var sliceW = canvas.width / bufLen;
-    var x = 0;
-    for (var i = 0; i < bufLen; i++) {
-      var v = dataArr[i] / 128.0;
-      var y = v * canvas.height / 2;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      x += sliceW;
+  function frame() {
+    animFrame = requestAnimationFrame(frame);
+    analyser.getByteFrequencyData(dataArr);
+    var step = Math.floor(bufLen / NUM_BARS);
+    for (var i = 0; i < NUM_BARS; i++) {
+      var val  = dataArr[i * step] / 255;
+      var h    = Math.max(4, Math.round(val * maxH));
+      var bar  = document.getElementById('bar-' + i);
+      if (bar) {
+        bar.style.height = h + 'px';
+        bar.className = 'vis-bar';
+        // Colour: green low, yellow mid, accent high
+        if (val < 0.4)      bar.style.background = '#00b8a9';
+        else if (val < 0.7) bar.style.background = '#f5a623';
+        else                bar.style.background = '#e05555';
+      }
     }
-    ctx.lineTo(canvas.width, canvas.height / 2);
-    ctx.stroke();
   }
-  draw();
+  frame();
 }
 
-function clearCanvas() {
-  var canvas = document.getElementById('waveform-canvas');
-  var ctx    = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function idleBars() {
+  cancelAnimationFrame(animFrame);
+  for (var i = 0; i < NUM_BARS; i++) {
+    var bar = document.getElementById('bar-' + i);
+    if (bar) { bar.className = 'vis-bar idle'; bar.style.height = '4px'; bar.style.background = ''; }
+  }
 }
 
 function detectLanguage() {
   if (!audioBase64) return;
-  var langEl = document.getElementById('lang-detect');
-  langEl.classList.add('show');
+  document.getElementById('lang-box').classList.add('show');
   document.getElementById('lang-text').textContent = 'Detecting language…';
-
-  callWorker('detect_language', { audio: audioBase64, mimeType: 'audio/webm' })
-    .then(function(result) {
-      document.getElementById('lang-text').textContent = result.language || 'Unable to detect';
-    })
-    .catch(function() {
-      document.getElementById('lang-text').textContent = 'Detection failed';
-    });
+  callWorker({ action: 'detect_language', audio: audioBase64, mimeType: audioMime })
+    .then(function(r) { document.getElementById('lang-text').textContent = r.language || 'Unable to detect'; })
+    .catch(function()  { document.getElementById('lang-text').textContent = 'Detection failed'; });
 }
 
 // ══════════════════════════════════════════════
@@ -1076,31 +997,22 @@ function addTableImages(input) {
     var url = URL.createObjectURL(file);
     var entry = { file: file, objectUrl: url, base64: null };
     tableImages.push(entry);
-    readFileBase64(file, function(b64) { entry.base64 = b64; });
+    readB64(file, function(b64) { entry.base64 = b64; });
   });
-  renderTableImgs();
-  input.value = '';
+  renderTableImgs(); input.value = '';
 }
-
 function renderTableImgs() {
-  var grid = document.getElementById('table-img-grid');
-  grid.innerHTML = '';
-  tableImages.forEach(function(entry, idx) {
-    var div = document.createElement('div');
-    div.className = 'img-item';
-    div.innerHTML =
-      '<img src="' + entry.objectUrl + '" alt="Table image ' + (idx+1) + '"/>' +
-      '<div class="img-item-body">' +
-        '<button class="btn-remove-img" onclick="removeTableImg(' + idx + ')">✕ Remove</button>' +
-      '</div>';
+  var grid = document.getElementById('table-img-grid'); grid.innerHTML = '';
+  tableImages.forEach(function(e, idx) {
+    var div = document.createElement('div'); div.className = 'img-item';
+    div.innerHTML = '<img src="' + e.objectUrl + '" alt="Table ' + (idx+1) + '"/>' +
+      '<div class="img-item-body"><button class="btn-remove-img" onclick="removeTableImg(' + idx + ')">✕ Remove</button></div>';
     grid.appendChild(div);
   });
 }
-
 function removeTableImg(idx) {
   URL.revokeObjectURL(tableImages[idx].objectUrl);
-  tableImages.splice(idx, 1);
-  renderTableImgs();
+  tableImages.splice(idx, 1); renderTableImgs();
 }
 
 // ══════════════════════════════════════════════
@@ -1111,135 +1023,155 @@ function addSiteImages(input) {
     var url = URL.createObjectURL(file);
     var entry = { file: file, objectUrl: url, base64: null, title: '', desc: '' };
     siteImages.push(entry);
-    readFileBase64(file, function(b64) { entry.base64 = b64; });
+    readB64(file, function(b64) { entry.base64 = b64; });
   });
-  renderSiteImgs();
-  input.value = '';
+  renderSiteImgs(); input.value = '';
 }
-
 function renderSiteImgs() {
-  var grid = document.getElementById('site-img-grid');
-  grid.innerHTML = '';
-  siteImages.forEach(function(entry, idx) {
-    var div = document.createElement('div');
-    div.className = 'img-item';
-    div.innerHTML =
-      '<img src="' + entry.objectUrl + '" alt="Site image ' + (idx+1) + '"/>' +
+  var grid = document.getElementById('site-img-grid'); grid.innerHTML = '';
+  siteImages.forEach(function(e, idx) {
+    var div = document.createElement('div'); div.className = 'img-item';
+    div.innerHTML = '<img src="' + e.objectUrl + '" alt="Site ' + (idx+1) + '"/>' +
       '<div class="img-item-body">' +
-        '<input type="text" placeholder="Title (mandatory) *" value="' + escAttr(entry.title) + '" oninput="siteImages[' + idx + '].title=this.value; updateChecklist()"/>' +
-        '<input type="text" placeholder="Description (optional)" value="' + escAttr(entry.desc) + '" oninput="siteImages[' + idx + '].desc=this.value"/>' +
+        '<input type="text" placeholder="Title (mandatory) *" value="' + escAttr(e.title) + '" oninput="siteImages[' + idx + '].title=this.value;updateChecklist()"/>' +
+        '<input type="text" placeholder="Description (optional)" value="' + escAttr(e.desc) + '" oninput="siteImages[' + idx + '].desc=this.value"/>' +
         '<button class="btn-remove-img" onclick="removeSiteImg(' + idx + ')">✕ Remove</button>' +
       '</div>';
     grid.appendChild(div);
   });
 }
-
 function removeSiteImg(idx) {
   URL.revokeObjectURL(siteImages[idx].objectUrl);
-  siteImages.splice(idx, 1);
-  renderSiteImgs();
-  updateChecklist();
+  siteImages.splice(idx, 1); renderSiteImgs(); updateChecklist();
 }
 
 // ══════════════════════════════════════════════
-//  CHECKLIST + FINALISE
+//  CHECKLIST
 // ══════════════════════════════════════════════
 function updateChecklist() {
-  var chkIdentity = !!verifiedUser;
-  var chkLocation = document.getElementById('f-location') && document.getElementById('f-location').value.trim().length > 0;
-  var chkVessel   = document.getElementById('f-vessel') && document.getElementById('f-vessel').value.trim().length > 0;
-  var chkAudio    = !!audioBase64;
-
-  setCheck('chk-identity', chkIdentity, 'Identity verified');
-  setCheck('chk-location', chkLocation, 'Job location entered');
-  setCheck('chk-vessel',   chkVessel,   'Vessel / rig name entered');
-  setCheck('chk-audio',    chkAudio,    'Audio recorded');
-
-  var allOk = chkIdentity && chkLocation && chkVessel && chkAudio;
+  var ok1 = !!verifiedUser;
+  var ok2 = (document.getElementById('f-location') || {value:''}).value.trim().length > 0;
+  var ok3 = (document.getElementById('f-vessel')   || {value:''}).value.trim().length > 0;
+  var ok4 = !!audioBase64;
+  setCheck('chk-identity', ok1, 'Identity verified');
+  setCheck('chk-location', ok2, 'Job location entered');
+  setCheck('chk-vessel',   ok3, 'Vessel / rig name entered');
+  setCheck('chk-audio',    ok4, 'Audio recorded');
+  var siteOk = siteImages.length === 0 || siteImages.every(function(img) { return img.title.trim().length > 0; });
+  var allOk  = ok1 && ok2 && ok3 && ok4 && siteOk;
   document.getElementById('btn-finalise').classList.toggle('active', allOk);
-
-  // Site images — all must have titles
-  var siteOk = siteImages.every(function(img) { return img.title.trim().length > 0; });
-  if (siteImages.length > 0 && !siteOk) {
-    document.getElementById('btn-finalise').classList.remove('active');
-  }
 }
-
 function setCheck(id, done, label) {
-  var el = document.getElementById(id);
-  if (!el) return;
+  var el = document.getElementById(id); if (!el) return;
   el.className = 'check-item' + (done ? ' done' : '');
   el.innerHTML = '<span class="ci">' + (done ? '✅' : '⬜') + '</span> ' + label;
 }
 
-// Add input listeners for live checklist update
-document.addEventListener('DOMContentLoaded', function() {});
-window.addEventListener('load', function() {
-  ['f-location','f-vessel'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('input', updateChecklist);
-  });
-});
-
+// ══════════════════════════════════════════════
+//  FINALISE
+// ══════════════════════════════════════════════
 function finalise() {
   updateChecklist();
-  var btn = document.getElementById('btn-finalise');
-  if (!btn.classList.contains('active')) {
-    toast('Please complete all required fields first.', 'err');
-    return;
+  if (!document.getElementById('btn-finalise').classList.contains('active')) {
+    toast('Please complete all required fields first.', 'err'); return;
   }
   finaliseOk = true;
-  btn.textContent = '✅ Draft Finalised';
-  btn.classList.remove('active');
-  btn.style.background = 'rgba(0,184,169,0.15)';
-  btn.style.color = 'var(--teal)';
-  btn.style.cursor = 'default';
-
+  var bf = document.getElementById('btn-finalise');
+  bf.textContent = '✅ Draft Finalised';
+  bf.classList.remove('active');
+  bf.style.background = 'rgba(0,184,169,0.15)';
+  bf.style.color = 'var(--teal)';
+  bf.style.cursor = 'default';
   document.getElementById('btn-convert').classList.add('active');
   toast('Draft finalised! Tap Convert to DWR to generate your report.', 'ok');
-
   setTimeout(function() {
     document.getElementById('btn-convert').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 300);
 }
 
 // ══════════════════════════════════════════════
-//  CONVERT TO DWR — main processing
+//  COUNTDOWN TIMER
+// ══════════════════════════════════════════════
+function startCountdown(seconds) {
+  var wrap = document.getElementById('countdown-wrap');
+  var num  = document.getElementById('countdown-num');
+  var sub  = document.getElementById('countdown-sub');
+  var bar  = document.getElementById('countdown-bar');
+  wrap.classList.add('show');
+  document.getElementById('report-ready').classList.remove('show');
+  var remaining = seconds;
+  num.textContent = remaining;
+  num.className = 'countdown-num';
+  bar.style.width = '100%';
+  clearInterval(cdInterval);
+  cdInterval = setInterval(function() {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(cdInterval);
+      num.textContent = '0';
+      bar.style.width = '0%';
+      return;
+    }
+    num.textContent = remaining;
+    if (remaining <= 10) num.className = 'countdown-num urgent';
+    bar.style.width = Math.round((remaining / seconds) * 100) + '%';
+    sub.textContent = remaining === 1 ? 'second remaining' : 'seconds remaining';
+  }, 1000);
+}
+
+function stopCountdown() {
+  clearInterval(cdInterval);
+  document.getElementById('countdown-wrap').classList.remove('show');
+}
+
+function showReportReady() {
+  document.getElementById('report-ready').classList.add('show');
+}
+
+// ══════════════════════════════════════════════
+//  CONVERT TO DWR
 // ══════════════════════════════════════════════
 function convertToDWR() {
   if (!finaliseOk) { toast('Please finalise the draft first.', 'err'); return; }
 
-  showLoader('Sending audio to Gemini AI…\nTranscribing and generating 7 sections.\nThis takes 20–40 seconds.');
+  // Estimate: ~45s base + 10s per table image
+  var estSecs = 45 + (tableImages.length * 10);
+  startCountdown(estSecs);
+
+  document.getElementById('btn-convert').disabled = true;
 
   var payload = {
     action:       'process_dwr',
     audio:        audioBase64,
-    audioMime:    'audio/webm',
+    audioMime:    audioMime,
     tableImages:  tableImages.map(function(img) { return { base64: img.base64, mimeType: img.file.type || 'image/jpeg' }; }),
-    siteImages:   siteImages.map(function(img) { return { base64: img.base64, mimeType: img.file.type || 'image/jpeg', title: img.title, desc: img.desc }; }),
     engineerName: verifiedUser.name,
     location:     document.getElementById('f-location').value.trim(),
     vessel:       document.getElementById('f-vessel').value.trim(),
     date:         document.getElementById('f-date').value
   };
 
-  callWorker('process_dwr', payload)
+  callWorker(payload)
     .then(function(result) {
-      hideLoader();
+      stopCountdown();
+      document.getElementById('btn-convert').disabled = false;
       generatedDWR = result;
       renderOutput(result);
-      toast('DWR generated successfully!', 'ok');
+      showReportReady();
+      toast('DWR generated! Scroll down to view your report.', 'ok');
     })
     .catch(function(err) {
-      hideLoader();
-      toast('Error: ' + err.message, 'err');
+      stopCountdown();
+      document.getElementById('btn-convert').disabled = false;
+      document.getElementById('btn-convert').classList.add('active');
+      toast('Error: ' + (err.message || 'Something went wrong. Please try again.'), 'err');
     });
 }
 
 // ══════════════════════════════════════════════
 //  RENDER OUTPUT
 // ══════════════════════════════════════════════
-var SECTION_LABELS = [
+var SEC_LABELS = [
   'Scope of Work Completed Today',
   'Scope Planned but Not Completed',
   'Critical Issues / Observations',
@@ -1248,120 +1180,142 @@ var SECTION_LABELS = [
   'Plan for Tomorrow',
   'Additional Notes / HSE / Permits'
 ];
-var SECTION_KEYS = ['scope_done','scope_not_done','critical_issues','spares_consumables','customer_manpower','plan_tomorrow','additional_notes'];
+var SEC_KEYS = ['scope_done','scope_not_done','critical_issues','spares_consumables','customer_manpower','plan_tomorrow','additional_notes'];
 
 function renderOutput(data) {
-  // Meta
   document.getElementById('out-meta').textContent =
     'Engineer: ' + verifiedUser.name + '\n' +
-    'Date: ' + document.getElementById('f-date').value + '\n' +
+    'Date: '     + document.getElementById('f-date').value + '\n' +
     'Location: ' + document.getElementById('f-location').value + '\n' +
     'Vessel / Rig: ' + document.getElementById('f-vessel').value;
 
-  // 7 sections
-  var secOut = document.getElementById('out-sections');
-  secOut.innerHTML = '';
-  SECTION_KEYS.forEach(function(key, i) {
-    var d   = (data.sections && data.sections[key]) || {};
+  var secOut = document.getElementById('out-sections'); secOut.innerHTML = '';
+  SEC_KEYS.forEach(function(key, i) {
+    var d = (data.sections && data.sections[key]) || {};
     var txt = (d.polished_text || '').trim();
-    var div = document.createElement('div');
-    div.className = 'output-card';
-    div.innerHTML =
-      '<div class="oc-label">' + SECTION_LABELS[i] + '</div>' +
+    var div = document.createElement('div'); div.className = 'output-card';
+    div.innerHTML = '<div class="oc-label">' + SEC_LABELS[i] + '</div>' +
       (txt && txt !== '• Nothing reported for this section.'
         ? '<div class="oc-text">' + escHtml(txt) + '</div>'
         : '<div class="oc-empty">Nothing reported for this section.</div>');
     secOut.appendChild(div);
   });
 
-  // Tables
-  var tabOut = document.getElementById('out-tables');
-  tabOut.innerHTML = '';
+  var tabOut = document.getElementById('out-tables'); tabOut.innerHTML = '';
   if (data.tables && data.tables.length > 0) {
     data.tables.forEach(function(tbl, i) {
-      var div = document.createElement('div');
-      div.className = 'output-card';
-      div.innerHTML =
-        '<div class="oc-label">Table ' + (i+1) + '</div>' +
-        '<div class="oc-text">' + escHtml(tbl.text || '') + '</div>';
+      var div = document.createElement('div'); div.className = 'output-card';
+      div.innerHTML = '<div class="oc-label">Table ' + (i+1) + '</div><div class="oc-text">' + escHtml(tbl.text || '') + '</div>';
       tabOut.appendChild(div);
     });
   }
 
-  // Site photos
-  var photoOut = document.getElementById('out-photos');
-  photoOut.innerHTML = '';
+  var photoOut = document.getElementById('out-photos'); photoOut.innerHTML = '';
   siteImages.forEach(function(img, i) {
-    var div = document.createElement('div');
-    div.className = 'output-card';
-    div.innerHTML =
-      '<div class="oc-label">Site Photo ' + (i+1) + '</div>' +
+    var div = document.createElement('div'); div.className = 'output-card';
+    div.innerHTML = '<div class="oc-label">Site Photo ' + (i+1) + '</div>' +
       '<img class="output-img" src="' + img.objectUrl + '" alt="' + escAttr(img.title) + '"/>' +
       '<div class="output-img-title">' + escHtml(img.title) + '</div>' +
       (img.desc ? '<div class="output-img-desc">' + escHtml(img.desc) + '</div>' : '');
     photoOut.appendChild(div);
   });
 
-  document.getElementById('output-section').classList.add('show');
-  setTimeout(function() {
-    document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 200);
+  document.getElementById('output-section').style.display = 'block';
 }
 
 // ══════════════════════════════════════════════
 //  DOWNLOADS
 // ══════════════════════════════════════════════
 function downloadPDF() {
-  toast('PDF download coming in next version. Use DOCX for now.', 'ok');
-}
-
-function downloadDOCX() {
   if (!generatedDWR) { toast('No report generated yet.', 'err'); return; }
-  showLoader('Generating DOCX…');
+  var btn = document.getElementById('btn-pdf');
+  btn.disabled = true; btn.textContent = '⏳ Generating PDF…';
 
-  callWorker('generate_docx', {
+  var payload = {
+    action:       'generate_pdf',
     engineerName: verifiedUser.name,
     location:     document.getElementById('f-location').value.trim(),
     vessel:       document.getElementById('f-vessel').value.trim(),
     date:         document.getElementById('f-date').value,
-    sections:     generatedDWR.sections,
-    tables:       generatedDWR.tables || []
-  })
-  .then(function(result) {
-    hideLoader();
-    triggerDownload(result.base64, result.fileName, result.mimeType);
-    toast('DOCX downloaded!', 'ok');
-  })
-  .catch(function(err) {
-    hideLoader();
-    toast('DOCX generation failed: ' + err.message, 'err');
-  });
+    sections:     generatedDWR.sections || {},
+    tables:       generatedDWR.tables   || [],
+    siteImages:   siteImages.map(function(img) { return { base64: img.base64, mimeType: img.file.type||'image/jpeg', title: img.title, desc: img.desc }; })
+  };
+
+  callWorker(payload)
+    .then(function(result) {
+      btn.disabled = false; btn.textContent = '📄 Download PDF';
+      if (result.base64) {
+        triggerDownload(result.base64, result.fileName || 'DWR_Report.pdf', 'application/pdf');
+        toast('PDF downloaded!', 'ok');
+      } else {
+        toast('PDF generation failed. Try DOCX instead.', 'err');
+      }
+    })
+    .catch(function(err) {
+      btn.disabled = false; btn.textContent = '📄 Download PDF';
+      toast('PDF error: ' + err.message, 'err');
+    });
+}
+
+function downloadDOCX() {
+  if (!generatedDWR) { toast('No report generated yet.', 'err'); return; }
+  var btn = document.getElementById('btn-docx');
+  btn.disabled = true; btn.textContent = '⏳ Generating DOCX…';
+
+  var payload = {
+    action:       'generate_docx',
+    engineerName: verifiedUser.name,
+    location:     document.getElementById('f-location').value.trim(),
+    vessel:       document.getElementById('f-vessel').value.trim(),
+    date:         document.getElementById('f-date').value,
+    sections:     generatedDWR.sections || {},
+    tables:       generatedDWR.tables   || [],
+    siteImages:   siteImages.map(function(img) { return { base64: img.base64, mimeType: img.file.type||'image/jpeg', title: img.title, desc: img.desc }; })
+  };
+
+  callWorker(payload)
+    .then(function(result) {
+      btn.disabled = false; btn.textContent = '📝 Download DOCX';
+      if (result.base64) {
+        triggerDownload(result.base64, result.fileName || 'DWR_Report.docx',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        toast('DOCX downloaded!', 'ok');
+      } else {
+        toast('DOCX generation failed. Please try again.', 'err');
+      }
+    })
+    .catch(function(err) {
+      btn.disabled = false; btn.textContent = '📝 Download DOCX';
+      toast('DOCX error: ' + err.message, 'err');
+    });
 }
 
 function triggerDownload(base64, fileName, mimeType) {
-  var byteChars = atob(base64);
-  var byteNums  = new Array(byteChars.length);
-  for (var i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
-  var blob = new Blob([new Uint8Array(byteNums)], { type: mimeType });
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href = url; a.download = fileName;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+  try {
+    var binary = atob(base64);
+    var bytes  = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    var blob = new Blob([bytes], { type: mimeType });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href = url; a.download = fileName;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+  } catch(e) { toast('Download error: ' + e.message, 'err'); }
 }
 
 // ══════════════════════════════════════════════
-//  CLOUDFLARE WORKER CALLER
+//  WORKER CALLER
 // ══════════════════════════════════════════════
-function callWorker(action, data) {
+function callWorker(data) {
   return fetch(WORKER_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(Object.assign({ action: action }, data))
-  })
-  .then(function(r) {
-    if (!r.ok) throw new Error('Server error: ' + r.status);
+    body: JSON.stringify(data)
+  }).then(function(r) {
+    if (!r.ok) throw new Error('Server error ' + r.status);
     return r.json();
   });
 }
@@ -1369,37 +1323,22 @@ function callWorker(action, data) {
 // ══════════════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════════════
-function readFileBase64(file, callback) {
+function readB64(file, cb) {
   var reader = new FileReader();
-  reader.onload = function(e) { callback(e.target.result.split(',')[1]); };
+  reader.onload = function(e) { cb(e.target.result.split(',')[1]); };
   reader.readAsDataURL(file);
 }
-
-function resetApp() {
-  location.reload();
-}
-
-function showLoader(msg) {
-  document.getElementById('loader-msg').innerHTML = (msg || 'Processing…').replace(/\n/g, '<br/>');
-  document.getElementById('loader').classList.add('on');
-}
-function hideLoader() { document.getElementById('loader').classList.remove('on'); }
-
+function resetApp() { location.reload(); }
 function toast(msg, type) {
   var el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast on ' + (type || '');
-  clearTimeout(el._t);
-  el._t = setTimeout(function() { el.className = 'toast'; }, 4000);
+  el.textContent = msg; el.className = 'toast on ' + (type||'');
+  clearTimeout(el._t); el._t = setTimeout(function(){ el.className='toast'; }, 5000);
 }
-
 function escHtml(s) {
-  return String(s || '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
 }
 function escAttr(s) {
-  return String(s || '').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 </script>
 </body>
