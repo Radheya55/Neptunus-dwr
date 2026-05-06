@@ -10,13 +10,9 @@
 <title>NPPS DWR Generator</title>
 <link rel="manifest" href="manifest.json"/>
 
-<!-- SheetJS for XLSX -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<!-- jsPDF for PDF -->
+<!-- jsPDF for PDF generation -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<!-- jsPDF AutoTable for proper PDF tables -->
+<!-- jsPDF AutoTable for proper tables in PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
 <style>
@@ -99,7 +95,7 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
 .btn-rerecord { width: 100%; background: transparent; border: 1px solid rgba(224,85,85,0.4); color: var(--danger); border-radius: 8px; padding: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
 .btn-rerecord:hover { background: rgba(224,85,85,0.1); }
 
-/* IMAGE UPLOAD */
+/* SITE PHOTOS */
 .upload-zone { border: 2px dashed rgba(245,166,35,0.35); border-radius: var(--r); padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 0.8rem; }
 .upload-zone:hover { border-color: var(--accent); background: rgba(245,166,35,0.04); }
 .upload-zone .uz-icon { font-size: 2rem; margin-bottom: 0.4rem; }
@@ -140,6 +136,14 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
 .countdown-bar-bg { background: rgba(255,255,255,0.1); border-radius: 20px; height: 6px; margin-top: 1rem; overflow: hidden; }
 .countdown-bar { background: linear-gradient(90deg, var(--teal), var(--accent)); height: 6px; border-radius: 20px; transition: width 1s linear; width: 100%; }
 
+/* REPORT READY */
+.report-ready { display: none; background: rgba(0,184,169,0.15); border: 2px solid var(--teal); border-radius: var(--r); padding: 1rem; text-align: center; margin-top: 1rem; }
+.report-ready.show { display: block; animation: pop-in 0.4s ease; }
+.report-ready .rr-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+.report-ready .rr-text { font-size: 1rem; font-weight: 700; color: var(--teal); }
+.report-ready .rr-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+@keyframes pop-in { from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1} }
+
 /* OUTPUT */
 #output-section { display: none; margin-top: 1rem; }
 #output-section.show { display: block; }
@@ -151,23 +155,14 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
 .output-img-title { font-size: 0.85rem; font-weight: 600; color: var(--white); margin-bottom: 0.2rem; }
 .output-img-desc { font-size: 0.78rem; color: var(--muted); font-style: italic; }
 
-/* DOWNLOADS */
+/* DOWNLOAD */
 .download-wrap { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1rem; }
 .btn-dl { width: 100%; padding: 0.9rem; border-radius: var(--r); border: none; font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-.btn-dl-pdf  { background: #c0392b; color: #fff; box-shadow: 0 4px 14px rgba(192,57,43,0.4); }
-.btn-dl-xlsx { background: #1e7145; color: #fff; box-shadow: 0 4px 14px rgba(30,113,69,0.4); }
+.btn-dl-pdf { background: #c0392b; color: #fff; box-shadow: 0 4px 14px rgba(192,57,43,0.4); }
 .btn-dl:hover { filter: brightness(1.12); transform: translateY(-1px); }
 .btn-dl:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
 .btn-new-dwr { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: var(--r); padding: 0.75rem; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; margin-top: 1rem; transition: all 0.2s; }
 .btn-new-dwr:hover { border-color: var(--accent); color: var(--accent); }
-
-/* REPORT READY */
-.report-ready { display: none; background: rgba(0,184,169,0.15); border: 2px solid var(--teal); border-radius: var(--r); padding: 1rem; text-align: center; margin-top: 1rem; }
-.report-ready.show { display: block; animation: pop-in 0.4s ease; }
-.report-ready .rr-icon { font-size: 2rem; margin-bottom: 0.3rem; }
-.report-ready .rr-text { font-size: 1rem; font-weight: 700; color: var(--teal); }
-.report-ready .rr-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
-@keyframes pop-in { from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1} }
 
 /* TOAST */
 .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--navy2); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1.2rem; font-size: 0.85rem; color: var(--light); box-shadow: 0 8px 28px rgba(0,0,0,0.5); z-index: 200; opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 320px; text-align: center; }
@@ -208,19 +203,28 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
 <div id="screen-form">
 <div class="wrap">
 
-  <!-- IDENTITY -->
+  <!-- SECTION 1: IDENTITY -->
   <div class="section-card" id="card-identity">
     <div class="section-title"><span class="step-num">1</span> Who Are You?</div>
-    <div class="field"><label>Your Name *</label><select id="sel-name" onchange="onNameChange()"><option value="">— Select your name —</option></select></div>
-    <div class="field"><label>Your Neptunus Email</label><div class="auto-fill" id="auto-email">—</div></div>
-    <div class="field"><label>Employee Number *</label><input type="text" id="inp-empno" placeholder="Enter your employee number" oninput="checkIdentity()"/></div>
+    <div class="field">
+      <label>Your Name *</label>
+      <select id="sel-name" onchange="onNameChange()"><option value="">— Select your name —</option></select>
+    </div>
+    <div class="field">
+      <label>Your Neptunus Email</label>
+      <div class="auto-fill" id="auto-email">—</div>
+    </div>
+    <div class="field">
+      <label>Employee Number *</label>
+      <input type="text" id="inp-empno" placeholder="Enter your employee number" oninput="checkIdentity()"/>
+    </div>
     <button class="btn-proceed" id="btn-proceed" onclick="unlockForm()">✓ Verify &amp; Proceed</button>
   </div>
 
   <!-- LOCKED SECTIONS -->
   <div id="form-body" class="locked">
 
-    <!-- JOB DETAILS -->
+    <!-- SECTION 2: JOB DETAILS -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">2</span> Job Details</div>
       <div class="field"><label>Date</label><input type="text" id="f-date" readonly/></div>
@@ -228,7 +232,7 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
       <div class="field"><label>Rig / Vessel Name *</label><input type="text" id="f-vessel" placeholder="e.g. MV Ocean Star" oninput="updateChecklist()"/></div>
     </div>
 
-    <!-- AUDIO -->
+    <!-- SECTION 3: AUDIO -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">3</span> Voice Recording</div>
       <div class="recorder-wrap">
@@ -248,31 +252,21 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
       </div>
     </div>
 
-    <!-- TABLE IMAGES -->
+    <!-- SECTION 4: SITE PHOTOS -->
     <div class="section-card">
-      <div class="section-title"><span class="step-num">4</span> Images to Convert to Tables</div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload photos of handwritten tables, measurement sheets, or calibration data. Gemini will convert them to proper tables.</p>
-      <div class="upload-zone" onclick="document.getElementById('inp-table-imgs').click()">
-        <div class="uz-icon">📊</div><div class="uz-text">Tap to upload table images</div>
-        <input type="file" id="inp-table-imgs" accept="image/*" multiple onchange="addTableImages(this)"/>
-      </div>
-      <div class="img-grid" id="table-img-grid"></div>
-    </div>
-
-    <!-- SITE PHOTOS -->
-    <div class="section-card">
-      <div class="section-title"><span class="step-num">5</span> Site Photos with Titles</div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload site photos. Each photo needs a mandatory title and an optional description.</p>
+      <div class="section-title"><span class="step-num">4</span> Site Photos</div>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload site photos. Each photo requires a mandatory title and an optional description. Photos will be embedded in the PDF report.</p>
       <div class="upload-zone" onclick="document.getElementById('inp-site-imgs').click()">
-        <div class="uz-icon">📷</div><div class="uz-text">Tap to upload site photos</div>
+        <div class="uz-icon">📷</div>
+        <div class="uz-text">Tap to upload site photos</div>
         <input type="file" id="inp-site-imgs" accept="image/*" multiple onchange="addSiteImages(this)"/>
       </div>
       <div class="img-grid" id="site-img-grid"></div>
     </div>
 
-    <!-- FINALISE -->
+    <!-- SECTION 5: FINALISE -->
     <div class="section-card">
-      <div class="section-title"><span class="step-num">6</span> Finalise &amp; Generate</div>
+      <div class="section-title"><span class="step-num">5</span> Finalise &amp; Generate</div>
       <div class="checklist" id="checklist">
         <div class="check-item" id="chk-identity"><span class="ci">⬜</span> Identity verified</div>
         <div class="check-item" id="chk-location"><span class="ci">⬜</span> Job location entered</div>
@@ -283,7 +277,7 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
       <button class="btn-convert show" id="btn-convert" onclick="convertToDWR()">⚡ Convert to DWR</button>
       <div class="countdown-wrap" id="countdown-wrap">
         <div class="countdown-label">Generating your DWR — please wait</div>
-        <div class="countdown-num" id="countdown-num">60</div>
+        <div class="countdown-num" id="countdown-num">45</div>
         <div class="countdown-sub" id="countdown-sub">seconds remaining</div>
         <div class="countdown-bar-bg"><div class="countdown-bar" id="countdown-bar"></div></div>
       </div>
@@ -294,24 +288,29 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
       </div>
     </div>
 
-  </div>
+  </div><!-- /form-body -->
 
   <!-- OUTPUT -->
   <div id="output-section">
     <div style="font-size:0.8rem;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;">✦ Your DWR Report</div>
-    <div class="output-card"><div class="oc-label">Report Details</div><div class="oc-text" id="out-meta"></div></div>
-    <div id="out-sections"></div>
-    <div id="out-tables"></div>
-    <div id="out-photos"></div>
-    <div class="download-wrap">
-      <button class="btn-dl btn-dl-pdf"  id="btn-pdf"  onclick="downloadPDF()">📄 Download PDF</button>
-      <button class="btn-dl btn-dl-xlsx" id="btn-xlsx" onclick="downloadXLSX()">📊 Download XLSX</button>
+
+    <div class="output-card">
+      <div class="oc-label">Report Details</div>
+      <div class="oc-text" id="out-meta"></div>
     </div>
+
+    <div id="out-sections"></div>
+    <div id="out-photos"></div>
+
+    <div class="download-wrap">
+      <button class="btn-dl btn-dl-pdf" id="btn-pdf" onclick="downloadPDF()">📄 Download PDF</button>
+    </div>
+
     <button class="btn-new-dwr" onclick="resetApp()">＋ Start New DWR</button>
   </div>
 
-</div>
-</div>
+</div><!-- /wrap -->
+</div><!-- /screen-form -->
 
 <script>
 // ══════════════════════════════════════════════
@@ -336,14 +335,13 @@ var recTimerInt  = null;
 var animFrame    = null;
 var audioCtx     = null;
 var analyser     = null;
-var tableImages  = [];
-var siteImages   = [];
+var siteImages   = [];   // [{file, objectUrl, base64, title, desc}]
 var generatedDWR = null;
 var finaliseOk   = false;
 var cdInterval   = null;
 var NUM_BARS     = 28;
 
-var SEC_ORDER  = ['scope_done','scope_not_done','critical_issues','spares_consumables','customer_manpower','plan_tomorrow','additional_notes'];
+var SEC_ORDER = ['scope_done','scope_not_done','critical_issues','spares_consumables','customer_manpower','plan_tomorrow','additional_notes'];
 var SEC_LABELS = {
   scope_done:         'Scope of Work Completed Today',
   scope_not_done:     'Scope Planned but Not Completed',
@@ -358,18 +356,26 @@ var SEC_LABELS = {
 //  INIT
 // ══════════════════════════════════════════════
 window.addEventListener('load', function() {
-  setDate(); loadEmployees(); buildBars(); updateChecklist();
+  setDate();
+  loadEmployees();
+  buildBars();
+  updateChecklist();
 });
 
 function setDate() {
-  document.getElementById('f-date').value = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric', timeZoneName:'short' });
+  document.getElementById('f-date').value = new Date().toLocaleDateString('en-US', {
+    weekday:'long', year:'numeric', month:'long', day:'numeric', timeZoneName:'short'
+  });
 }
 
 function buildBars() {
-  var wrap = document.getElementById('visualiser-wrap'); wrap.innerHTML = '';
+  var wrap = document.getElementById('visualiser-wrap');
+  wrap.innerHTML = '';
   for (var i = 0; i < NUM_BARS; i++) {
     var bar = document.createElement('div');
-    bar.className = 'vis-bar idle'; bar.id = 'bar-' + i; wrap.appendChild(bar);
+    bar.className = 'vis-bar idle';
+    bar.id = 'bar-' + i;
+    wrap.appendChild(bar);
   }
 }
 
@@ -381,7 +387,9 @@ function loadEmployees() {
       var sel = document.getElementById('sel-name');
       data.forEach(function(emp) {
         var opt = document.createElement('option');
-        opt.value = emp.empNo; opt.textContent = emp.name; opt.setAttribute('data-email', emp.email);
+        opt.value = emp.empNo;
+        opt.textContent = emp.name;
+        opt.setAttribute('data-email', emp.email);
         sel.appendChild(opt);
       });
     })
@@ -391,543 +399,586 @@ function loadEmployees() {
 // ══════════════════════════════════════════════
 //  IDENTITY
 // ══════════════════════════════════════════════
-function startDWR() { document.getElementById('screen-land').style.display='none'; document.getElementById('screen-form').style.display='block'; }
+function startDWR() {
+  document.getElementById('screen-land').style.display = 'none';
+  document.getElementById('screen-form').style.display = 'block';
+}
+
 function onNameChange() {
-  var sel=document.getElementById('sel-name'), opt=sel.options[sel.selectedIndex], emailEl=document.getElementById('auto-email');
-  if (opt&&opt.getAttribute('data-email')) { emailEl.textContent=opt.getAttribute('data-email'); emailEl.style.display='block'; }
-  else { emailEl.style.display='none'; }
+  var sel = document.getElementById('sel-name');
+  var opt = sel.options[sel.selectedIndex];
+  var emailEl = document.getElementById('auto-email');
+  if (opt && opt.getAttribute('data-email')) {
+    emailEl.textContent = opt.getAttribute('data-email');
+    emailEl.style.display = 'block';
+  } else {
+    emailEl.style.display = 'none';
+  }
   checkIdentity();
 }
+
 function checkIdentity() {
-  var sel=document.getElementById('sel-name'), opt=sel.options[sel.selectedIndex], empNo=document.getElementById('inp-empno').value.trim();
-  document.getElementById('btn-proceed').classList.toggle('active', !!(opt&&opt.value&&opt.value===empNo));
+  var sel   = document.getElementById('sel-name');
+  var opt   = sel.options[sel.selectedIndex];
+  var empNo = document.getElementById('inp-empno').value.trim();
+  document.getElementById('btn-proceed').classList.toggle('active', !!(opt && opt.value && opt.value === empNo));
 }
+
 function unlockForm() {
-  var sel=document.getElementById('sel-name'), opt=sel.options[sel.selectedIndex], empNo=document.getElementById('inp-empno').value.trim();
-  if (!opt||!opt.value||opt.value!==empNo) { toast('Employee number does not match.','err'); return; }
-  verifiedUser={name:opt.textContent, email:opt.getAttribute('data-email'), empNo:empNo};
+  var sel   = document.getElementById('sel-name');
+  var opt   = sel.options[sel.selectedIndex];
+  var empNo = document.getElementById('inp-empno').value.trim();
+  if (!opt || !opt.value || opt.value !== empNo) {
+    toast('Employee number does not match.', 'err'); return;
+  }
+  verifiedUser = { name: opt.textContent, email: opt.getAttribute('data-email'), empNo: empNo };
   document.getElementById('form-body').classList.remove('locked');
-  document.getElementById('card-identity').style.borderColor='var(--teal)';
-  var bp=document.getElementById('btn-proceed');
-  bp.textContent='✓ Verified — '+verifiedUser.name; bp.classList.remove('active');
-  bp.style.background='rgba(0,184,169,0.15)'; bp.style.color='var(--teal)'; bp.style.cursor='default'; bp.onclick=null;
-  updateChecklist(); toast('Identity verified!','ok');
-  setTimeout(function(){document.getElementById('form-body').scrollIntoView({behavior:'smooth',block:'start'});},300);
+  document.getElementById('card-identity').style.borderColor = 'var(--teal)';
+  var bp = document.getElementById('btn-proceed');
+  bp.textContent = '✓ Verified — ' + verifiedUser.name;
+  bp.classList.remove('active');
+  bp.style.background = 'rgba(0,184,169,0.15)';
+  bp.style.color = 'var(--teal)';
+  bp.style.cursor = 'default';
+  bp.onclick = null;
+  updateChecklist();
+  toast('Identity verified!', 'ok');
+  setTimeout(function() {
+    document.getElementById('form-body').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 300);
 }
 
 // ══════════════════════════════════════════════
 //  RECORDING
 // ══════════════════════════════════════════════
 function getBestMime() {
-  var types=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];
-  for (var i=0;i<types.length;i++) { if (MediaRecorder.isTypeSupported(types[i])) return types[i]; }
+  var types = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/ogg'];
+  for (var i = 0; i < types.length; i++) {
+    if (MediaRecorder.isTypeSupported(types[i])) return types[i];
+  }
   return '';
 }
-function toggleRecord() { if (!isRecording) startRecording(); else if (!isPaused) pauseRecording(); else resumeRecording(); }
+
+function toggleRecord() {
+  if (!isRecording) startRecording();
+  else if (!isPaused) pauseRecording();
+  else resumeRecording();
+}
+
 function startRecording() {
-  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:44100}})
+  navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 } })
     .then(function(stream) {
-      audioCtx=new(window.AudioContext||window.webkitAudioContext)(); analyser=audioCtx.createAnalyser(); analyser.fftSize=64;
+      audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+      analyser  = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
       audioCtx.createMediaStreamSource(stream).connect(analyser);
-      var mime=getBestMime(); audioMime=mime||'audio/webm';
-      mediaRecorder=new MediaRecorder(stream, mime?{mimeType:mime}:{}); audioChunks=[];
-      mediaRecorder.ondataavailable=function(e){if(e.data&&e.data.size>0)audioChunks.push(e.data);};
-      mediaRecorder.onstop=function(){
-        var actual=mediaRecorder.mimeType||audioMime; audioMime=actual.split(';')[0];
-        audioBlob=new Blob(audioChunks,{type:actual});
-        document.getElementById('audio-preview').src=URL.createObjectURL(audioBlob);
+
+      var mime    = getBestMime();
+      audioMime   = mime || 'audio/webm';
+      mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = function(e) {
+        if (e.data && e.data.size > 0) audioChunks.push(e.data);
+      };
+      mediaRecorder.onstop = function() {
+        var actual = mediaRecorder.mimeType || audioMime;
+        audioMime  = actual.split(';')[0];
+        audioBlob  = new Blob(audioChunks, { type: actual });
+        document.getElementById('audio-preview').src = URL.createObjectURL(audioBlob);
         document.getElementById('audio-playback').classList.add('show');
-        var reader=new FileReader();
-        reader.onload=function(e){audioBase64=e.target.result.split(',')[1]; updateChecklist(); detectLanguage();};
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          audioBase64 = e.target.result.split(',')[1];
+          updateChecklist();
+          detectLanguage();
+        };
         reader.readAsDataURL(audioBlob);
       };
-      mediaRecorder.start(500); isRecording=true; isPaused=false;
-      document.getElementById('btn-record').className='btn-record recording';
-      document.getElementById('btn-record').innerHTML='⏸';
-      document.getElementById('btn-pause').disabled=false; document.getElementById('btn-stop').disabled=false;
-      document.getElementById('rec-status').innerHTML='<span class="dot"></span> Recording…';
-      document.getElementById('audio-playback').classList.remove('show'); document.getElementById('lang-box').classList.remove('show');
-      startRecTimer(); drawBars();
+
+      mediaRecorder.start(500);
+      isRecording = true; isPaused = false;
+      document.getElementById('btn-record').className = 'btn-record recording';
+      document.getElementById('btn-record').innerHTML = '⏸';
+      document.getElementById('btn-pause').disabled   = false;
+      document.getElementById('btn-stop').disabled    = false;
+      document.getElementById('rec-status').innerHTML = '<span class="dot"></span> Recording…';
+      document.getElementById('audio-playback').classList.remove('show');
+      document.getElementById('lang-box').classList.remove('show');
+      startRecTimer();
+      drawBars();
     })
-    .catch(function(){toast('Microphone access denied. Please allow microphone permission.','err');});
+    .catch(function() { toast('Microphone access denied. Please allow microphone permission.', 'err'); });
 }
+
 function pauseRecording() {
-  if (mediaRecorder&&isRecording&&!isPaused) {
-    mediaRecorder.pause(); isPaused=true; clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').className='btn-record paused'; document.getElementById('btn-record').innerHTML='▶';
-    document.getElementById('rec-status').textContent='Paused — tap ▶ to resume'; idleBars();
+  if (mediaRecorder && isRecording && !isPaused) {
+    mediaRecorder.pause(); isPaused = true;
+    clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
+    document.getElementById('btn-record').className = 'btn-record paused';
+    document.getElementById('btn-record').innerHTML = '▶';
+    document.getElementById('rec-status').textContent = 'Paused — tap ▶ to resume';
+    idleBars();
   }
 }
+
 function resumeRecording() {
-  if (mediaRecorder&&isPaused) {
-    mediaRecorder.resume(); isPaused=false; startRecTimer(); drawBars();
-    document.getElementById('btn-record').className='btn-record recording'; document.getElementById('btn-record').innerHTML='⏸';
-    document.getElementById('rec-status').innerHTML='<span class="dot"></span> Recording…';
+  if (mediaRecorder && isPaused) {
+    mediaRecorder.resume(); isPaused = false;
+    startRecTimer(); drawBars();
+    document.getElementById('btn-record').className = 'btn-record recording';
+    document.getElementById('btn-record').innerHTML = '⏸';
+    document.getElementById('rec-status').innerHTML = '<span class="dot"></span> Recording…';
   }
 }
+
 function stopRecording() {
-  if (mediaRecorder&&isRecording) {
-    mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(function(t){t.stop();});
-    isRecording=false; isPaused=false; clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').className='btn-record'; document.getElementById('btn-record').innerHTML='🎙️';
-    document.getElementById('btn-pause').disabled=true; document.getElementById('btn-stop').disabled=true;
-    document.getElementById('rec-status').textContent='Recording complete — listen below'; idleBars();
+  if (mediaRecorder && isRecording) {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
+    isRecording = false; isPaused = false;
+    clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
+    document.getElementById('btn-record').className = 'btn-record';
+    document.getElementById('btn-record').innerHTML = '🎙️';
+    document.getElementById('btn-pause').disabled   = true;
+    document.getElementById('btn-stop').disabled    = true;
+    document.getElementById('rec-status').textContent = 'Recording complete — listen below';
+    idleBars();
   }
 }
+
 function reRecord() {
-  audioBlob=null; audioBase64=null; recSeconds=0;
-  document.getElementById('rec-timer').textContent='00:00';
-  document.getElementById('audio-playback').classList.remove('show'); document.getElementById('lang-box').classList.remove('show');
-  document.getElementById('rec-status').textContent='Tap the microphone to start recording';
+  audioBlob = null; audioBase64 = null; recSeconds = 0;
+  document.getElementById('rec-timer').textContent = '00:00';
+  document.getElementById('audio-playback').classList.remove('show');
+  document.getElementById('lang-box').classList.remove('show');
+  document.getElementById('rec-status').textContent = 'Tap the microphone to start recording';
   idleBars(); updateChecklist();
 }
+
 function startRecTimer() {
-  recTimerInt=setInterval(function(){
-    recSeconds++; var m=Math.floor(recSeconds/60),s=recSeconds%60;
-    document.getElementById('rec-timer').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-  },1000);
+  recTimerInt = setInterval(function() {
+    recSeconds++;
+    var m = Math.floor(recSeconds / 60), s = recSeconds % 60;
+    document.getElementById('rec-timer').textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }, 1000);
 }
+
 function drawBars() {
   if (!analyser) return;
-  var bufLen=analyser.frequencyBinCount, data=new Uint8Array(bufLen);
-  var wrap=document.getElementById('visualiser-wrap'), maxH=wrap.clientHeight-10;
+  var bufLen = analyser.frequencyBinCount;
+  var data   = new Uint8Array(bufLen);
+  var wrap   = document.getElementById('visualiser-wrap');
+  var maxH   = wrap.clientHeight - 10;
   function frame() {
-    animFrame=requestAnimationFrame(frame); analyser.getByteFrequencyData(data);
-    var step=Math.floor(bufLen/NUM_BARS);
-    for (var i=0;i<NUM_BARS;i++) {
-      var val=data[i*step]/255, h=Math.max(4,Math.round(val*maxH));
-      var bar=document.getElementById('bar-'+i);
-      if (bar) { bar.style.height=h+'px'; bar.className='vis-bar'; bar.style.background=val<0.4?'#00b8a9':val<0.7?'#f5a623':'#e05555'; }
+    animFrame = requestAnimationFrame(frame);
+    analyser.getByteFrequencyData(data);
+    var step = Math.floor(bufLen / NUM_BARS);
+    for (var i = 0; i < NUM_BARS; i++) {
+      var val = data[i * step] / 255;
+      var h   = Math.max(4, Math.round(val * maxH));
+      var bar = document.getElementById('bar-' + i);
+      if (bar) {
+        bar.style.height     = h + 'px';
+        bar.className        = 'vis-bar';
+        bar.style.background = val < 0.4 ? '#00b8a9' : val < 0.7 ? '#f5a623' : '#e05555';
+      }
     }
   }
   frame();
 }
+
 function idleBars() {
   cancelAnimationFrame(animFrame);
-  for (var i=0;i<NUM_BARS;i++) { var bar=document.getElementById('bar-'+i); if(bar){bar.className='vis-bar idle';bar.style.height='4px';bar.style.background='';} }
+  for (var i = 0; i < NUM_BARS; i++) {
+    var bar = document.getElementById('bar-' + i);
+    if (bar) { bar.className = 'vis-bar idle'; bar.style.height = '4px'; bar.style.background = ''; }
+  }
 }
+
 function detectLanguage() {
   if (!audioBase64) return;
-  document.getElementById('lang-box').classList.add('show'); document.getElementById('lang-text').textContent='Detecting language…';
-  callWorker({action:'detect_language',audio:audioBase64,mimeType:audioMime})
-    .then(function(r){document.getElementById('lang-text').textContent=r.language||'Unable to detect';})
-    .catch(function(){document.getElementById('lang-text').textContent='Detection failed';});
+  document.getElementById('lang-box').classList.add('show');
+  document.getElementById('lang-text').textContent = 'Detecting language…';
+  callWorker({ action: 'detect_language', audio: audioBase64, mimeType: audioMime })
+    .then(function(r) { document.getElementById('lang-text').textContent = r.language || 'Unable to detect'; })
+    .catch(function()  { document.getElementById('lang-text').textContent = 'Detection failed'; });
 }
 
 // ══════════════════════════════════════════════
-//  IMAGES
+//  SITE IMAGES
 // ══════════════════════════════════════════════
-function addTableImages(input) {
-  Array.from(input.files).forEach(function(file){
-    var url=URL.createObjectURL(file); var entry={file:file,objectUrl:url,base64:null};
-    tableImages.push(entry); readB64(file,function(b64){entry.base64=b64;});
-  }); renderTableImgs(); input.value='';
-}
-function renderTableImgs() {
-  var grid=document.getElementById('table-img-grid'); grid.innerHTML='';
-  tableImages.forEach(function(e,idx){
-    var div=document.createElement('div'); div.className='img-item';
-    div.innerHTML='<img src="'+e.objectUrl+'" alt="Table '+(idx+1)+'"/><div class="img-item-body"><button class="btn-remove-img" onclick="removeTableImg('+idx+')">✕ Remove</button></div>';
-    grid.appendChild(div);
-  });
-}
-function removeTableImg(idx){URL.revokeObjectURL(tableImages[idx].objectUrl);tableImages.splice(idx,1);renderTableImgs();}
-
 function addSiteImages(input) {
-  Array.from(input.files).forEach(function(file){
-    var url=URL.createObjectURL(file); var entry={file:file,objectUrl:url,base64:null,title:'',desc:''};
-    siteImages.push(entry); readB64(file,function(b64){entry.base64=b64;});
-  }); renderSiteImgs(); input.value='';
+  Array.from(input.files).forEach(function(file) {
+    var url   = URL.createObjectURL(file);
+    var entry = { file: file, objectUrl: url, base64: null, title: '', desc: '' };
+    siteImages.push(entry);
+    readB64(file, function(b64) { entry.base64 = b64; });
+  });
+  renderSiteImgs();
+  input.value = '';
 }
+
 function renderSiteImgs() {
-  var grid=document.getElementById('site-img-grid'); grid.innerHTML='';
-  siteImages.forEach(function(e,idx){
-    var div=document.createElement('div'); div.className='img-item';
-    div.innerHTML='<img src="'+e.objectUrl+'" alt="Site '+(idx+1)+'"/><div class="img-item-body"><input type="text" placeholder="Title (mandatory) *" value="'+escAttr(e.title)+'" oninput="siteImages['+idx+'].title=this.value;updateChecklist()"/><input type="text" placeholder="Description (optional)" value="'+escAttr(e.desc)+'" oninput="siteImages['+idx+'].desc=this.value"/><button class="btn-remove-img" onclick="removeSiteImg('+idx+')">✕ Remove</button></div>';
+  var grid = document.getElementById('site-img-grid');
+  grid.innerHTML = '';
+  siteImages.forEach(function(e, idx) {
+    var div = document.createElement('div');
+    div.className = 'img-item';
+    div.innerHTML =
+      '<img src="' + e.objectUrl + '" alt="Site ' + (idx+1) + '"/>' +
+      '<div class="img-item-body">' +
+        '<input type="text" placeholder="Title (mandatory) *" value="' + escAttr(e.title) + '" oninput="siteImages[' + idx + '].title=this.value;updateChecklist()"/>' +
+        '<input type="text" placeholder="Description (optional)" value="' + escAttr(e.desc) + '" oninput="siteImages[' + idx + '].desc=this.value"/>' +
+        '<button class="btn-remove-img" onclick="removeSiteImg(' + idx + ')">✕ Remove</button>' +
+      '</div>';
     grid.appendChild(div);
   });
 }
-function removeSiteImg(idx){URL.revokeObjectURL(siteImages[idx].objectUrl);siteImages.splice(idx,1);renderSiteImgs();updateChecklist();}
+
+function removeSiteImg(idx) {
+  URL.revokeObjectURL(siteImages[idx].objectUrl);
+  siteImages.splice(idx, 1);
+  renderSiteImgs();
+  updateChecklist();
+}
 
 // ══════════════════════════════════════════════
 //  CHECKLIST
 // ══════════════════════════════════════════════
 function updateChecklist() {
-  var ok1=!!verifiedUser;
-  var ok2=(document.getElementById('f-location')||{value:''}).value.trim().length>0;
-  var ok3=(document.getElementById('f-vessel')||{value:''}).value.trim().length>0;
-  var ok4=!!audioBase64;
-  setCheck('chk-identity',ok1,'Identity verified'); setCheck('chk-location',ok2,'Job location entered');
-  setCheck('chk-vessel',ok3,'Vessel / rig name entered'); setCheck('chk-audio',ok4,'Audio recorded');
-  var siteOk=siteImages.length===0||siteImages.every(function(img){return img.title.trim().length>0;});
-  document.getElementById('btn-finalise').classList.toggle('active',ok1&&ok2&&ok3&&ok4&&siteOk);
+  var ok1 = !!verifiedUser;
+  var ok2 = (document.getElementById('f-location') || { value: '' }).value.trim().length > 0;
+  var ok3 = (document.getElementById('f-vessel')   || { value: '' }).value.trim().length > 0;
+  var ok4 = !!audioBase64;
+  setCheck('chk-identity', ok1, 'Identity verified');
+  setCheck('chk-location', ok2, 'Job location entered');
+  setCheck('chk-vessel',   ok3, 'Vessel / rig name entered');
+  setCheck('chk-audio',    ok4, 'Audio recorded');
+  var siteOk = siteImages.length === 0 || siteImages.every(function(img) { return img.title.trim().length > 0; });
+  document.getElementById('btn-finalise').classList.toggle('active', ok1 && ok2 && ok3 && ok4 && siteOk);
 }
-function setCheck(id,done,label){
-  var el=document.getElementById(id); if(!el)return;
-  el.className='check-item'+(done?' done':'');
-  el.innerHTML='<span class="ci">'+(done?'✅':'⬜')+'</span> '+label;
+
+function setCheck(id, done, label) {
+  var el = document.getElementById(id); if (!el) return;
+  el.className = 'check-item' + (done ? ' done' : '');
+  el.innerHTML = '<span class="ci">' + (done ? '✅' : '⬜') + '</span> ' + label;
 }
-function finalise(){
+
+function finalise() {
   updateChecklist();
-  if (!document.getElementById('btn-finalise').classList.contains('active')){toast('Please complete all required fields first.','err');return;}
-  finaliseOk=true;
-  var bf=document.getElementById('btn-finalise');
-  bf.textContent='✅ Draft Finalised'; bf.classList.remove('active');
-  bf.style.background='rgba(0,184,169,0.15)'; bf.style.color='var(--teal)'; bf.style.cursor='default';
+  if (!document.getElementById('btn-finalise').classList.contains('active')) {
+    toast('Please complete all required fields first.', 'err'); return;
+  }
+  finaliseOk = true;
+  var bf = document.getElementById('btn-finalise');
+  bf.textContent = '✅ Draft Finalised';
+  bf.classList.remove('active');
+  bf.style.background = 'rgba(0,184,169,0.15)';
+  bf.style.color = 'var(--teal)';
+  bf.style.cursor = 'default';
   document.getElementById('btn-convert').classList.add('active');
-  toast('Draft finalised! Tap Convert to DWR.','ok');
-  setTimeout(function(){document.getElementById('btn-convert').scrollIntoView({behavior:'smooth',block:'center'});},300);
+  toast('Draft finalised! Tap Convert to DWR.', 'ok');
+  setTimeout(function() {
+    document.getElementById('btn-convert').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
 }
 
 // ══════════════════════════════════════════════
 //  COUNTDOWN
 // ══════════════════════════════════════════════
-function startCountdown(seconds){
-  var wrap=document.getElementById('countdown-wrap'),num=document.getElementById('countdown-num'),sub=document.getElementById('countdown-sub'),bar=document.getElementById('countdown-bar');
-  wrap.classList.add('show'); document.getElementById('report-ready').classList.remove('show');
-  var rem=seconds; num.textContent=rem; num.className='countdown-num'; bar.style.width='100%';
+function startCountdown(seconds) {
+  var wrap = document.getElementById('countdown-wrap');
+  var num  = document.getElementById('countdown-num');
+  var sub  = document.getElementById('countdown-sub');
+  var bar  = document.getElementById('countdown-bar');
+  wrap.classList.add('show');
+  document.getElementById('report-ready').classList.remove('show');
+  var rem = seconds;
+  num.textContent = rem; num.className = 'countdown-num'; bar.style.width = '100%';
   clearInterval(cdInterval);
-  cdInterval=setInterval(function(){
-    rem--; if(rem<=0){clearInterval(cdInterval);num.textContent='0';bar.style.width='0%';return;}
-    num.textContent=rem; if(rem<=10)num.className='countdown-num urgent';
-    bar.style.width=Math.round((rem/seconds)*100)+'%';
-    sub.textContent=rem===1?'second remaining':'seconds remaining';
-  },1000);
+  cdInterval = setInterval(function() {
+    rem--;
+    if (rem <= 0) { clearInterval(cdInterval); num.textContent = '0'; bar.style.width = '0%'; return; }
+    num.textContent = rem;
+    if (rem <= 10) num.className = 'countdown-num urgent';
+    bar.style.width = Math.round((rem / seconds) * 100) + '%';
+    sub.textContent = rem === 1 ? 'second remaining' : 'seconds remaining';
+  }, 1000);
 }
-function stopCountdown(){clearInterval(cdInterval);document.getElementById('countdown-wrap').classList.remove('show');}
+
+function stopCountdown() {
+  clearInterval(cdInterval);
+  document.getElementById('countdown-wrap').classList.remove('show');
+}
 
 // ══════════════════════════════════════════════
 //  CONVERT TO DWR
 // ══════════════════════════════════════════════
-function convertToDWR(){
-  if (!finaliseOk){toast('Please finalise the draft first.','err');return;}
-  startCountdown(45+(tableImages.length*12));
-  document.getElementById('btn-convert').disabled=true;
+function convertToDWR() {
+  if (!finaliseOk) { toast('Please finalise the draft first.', 'err'); return; }
+  startCountdown(45);
+  document.getElementById('btn-convert').disabled = true;
+
   callWorker({
-    action:'process_dwr', audio:audioBase64, audioMime:audioMime,
-    tableImages:tableImages.map(function(img){return{base64:img.base64,mimeType:img.file.type||'image/jpeg'};}),
-    engineerName:verifiedUser.name, location:document.getElementById('f-location').value.trim(),
-    vessel:document.getElementById('f-vessel').value.trim(), date:document.getElementById('f-date').value
+    action:       'process_dwr',
+    audio:        audioBase64,
+    audioMime:    audioMime,
+    engineerName: verifiedUser.name,
+    location:     document.getElementById('f-location').value.trim(),
+    vessel:       document.getElementById('f-vessel').value.trim(),
+    date:         document.getElementById('f-date').value
   })
-  .then(function(result){
-    stopCountdown(); document.getElementById('btn-convert').disabled=false;
-    generatedDWR=result; renderOutput(result);
+  .then(function(result) {
+    stopCountdown();
+    document.getElementById('btn-convert').disabled = false;
+    generatedDWR = result;
+    renderOutput(result);
     document.getElementById('report-ready').classList.add('show');
-    toast('DWR generated! Scroll down to view your report.','ok');
+    toast('DWR generated! Scroll down to view your report.', 'ok');
   })
-  .catch(function(err){
-    stopCountdown(); document.getElementById('btn-convert').disabled=false;
+  .catch(function(err) {
+    stopCountdown();
+    document.getElementById('btn-convert').disabled = false;
     document.getElementById('btn-convert').classList.add('active');
-    toast('Error: '+(err.message||'Please try again.'),'err');
+    toast('Error: ' + (err.message || 'Please try again.'), 'err');
   });
 }
 
 // ══════════════════════════════════════════════
 //  RENDER OUTPUT (screen preview)
 // ══════════════════════════════════════════════
-function renderOutput(data){
-  document.getElementById('out-meta').textContent='Engineer: '+verifiedUser.name+'\nDate: '+document.getElementById('f-date').value+'\nLocation: '+document.getElementById('f-location').value+'\nVessel / Rig: '+document.getElementById('f-vessel').value;
-  var secOut=document.getElementById('out-sections'); secOut.innerHTML='';
-  SEC_ORDER.forEach(function(key){
-    var d=(data.sections&&data.sections[key])||{},txt=(d.polished_text||'').trim();
-    var div=document.createElement('div'); div.className='output-card';
-    div.innerHTML='<div class="oc-label">'+SEC_LABELS[key]+'</div>'+(txt&&txt!=='• Nothing reported for this section.'?'<div class="oc-text">'+escHtml(txt)+'</div>':'<div class="oc-empty">Nothing reported for this section.</div>');
+function renderOutput(data) {
+  document.getElementById('out-meta').textContent =
+    'Engineer: '    + verifiedUser.name + '\n' +
+    'Date: '        + document.getElementById('f-date').value + '\n' +
+    'Location: '    + document.getElementById('f-location').value + '\n' +
+    'Vessel / Rig: '+ document.getElementById('f-vessel').value;
+
+  var secOut = document.getElementById('out-sections');
+  secOut.innerHTML = '';
+  SEC_ORDER.forEach(function(key) {
+    var d   = (data.sections && data.sections[key]) || {};
+    var txt = (d.polished_text || '').trim();
+    var div = document.createElement('div');
+    div.className = 'output-card';
+    div.innerHTML =
+      '<div class="oc-label">' + SEC_LABELS[key] + '</div>' +
+      (txt && txt !== '• Nothing reported for this section.'
+        ? '<div class="oc-text">' + escHtml(txt) + '</div>'
+        : '<div class="oc-empty">Nothing reported for this section.</div>');
     secOut.appendChild(div);
   });
-  var tabOut=document.getElementById('out-tables'); tabOut.innerHTML='';
-  if (data.tables&&data.tables.length>0){
-    data.tables.forEach(function(tbl,i){
-      var div=document.createElement('div'); div.className='output-card';
-      div.innerHTML='<div class="oc-label">Table '+(i+1)+'</div><div class="oc-text">'+escHtml(tbl.text||'')+'</div>';
-      tabOut.appendChild(div);
-    });
-  }
-  var photoOut=document.getElementById('out-photos'); photoOut.innerHTML='';
-  siteImages.forEach(function(img,i){
-    var div=document.createElement('div'); div.className='output-card';
-    div.innerHTML='<div class="oc-label">Site Photo '+(i+1)+'</div><img class="output-img" src="'+img.objectUrl+'" alt="'+escAttr(img.title)+'"/><div class="output-img-title">'+escHtml(img.title)+'</div>'+(img.desc?'<div class="output-img-desc">'+escHtml(img.desc)+'</div>':'');
+
+  var photoOut = document.getElementById('out-photos');
+  photoOut.innerHTML = '';
+  siteImages.forEach(function(img, i) {
+    var div = document.createElement('div');
+    div.className = 'output-card';
+    div.innerHTML =
+      '<div class="oc-label">Site Photo ' + (i+1) + '</div>' +
+      '<img class="output-img" src="' + img.objectUrl + '" alt="' + escAttr(img.title) + '"/>' +
+      '<div class="output-img-title">' + escHtml(img.title) + '</div>' +
+      (img.desc ? '<div class="output-img-desc">' + escHtml(img.desc) + '</div>' : '');
     photoOut.appendChild(div);
   });
-  document.getElementById('output-section').style.display='block';
+
+  document.getElementById('output-section').style.display = 'block';
 }
 
 // ══════════════════════════════════════════════
-//  DOWNLOAD XLSX — using SheetJS
+//  DOWNLOAD PDF — jsPDF + autoTable
 // ══════════════════════════════════════════════
-function downloadXLSX(){
-  if (!generatedDWR){toast('No report generated yet.','err');return;}
-  var btn=document.getElementById('btn-xlsx');
-  btn.disabled=true; btn.textContent='⏳ Generating XLSX…';
+function downloadPDF() {
+  if (!generatedDWR) { toast('No report generated yet.', 'err'); return; }
+  var btn = document.getElementById('btn-pdf');
+  btn.disabled = true; btn.textContent = '⏳ Generating PDF…';
 
-  try {
-    var wb = XLSX.utils.book_new();
+  // Use setTimeout so the UI updates before heavy PDF work starts
+  setTimeout(function() {
+    try {
+      var jsPDFLib = window.jspdf;
+      var doc = new jsPDFLib.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      var pageW  = doc.internal.pageSize.getWidth();
+      var pageH  = doc.internal.pageSize.getHeight();
+      var margin = 15;
+      var y      = margin;
 
-    // ── SHEET 1: DWR REPORT ──────────────────────────────
-    var wsData = [];
-
-    // Title rows
-    wsData.push(['NEPTUNUS POWER PLANT SERVICES']);
-    wsData.push(['Daily Working Report']);
-    wsData.push([]);
-
-    // Meta
-    wsData.push(['Engineer', verifiedUser.name]);
-    wsData.push(['Date', document.getElementById('f-date').value]);
-    wsData.push(['Location', document.getElementById('f-location').value]);
-    wsData.push(['Vessel / Rig', document.getElementById('f-vessel').value]);
-    wsData.push([]);
-    wsData.push(['─────────────────────────────────────────────────────────────────────']);
-    wsData.push([]);
-
-    // 7 sections
-    SEC_ORDER.forEach(function(key){
-      var label=SEC_LABELS[key];
-      var d=(generatedDWR.sections&&generatedDWR.sections[key])||{};
-      var txt=(d.polished_text||'• Nothing reported for this section.').trim();
-      wsData.push([label.toUpperCase()]);
-      txt.split('\n').forEach(function(line){
-        var clean=line.trim();
-        if (clean) wsData.push(['', clean]);
-      });
-      wsData.push([]);
-    });
-
-    var ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // Column widths
-    ws['!cols'] = [{ wch: 35 }, { wch: 90 }];
-
-    // Merge title cells
-    ws['!merges'] = [
-      { s:{r:0,c:0}, e:{r:0,c:1} },
-      { s:{r:1,c:0}, e:{r:1,c:1} }
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws, 'DWR Report');
-
-    // ── SHEET 2: TABLES (one sheet per table image) ──────
-    if (generatedDWR.tables && generatedDWR.tables.length > 0) {
-      generatedDWR.tables.forEach(function(tbl, ti){
-        var tableLines=(tbl.text||'').split('\n').filter(function(l){return l.trim().length>0;});
-        var tableData=[];
-
-        if (tableLines.length > 0) {
-          tableLines.forEach(function(line){
-            // Split by comma, pipe, or tab
-            var cells=line.split(/\||,|\t/).map(function(c){
-              return c.replace(/^\s*\*+\s*|\s*\*+\s*$/g,'').trim();
-            }).filter(function(c,i,arr){
-              // Remove empty first/last cells from pipe-delimited tables
-              return !(i===0&&c==='')||!(i===arr.length-1&&c==='');
-            });
-            if (cells.some(function(c){return c.length>0;})) tableData.push(cells);
-          });
-        }
-
-        if (tableData.length > 0) {
-          var tws = XLSX.utils.aoa_to_sheet(tableData);
-          // Auto column widths
-          var maxCols = Math.max.apply(null, tableData.map(function(r){return r.length;}));
-          tws['!cols'] = [];
-          for (var ci=0; ci<maxCols; ci++) {
-            var maxW = 10;
-            tableData.forEach(function(row){
-              if (row[ci] && String(row[ci]).length > maxW) maxW = Math.min(String(row[ci]).length, 40);
-            });
-            tws['!cols'].push({ wch: maxW });
-          }
-          XLSX.utils.book_append_sheet(wb, tws, 'Table ' + (ti+1));
-        }
-      });
-    }
-
-    // ── SHEET 3: SITE PHOTOS INFO ────────────────────────
-    if (siteImages.length > 0) {
-      var photoData = [['Photo #', 'Title', 'Description', 'Note']];
-      siteImages.forEach(function(img, i){
-        photoData.push([
-          'Photo ' + (i+1),
-          img.title,
-          img.desc || '',
-          'See PDF download for embedded photos'
-        ]);
-      });
-      var pws = XLSX.utils.aoa_to_sheet(photoData);
-      pws['!cols'] = [{wch:10},{wch:40},{wch:40},{wch:35}];
-      XLSX.utils.book_append_sheet(wb, pws, 'Site Photos');
-    }
-
-    // Generate and download
-    var safeName=verifiedUser.name.replace(/[^a-zA-Z0-9]/g,'_');
-    var safeDate=new Date().toISOString().split('T')[0];
-    var fileName='NPPS_DWR_'+safeName+'_'+safeDate+'.xlsx';
-
-    XLSX.writeFile(wb, fileName);
-
-    btn.disabled=false; btn.textContent='📊 Download XLSX';
-    toast('XLSX downloaded! Open in Google Sheets.','ok');
-
-  } catch(e) {
-    btn.disabled=false; btn.textContent='📊 Download XLSX';
-    toast('XLSX error: '+e.message,'err');
-    console.error(e);
-  }
-}
-
-// ══════════════════════════════════════════════
-//  DOWNLOAD PDF — using jsPDF + autoTable
-// ══════════════════════════════════════════════
-async function downloadPDF(){
-  if (!generatedDWR){toast('No report generated yet.','err');return;}
-  var btn=document.getElementById('btn-pdf');
-  btn.disabled=true; btn.textContent='⏳ Generating PDF…';
-
-  try {
-    var jsPDFLib=window.jspdf; if(!jsPDFLib)jsPDFLib={jsPDF:jsPDF};
-    var doc=new jsPDFLib.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-    var pageW=doc.internal.pageSize.getWidth(), pageH=doc.internal.pageSize.getHeight(), margin=15, y=margin;
-
-    function checkPage(needed){if(y+needed>pageH-margin){doc.addPage();y=margin;}}
-
-    // Header
-    doc.setFillColor(10,22,40); doc.rect(0,0,pageW,22,'F');
-    doc.setTextColor(245,166,35); doc.setFontSize(15); doc.setFont('helvetica','bold');
-    doc.text('NEPTUNUS POWER PLANT SERVICES',pageW/2,9,{align:'center'});
-    doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(200,210,230);
-    doc.text('Daily Working Report',pageW/2,16,{align:'center'});
-    y=30;
-
-    // Meta table
-    doc.autoTable({
-      startY:y,
-      head:[],
-      body:[
-        ['Engineer',verifiedUser.name],
-        ['Date',document.getElementById('f-date').value],
-        ['Location',document.getElementById('f-location').value],
-        ['Vessel / Rig',document.getElementById('f-vessel').value]
-      ],
-      columnStyles:{0:{fontStyle:'bold',cellWidth:35,fillColor:[232,236,245]},1:{cellWidth:'auto'}},
-      margin:{left:margin,right:margin},
-      styles:{fontSize:9,cellPadding:3},
-      theme:'grid'
-    });
-    y=doc.lastAutoTable.finalY+8;
-
-    // 7 sections
-    for (var ki=0;ki<SEC_ORDER.length;ki++){
-      var key=SEC_ORDER[ki],label=SEC_LABELS[key];
-      var d=(generatedDWR.sections&&generatedDWR.sections[key])||{};
-      var txt=(d.polished_text||'• Nothing reported for this section.').trim();
-      checkPage(16);
-      doc.setFillColor(30,58,95); doc.rect(margin,y,pageW-margin*2,7,'F');
-      doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-      doc.text(label.toUpperCase(),margin+2,y+5); y+=9;
-      doc.setTextColor(40,40,40); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      txt.split('\n').forEach(function(line){
-        var l=line.trim(); if(!l)return;
-        var wrapped=doc.splitTextToSize(l,pageW-margin*2-4);
-        checkPage(wrapped.length*5+2); doc.text(wrapped,margin+3,y); y+=wrapped.length*5+1;
-      });
-      y+=5;
-    }
-
-    // Tables
-    if (generatedDWR.tables&&generatedDWR.tables.length>0){
-      generatedDWR.tables.forEach(function(tbl,ti){
-        var tableLines=(tbl.text||'').split('\n').filter(function(l){return l.trim().length>0;});
-        if (tableLines.length<2) return;
-
-        checkPage(20);
-        doc.setFillColor(30,58,95); doc.rect(margin,y,pageW-margin*2,7,'F');
-        doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-        doc.text('TABLE '+(ti+1),margin+2,y+5); y+=9;
-
-        // Parse table rows
-        var parsedRows=tableLines.map(function(line){
-          return line.split(/\||,|\t/).map(function(c){return c.replace(/^\s*\*+\s*|\s*\*+\s*$/g,'').trim();})
-            .filter(function(c,i,arr){return !((i===0||i===arr.length-1)&&c==='');});
-        }).filter(function(row){return row.some(function(c){return c.length>0;});});
-
-        if (parsedRows.length>1){
-          doc.autoTable({
-            startY:y,
-            head:[parsedRows[0]],
-            body:parsedRows.slice(1),
-            margin:{left:margin,right:margin},
-            styles:{fontSize:7,cellPadding:2,overflow:'linebreak'},
-            headStyles:{fillColor:[30,58,95],textColor:255,fontStyle:'bold'},
-            alternateRowStyles:{fillColor:[240,244,248]},
-            theme:'grid'
-          });
-          y=doc.lastAutoTable.finalY+6;
-        }
-      });
-    }
-
-    // Site photos
-    if (siteImages.length>0){
-      checkPage(16);
-      doc.setFillColor(30,58,95); doc.rect(margin,y,pageW-margin*2,7,'F');
-      doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-      doc.text('SITE PHOTOGRAPHS',margin+2,y+5); y+=9;
-
-      for (var si=0;si<siteImages.length;si++){
-        var sImg=siteImages[si];
-        checkPage(110);
-        doc.setTextColor(30,58,95); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-        doc.text('Photo '+(si+1)+': '+sImg.title,margin,y); y+=5;
-        if (sImg.desc){doc.setFont('helvetica','italic');doc.setTextColor(100,100,100);doc.setFontSize(8);doc.text(sImg.desc,margin,y);y+=4;}
-        if (sImg.base64){
-          try{
-            var fmt=sImg.file.type&&sImg.file.type.includes('png')?'PNG':'JPEG';
-            var imgUrl='data:'+(sImg.file.type||'image/jpeg')+';base64,'+sImg.base64;
-            var maxImgW=pageW-margin*2, maxImgH=85;
-            checkPage(maxImgH+8);
-            doc.addImage(imgUrl,fmt,margin,y,maxImgW,maxImgH,undefined,'FAST');
-            y+=maxImgH+4;
-          }catch(ie){doc.setTextColor(180,0,0);doc.setFontSize(8);doc.text('[Image could not be embedded]',margin,y);y+=5;}
-        }
-        y+=4;
+      function checkPage(needed) {
+        if (y + needed > pageH - margin) { doc.addPage(); y = margin; }
       }
+
+      // ── Header ──
+      doc.setFillColor(10, 22, 40);
+      doc.rect(0, 0, pageW, 24, 'F');
+      doc.setTextColor(245, 166, 35);
+      doc.setFontSize(15); doc.setFont('helvetica', 'bold');
+      doc.text('NEPTUNUS POWER PLANT SERVICES', pageW / 2, 10, { align: 'center' });
+      doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+      doc.setTextColor(200, 210, 230);
+      doc.text('Daily Working Report', pageW / 2, 18, { align: 'center' });
+      y = 32;
+
+      // ── Meta info table ──
+      doc.autoTable({
+        startY: y,
+        head:   [],
+        body:   [
+          ['Engineer',     verifiedUser.name],
+          ['Date',         document.getElementById('f-date').value],
+          ['Location',     document.getElementById('f-location').value],
+          ['Vessel / Rig', document.getElementById('f-vessel').value]
+        ],
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 38, fillColor: [232, 236, 245] },
+          1: { cellWidth: 'auto' }
+        },
+        margin: { left: margin, right: margin },
+        styles: { fontSize: 9, cellPadding: 3 },
+        theme:  'grid'
+      });
+      y = doc.lastAutoTable.finalY + 8;
+
+      // ── 7 Sections ──
+      SEC_ORDER.forEach(function(key) {
+        var label = SEC_LABELS[key];
+        var d     = (generatedDWR.sections && generatedDWR.sections[key]) || {};
+        var txt   = (d.polished_text || '• Nothing reported for this section.').trim();
+
+        checkPage(16);
+        doc.setFillColor(30, 58, 95);
+        doc.rect(margin, y, pageW - margin * 2, 7, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+        doc.text(label.toUpperCase(), margin + 2, y + 5);
+        y += 9;
+
+        doc.setTextColor(40, 40, 40);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+
+        txt.split('\n').forEach(function(line) {
+          var l = line.trim(); if (!l) return;
+          var wrapped = doc.splitTextToSize(l, pageW - margin * 2 - 4);
+          checkPage(wrapped.length * 5 + 2);
+          doc.text(wrapped, margin + 3, y);
+          y += wrapped.length * 5 + 1;
+        });
+        y += 5;
+      });
+
+      // ── Site Photos ──
+      if (siteImages.length > 0) {
+        checkPage(16);
+        doc.setFillColor(30, 58, 95);
+        doc.rect(margin, y, pageW - margin * 2, 7, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+        doc.text('SITE PHOTOGRAPHS', margin + 2, y + 5);
+        y += 9;
+
+        siteImages.forEach(function(sImg, si) {
+          checkPage(14);
+          doc.setTextColor(30, 58, 95);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(9);
+          doc.text('Photo ' + (si + 1) + ': ' + sImg.title, margin, y);
+          y += 5;
+
+          if (sImg.desc) {
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(100, 100, 100);
+            doc.setFontSize(8);
+            var dWrapped = doc.splitTextToSize(sImg.desc, pageW - margin * 2);
+            checkPage(dWrapped.length * 4 + 2);
+            doc.text(dWrapped, margin, y);
+            y += dWrapped.length * 4 + 2;
+          }
+
+          if (sImg.base64) {
+            var maxImgW = pageW - margin * 2;
+            var maxImgH = 90;
+            checkPage(maxImgH + 6);
+            try {
+              var fmt    = sImg.file.type && sImg.file.type.includes('png') ? 'PNG' : 'JPEG';
+              var imgUrl = 'data:' + (sImg.file.type || 'image/jpeg') + ';base64,' + sImg.base64;
+              doc.addImage(imgUrl, fmt, margin, y, maxImgW, maxImgH, undefined, 'FAST');
+              y += maxImgH + 4;
+            } catch(ie) {
+              doc.setTextColor(180, 0, 0);
+              doc.setFontSize(8);
+              doc.text('[Image could not be embedded]', margin, y);
+              y += 5;
+            }
+          }
+          y += 5;
+        });
+      }
+
+      // ── Footer on every page ──
+      var totalPages = doc.internal.getNumberOfPages();
+      for (var pi = 1; pi <= totalPages; pi++) {
+        doc.setPage(pi);
+        doc.setFontSize(7);
+        doc.setTextColor(150, 150, 150);
+        doc.setFont('helvetica', 'normal');
+        doc.text('NPPS DWR — ' + verifiedUser.name + ' — ' + new Date().toLocaleDateString(), margin, pageH - 8);
+        doc.text('Page ' + pi + ' of ' + totalPages, pageW - margin, pageH - 8, { align: 'right' });
+      }
+
+      // ── Save ──
+      var safeName = verifiedUser.name.replace(/[^a-zA-Z0-9]/g, '_');
+      var safeDate = new Date().toISOString().split('T')[0];
+      doc.save('NPPS_DWR_' + safeName + '_' + safeDate + '.pdf');
+
+      btn.disabled = false; btn.textContent = '📄 Download PDF';
+      toast('PDF downloaded!', 'ok');
+
+    } catch(e) {
+      btn.disabled = false; btn.textContent = '📄 Download PDF';
+      toast('PDF error: ' + e.message, 'err');
+      console.error(e);
     }
-
-    // Footer
-    var totalPages=doc.internal.getNumberOfPages();
-    for (var pi=1;pi<=totalPages;pi++){
-      doc.setPage(pi); doc.setFontSize(7); doc.setTextColor(150,150,150); doc.setFont('helvetica','normal');
-      doc.text('NPPS DWR — '+verifiedUser.name+' — '+new Date().toLocaleDateString(),margin,pageH-8);
-      doc.text('Page '+pi+' of '+totalPages,pageW-margin,pageH-8,{align:'right'});
-    }
-
-    var safeName=verifiedUser.name.replace(/[^a-zA-Z0-9]/g,'_');
-    var safeDate=new Date().toISOString().split('T')[0];
-    doc.save('NPPS_DWR_'+safeName+'_'+safeDate+'.pdf');
-
-    btn.disabled=false; btn.textContent='📄 Download PDF';
-    toast('PDF downloaded!','ok');
-
-  } catch(e){
-    btn.disabled=false; btn.textContent='📄 Download PDF';
-    toast('PDF error: '+e.message,'err'); console.error(e);
-  }
+  }, 100);
 }
 
 // ══════════════════════════════════════════════
 //  UTILITIES
 // ══════════════════════════════════════════════
-function callWorker(data){
-  return fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-    .then(function(r){if(!r.ok)throw new Error('Server error '+r.status);return r.json();});
+function callWorker(data) {
+  return fetch(WORKER_URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(data)
+  }).then(function(r) {
+    if (!r.ok) throw new Error('Server error ' + r.status);
+    return r.json();
+  });
 }
-function readB64(file,cb){var reader=new FileReader();reader.onload=function(e){cb(e.target.result.split(',')[1]);};reader.readAsDataURL(file);}
-function resetApp(){location.reload();}
-function toast(msg,type){
-  var el=document.getElementById('toast'); el.textContent=msg; el.className='toast on '+(type||'');
-  clearTimeout(el._t); el._t=setTimeout(function(){el.className='toast';},5000);
+
+function readB64(file, cb) {
+  var reader = new FileReader();
+  reader.onload = function(e) { cb(e.target.result.split(',')[1]); };
+  reader.readAsDataURL(file);
 }
-function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');}
-function escAttr(s){return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function resetApp() { location.reload(); }
+
+function toast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'toast on ' + (type || '');
+  clearTimeout(el._t);
+  el._t = setTimeout(function() { el.className = 'toast'; }, 5000);
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
+}
+
+function escAttr(s) {
+  return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 </script>
 </body>
 </html>
