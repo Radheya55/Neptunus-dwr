@@ -723,7 +723,7 @@ function downloadPDF() {
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(9); doc.setFont('helvetica', 'bold');
         doc.text(label.toUpperCase(), margin + 3, y + 5.5);
-        y += 10;
+        y += 14; // extra gap between header and first bullet
 
         // Bullet points
         doc.setTextColor(30, 30, 30);
@@ -750,9 +750,8 @@ function downloadPDF() {
         y += 5; // gap after section
       });
 
-      // ── Site Photos — one per page, natural aspect ratio ──
+      // ── Site Photos — bordered boxes, up to 2 per page ──
       if (siteImages.length > 0) {
-        // Section header on new page
         newPage();
         doc.setFillColor(10, 22, 40);
         doc.rect(0, 0, pageW, 14, 'F');
@@ -761,51 +760,85 @@ function downloadPDF() {
         doc.text('SITE PHOTOGRAPHS', pageW/2, 9, { align:'center' });
         y = 20;
 
-        siteImages.forEach(function(sImg, si) {
-          if (si > 0) newPage(); // each photo on its own page after the first
+        // Box constants
+        var boxW      = contentW;       // full content width
+        var boxPad    = 4;              // inner padding inside box
+        var titleH    = 8;             // height of title row inside box
+        var descH     = 7;             // height of description row inside box
+        var imgAreaH  = 100;           // fixed image area height — portrait gets white space, landscape fills it
+        var boxH      = titleH + imgAreaH + descH + boxPad * 2; // total box height ~119mm
+        var boxGap    = 6;             // gap between two boxes on same page
 
+        // Can 2 boxes fit on a page after the header?
+        var twoFit = (y + boxH + boxGap + boxH) <= (pageH - margin - 14);
+
+        siteImages.forEach(function(sImg, si) {
           var desc = sImg.desc.trim() || 'N/A';
 
-          // Photo number + title
-          doc.setTextColor(30, 58, 95);
-          doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-          doc.text('Photo ' + (si+1) + ': ' + sImg.title, margin, y);
-          y += 7;
+          // If not first photo — check if there's room for another box
+          if (si > 0) {
+            var spaceLeft = pageH - margin - 14 - y;
+            if (spaceLeft < boxH) {
+              newPage(); y = margin;
+            } else {
+              y += boxGap; // just a gap between boxes on same page
+            }
+          }
 
-          // Embed image — calculate natural aspect ratio
+          // Draw rectangular border
+          doc.setDrawColor(180, 190, 210);
+          doc.setLineWidth(0.4);
+          doc.rect(margin, y, boxW, boxH);
+
+          // Title row — light blue background strip
+          doc.setFillColor(232, 236, 245);
+          doc.rect(margin, y, boxW, titleH, 'F');
+          doc.setTextColor(30, 58, 95);
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+          var titleText = 'Photo ' + (si+1) + ': ' + sImg.title;
+          doc.text(titleText, margin + boxPad, y + titleH - 2);
+
+          // Image area
+          var imgAreaY = y + titleH + boxPad;
           if (sImg.base64) {
             try {
-              // Create an offscreen image to get natural dimensions
               var tempImg = new Image();
               tempImg.src = 'data:' + (sImg.file.type || 'image/jpeg') + ';base64,' + sImg.base64;
-
               var natW = tempImg.naturalWidth  || 1920;
               var natH = tempImg.naturalHeight || 1080;
               var ratio = natH / natW;
 
-              // Max width = contentW, max height = 170mm — whichever is smaller
-              var imgW = contentW;
-              var imgH = imgW * ratio;
-              if (imgH > 170) { imgH = 170; imgW = imgH / ratio; }
+              var availW = boxW - boxPad * 2;
+              var availH = imgAreaH - boxPad;
 
-              // Centre horizontally
-              var imgX = margin + (contentW - imgW) / 2;
+              // Fit image within available area preserving aspect ratio
+              var imgW = availW;
+              var imgH = imgW * ratio;
+              if (imgH > availH) { imgH = availH; imgW = imgH / ratio; }
+
+              // Centre horizontally within box
+              var imgX = margin + boxPad + (availW - imgW) / 2;
 
               var fmt = sImg.file.type && sImg.file.type.includes('png') ? 'PNG' : 'JPEG';
               var imgUrl = 'data:' + (sImg.file.type || 'image/jpeg') + ';base64,' + sImg.base64;
-              doc.addImage(imgUrl, fmt, imgX, y, imgW, imgH, undefined, 'FAST');
-              y += imgH + 5;
+              doc.addImage(imgUrl, fmt, imgX, imgAreaY, imgW, imgH, undefined, 'FAST');
             } catch(ie) {
               doc.setTextColor(180, 0, 0); doc.setFontSize(8);
-              doc.text('[Image could not be embedded]', margin, y); y += 5;
+              doc.text('[Image could not be embedded]', margin + boxPad, imgAreaY + 10);
             }
           }
 
-          // Description below image
+          // Description row at bottom of box
+          var descY = y + boxH - descH + 2;
+          doc.setFillColor(250, 250, 252);
+          doc.rect(margin, y + boxH - descH, boxW, descH, 'F');
+          doc.setDrawColor(180, 190, 210);
+          doc.line(margin, y + boxH - descH, margin + boxW, y + boxH - descH);
           doc.setTextColor(80, 80, 80);
           doc.setFont('helvetica', 'italic'); doc.setFontSize(8);
-          doc.text('Description: ' + desc, margin, y);
-          y += 6;
+          doc.text('Description: ' + desc, margin + boxPad, descY);
+
+          y += boxH;
         });
       }
 
