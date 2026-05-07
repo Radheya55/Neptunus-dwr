@@ -9,12 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="NPPS DWR"/>
 <title>NPPS DWR Generator</title>
 <link rel="manifest" href="manifest.json"/>
-
-<!-- jsPDF for PDF generation -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- jsPDF AutoTable for proper tables in PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
 <style>
 :root {
   --navy:   #0a1628;
@@ -103,12 +99,18 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
 .upload-zone input[type="file"] { display: none; }
 .img-grid { display: flex; flex-direction: column; gap: 0.8rem; }
 .img-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
-.img-item img { width: 100%; max-height: 180px; object-fit: cover; display: block; }
-.img-item-body { padding: 0.7rem; }
-.img-item-body input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: var(--white); padding: 0.5rem 0.7rem; font-size: 0.88rem; margin-bottom: 0.4rem; }
-.img-item-body input:focus { outline: none; border-color: var(--accent); }
-.img-item-body input::placeholder { color: var(--muted); }
-.btn-remove-img { background: transparent; border: 1px solid rgba(224,85,85,0.35); color: var(--danger); border-radius: 6px; padding: 0.3rem 0.7rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 0.3rem; }
+
+/* Photo preview — title above, image, description below — no stretching */
+.img-item-header { padding: 0.7rem 0.7rem 0.4rem; }
+.img-item-header input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: var(--white); padding: 0.5rem 0.7rem; font-size: 0.88rem; }
+.img-item-header input:focus { outline: none; border-color: var(--accent); }
+.img-item-header input::placeholder { color: var(--muted); }
+.img-item img { width: 100%; max-height: 220px; object-fit: contain; display: block; background: rgba(0,0,0,0.2); }
+.img-item-footer { padding: 0.4rem 0.7rem 0.7rem; }
+.img-item-footer input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: var(--white); padding: 0.5rem 0.7rem; font-size: 0.88rem; margin-bottom: 0.4rem; }
+.img-item-footer input:focus { outline: none; border-color: var(--accent); }
+.img-item-footer input::placeholder { color: var(--muted); }
+.btn-remove-img { background: transparent; border: 1px solid rgba(224,85,85,0.35); color: var(--danger); border-radius: 6px; padding: 0.3rem 0.7rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
 .btn-remove-img:hover { background: rgba(224,85,85,0.1); }
 
 /* FINALISE & CONVERT */
@@ -146,14 +148,16 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
 
 /* OUTPUT */
 #output-section { display: none; margin-top: 1rem; }
-#output-section.show { display: block; }
 .output-card { background: var(--navy2); border: 1px solid var(--border); border-radius: var(--r); padding: 1.2rem; margin-bottom: 0.8rem; border-left: 3px solid var(--teal); }
 .output-card .oc-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--teal); font-weight: 700; margin-bottom: 0.5rem; }
 .output-card .oc-text { font-size: 0.88rem; color: var(--light); line-height: 1.8; white-space: pre-wrap; }
 .output-card .oc-empty { font-size: 0.85rem; color: var(--muted); font-style: italic; }
-.output-img { width: 100%; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(255,255,255,0.1); }
-.output-img-title { font-size: 0.85rem; font-weight: 600; color: var(--white); margin-bottom: 0.2rem; }
-.output-img-desc { font-size: 0.78rem; color: var(--muted); font-style: italic; }
+
+/* Photo preview card — title above, image natural ratio, description below */
+.photo-preview-card { background: var(--navy2); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 0.8rem; overflow: hidden; border-left: 3px solid var(--accent); }
+.photo-preview-title { font-size: 0.85rem; font-weight: 700; color: var(--accent); padding: 0.8rem 1rem 0.4rem; }
+.photo-preview-img { width: 100%; max-height: 280px; object-fit: contain; display: block; background: rgba(0,0,0,0.3); }
+.photo-preview-desc { font-size: 0.78rem; color: var(--muted); font-style: italic; padding: 0.4rem 1rem 0.8rem; }
 
 /* DOWNLOAD */
 .download-wrap { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1rem; }
@@ -221,7 +225,7 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
     <button class="btn-proceed" id="btn-proceed" onclick="unlockForm()">✓ Verify &amp; Proceed</button>
   </div>
 
-  <!-- LOCKED SECTIONS -->
+  <!-- LOCKED -->
   <div id="form-body" class="locked">
 
     <!-- SECTION 2: JOB DETAILS -->
@@ -255,7 +259,7 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
     <!-- SECTION 4: SITE PHOTOS -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">4</span> Site Photos</div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Upload site photos. Each photo requires a mandatory title and an optional description. Photos will be embedded in the PDF report.</p>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Each photo needs a mandatory title. Description is optional — if left blank it will show as N/A in the report.</p>
       <div class="upload-zone" onclick="document.getElementById('inp-site-imgs').click()">
         <div class="uz-icon">📷</div>
         <div class="uz-text">Tap to upload site photos</div>
@@ -267,7 +271,7 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
     <!-- SECTION 5: FINALISE -->
     <div class="section-card">
       <div class="section-title"><span class="step-num">5</span> Finalise &amp; Generate</div>
-      <div class="checklist" id="checklist">
+      <div class="checklist">
         <div class="check-item" id="chk-identity"><span class="ci">⬜</span> Identity verified</div>
         <div class="check-item" id="chk-location"><span class="ci">⬜</span> Job location entered</div>
         <div class="check-item" id="chk-vessel"><span class="ci">⬜</span> Vessel / rig name entered</div>
@@ -293,34 +297,25 @@ body { background: var(--navy); color: var(--light); font-family: -apple-system,
   <!-- OUTPUT -->
   <div id="output-section">
     <div style="font-size:0.8rem;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;">✦ Your DWR Report</div>
-
     <div class="output-card">
       <div class="oc-label">Report Details</div>
       <div class="oc-text" id="out-meta"></div>
     </div>
-
     <div id="out-sections"></div>
     <div id="out-photos"></div>
-
     <div class="download-wrap">
       <button class="btn-dl btn-dl-pdf" id="btn-pdf" onclick="downloadPDF()">📄 Download PDF</button>
     </div>
-
     <button class="btn-new-dwr" onclick="resetApp()">＋ Start New DWR</button>
   </div>
 
-</div><!-- /wrap -->
-</div><!-- /screen-form -->
+</div>
+</div>
 
 <script>
-// ══════════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════════
 var WORKER_URL = 'https://npps-dwr-worker.radheya-supnekar.workers.dev';
 
-// ══════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════
+// STATE
 var employees    = [];
 var verifiedUser = null;
 var mediaRecorder= null;
@@ -335,7 +330,7 @@ var recTimerInt  = null;
 var animFrame    = null;
 var audioCtx     = null;
 var analyser     = null;
-var siteImages   = [];   // [{file, objectUrl, base64, title, desc}]
+var siteImages   = [];
 var generatedDWR = null;
 var finaliseOk   = false;
 var cdInterval   = null;
@@ -352,14 +347,9 @@ var SEC_LABELS = {
   additional_notes:   'Additional Notes / HSE / Permits'
 };
 
-// ══════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════
+// INIT
 window.addEventListener('load', function() {
-  setDate();
-  loadEmployees();
-  buildBars();
-  updateChecklist();
+  setDate(); loadEmployees(); buildBars(); updateChecklist();
 });
 
 function setDate() {
@@ -373,8 +363,7 @@ function buildBars() {
   wrap.innerHTML = '';
   for (var i = 0; i < NUM_BARS; i++) {
     var bar = document.createElement('div');
-    bar.className = 'vis-bar idle';
-    bar.id = 'bar-' + i;
+    bar.className = 'vis-bar idle'; bar.id = 'bar-' + i;
     wrap.appendChild(bar);
   }
 }
@@ -387,8 +376,7 @@ function loadEmployees() {
       var sel = document.getElementById('sel-name');
       data.forEach(function(emp) {
         var opt = document.createElement('option');
-        opt.value = emp.empNo;
-        opt.textContent = emp.name;
+        opt.value = emp.empNo; opt.textContent = emp.name;
         opt.setAttribute('data-email', emp.email);
         sel.appendChild(opt);
       });
@@ -396,14 +384,11 @@ function loadEmployees() {
     .catch(function() { toast('Could not load employee list. Please refresh.', 'err'); });
 }
 
-// ══════════════════════════════════════════════
-//  IDENTITY
-// ══════════════════════════════════════════════
+// IDENTITY
 function startDWR() {
   document.getElementById('screen-land').style.display = 'none';
   document.getElementById('screen-form').style.display = 'block';
 }
-
 function onNameChange() {
   var sel = document.getElementById('sel-name');
   var opt = sel.options[sel.selectedIndex];
@@ -411,245 +396,166 @@ function onNameChange() {
   if (opt && opt.getAttribute('data-email')) {
     emailEl.textContent = opt.getAttribute('data-email');
     emailEl.style.display = 'block';
-  } else {
-    emailEl.style.display = 'none';
-  }
+  } else { emailEl.style.display = 'none'; }
   checkIdentity();
 }
-
 function checkIdentity() {
-  var sel   = document.getElementById('sel-name');
-  var opt   = sel.options[sel.selectedIndex];
+  var sel = document.getElementById('sel-name');
+  var opt = sel.options[sel.selectedIndex];
   var empNo = document.getElementById('inp-empno').value.trim();
   document.getElementById('btn-proceed').classList.toggle('active', !!(opt && opt.value && opt.value === empNo));
 }
-
 function unlockForm() {
-  var sel   = document.getElementById('sel-name');
-  var opt   = sel.options[sel.selectedIndex];
+  var sel = document.getElementById('sel-name');
+  var opt = sel.options[sel.selectedIndex];
   var empNo = document.getElementById('inp-empno').value.trim();
-  if (!opt || !opt.value || opt.value !== empNo) {
-    toast('Employee number does not match.', 'err'); return;
-  }
+  if (!opt || !opt.value || opt.value !== empNo) { toast('Employee number does not match.', 'err'); return; }
   verifiedUser = { name: opt.textContent, email: opt.getAttribute('data-email'), empNo: empNo };
   document.getElementById('form-body').classList.remove('locked');
   document.getElementById('card-identity').style.borderColor = 'var(--teal)';
   var bp = document.getElementById('btn-proceed');
   bp.textContent = '✓ Verified — ' + verifiedUser.name;
   bp.classList.remove('active');
-  bp.style.background = 'rgba(0,184,169,0.15)';
-  bp.style.color = 'var(--teal)';
-  bp.style.cursor = 'default';
-  bp.onclick = null;
-  updateChecklist();
-  toast('Identity verified!', 'ok');
-  setTimeout(function() {
-    document.getElementById('form-body').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 300);
+  bp.style.background = 'rgba(0,184,169,0.15)'; bp.style.color = 'var(--teal)'; bp.style.cursor = 'default'; bp.onclick = null;
+  updateChecklist(); toast('Identity verified!', 'ok');
+  setTimeout(function() { document.getElementById('form-body').scrollIntoView({ behavior:'smooth', block:'start' }); }, 300);
 }
 
-// ══════════════════════════════════════════════
-//  RECORDING
-// ══════════════════════════════════════════════
+// RECORDING
 function getBestMime() {
-  var types = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/ogg'];
-  for (var i = 0; i < types.length; i++) {
-    if (MediaRecorder.isTypeSupported(types[i])) return types[i];
-  }
+  var types = ['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];
+  for (var i = 0; i < types.length; i++) { if (MediaRecorder.isTypeSupported(types[i])) return types[i]; }
   return '';
 }
-
-function toggleRecord() {
-  if (!isRecording) startRecording();
-  else if (!isPaused) pauseRecording();
-  else resumeRecording();
-}
-
+function toggleRecord() { if (!isRecording) startRecording(); else if (!isPaused) pauseRecording(); else resumeRecording(); }
 function startRecording() {
-  navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 } })
+  navigator.mediaDevices.getUserMedia({ audio: { echoCancellation:true, noiseSuppression:true, sampleRate:44100 } })
     .then(function(stream) {
-      audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
-      analyser  = audioCtx.createAnalyser();
-      analyser.fftSize = 64;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser(); analyser.fftSize = 64;
       audioCtx.createMediaStreamSource(stream).connect(analyser);
-
-      var mime    = getBestMime();
-      audioMime   = mime || 'audio/webm';
+      var mime = getBestMime(); audioMime = mime || 'audio/webm';
       mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
       audioChunks = [];
-
-      mediaRecorder.ondataavailable = function(e) {
-        if (e.data && e.data.size > 0) audioChunks.push(e.data);
-      };
+      mediaRecorder.ondataavailable = function(e) { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
       mediaRecorder.onstop = function() {
-        var actual = mediaRecorder.mimeType || audioMime;
-        audioMime  = actual.split(';')[0];
-        audioBlob  = new Blob(audioChunks, { type: actual });
+        var actual = mediaRecorder.mimeType || audioMime; audioMime = actual.split(';')[0];
+        audioBlob = new Blob(audioChunks, { type: actual });
         document.getElementById('audio-preview').src = URL.createObjectURL(audioBlob);
         document.getElementById('audio-playback').classList.add('show');
         var reader = new FileReader();
-        reader.onload = function(e) {
-          audioBase64 = e.target.result.split(',')[1];
-          updateChecklist();
-          detectLanguage();
-        };
+        reader.onload = function(e) { audioBase64 = e.target.result.split(',')[1]; updateChecklist(); detectLanguage(); };
         reader.readAsDataURL(audioBlob);
       };
-
-      mediaRecorder.start(500);
-      isRecording = true; isPaused = false;
+      mediaRecorder.start(500); isRecording = true; isPaused = false;
       document.getElementById('btn-record').className = 'btn-record recording';
       document.getElementById('btn-record').innerHTML = '⏸';
-      document.getElementById('btn-pause').disabled   = false;
-      document.getElementById('btn-stop').disabled    = false;
+      document.getElementById('btn-pause').disabled = false; document.getElementById('btn-stop').disabled = false;
       document.getElementById('rec-status').innerHTML = '<span class="dot"></span> Recording…';
-      document.getElementById('audio-playback').classList.remove('show');
-      document.getElementById('lang-box').classList.remove('show');
-      startRecTimer();
-      drawBars();
+      document.getElementById('audio-playback').classList.remove('show'); document.getElementById('lang-box').classList.remove('show');
+      startRecTimer(); drawBars();
     })
     .catch(function() { toast('Microphone access denied. Please allow microphone permission.', 'err'); });
 }
-
 function pauseRecording() {
   if (mediaRecorder && isRecording && !isPaused) {
-    mediaRecorder.pause(); isPaused = true;
-    clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').className = 'btn-record paused';
-    document.getElementById('btn-record').innerHTML = '▶';
-    document.getElementById('rec-status').textContent = 'Paused — tap ▶ to resume';
-    idleBars();
+    mediaRecorder.pause(); isPaused = true; clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
+    document.getElementById('btn-record').className = 'btn-record paused'; document.getElementById('btn-record').innerHTML = '▶';
+    document.getElementById('rec-status').textContent = 'Paused — tap ▶ to resume'; idleBars();
   }
 }
-
 function resumeRecording() {
   if (mediaRecorder && isPaused) {
-    mediaRecorder.resume(); isPaused = false;
-    startRecTimer(); drawBars();
-    document.getElementById('btn-record').className = 'btn-record recording';
-    document.getElementById('btn-record').innerHTML = '⏸';
+    mediaRecorder.resume(); isPaused = false; startRecTimer(); drawBars();
+    document.getElementById('btn-record').className = 'btn-record recording'; document.getElementById('btn-record').innerHTML = '⏸';
     document.getElementById('rec-status').innerHTML = '<span class="dot"></span> Recording…';
   }
 }
-
 function stopRecording() {
   if (mediaRecorder && isRecording) {
-    mediaRecorder.stop();
-    mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
-    isRecording = false; isPaused = false;
-    clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').className = 'btn-record';
-    document.getElementById('btn-record').innerHTML = '🎙️';
-    document.getElementById('btn-pause').disabled   = true;
-    document.getElementById('btn-stop').disabled    = true;
-    document.getElementById('rec-status').textContent = 'Recording complete — listen below';
-    idleBars();
+    mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
+    isRecording = false; isPaused = false; clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
+    document.getElementById('btn-record').className = 'btn-record'; document.getElementById('btn-record').innerHTML = '🎙️';
+    document.getElementById('btn-pause').disabled = true; document.getElementById('btn-stop').disabled = true;
+    document.getElementById('rec-status').textContent = 'Recording complete — listen below'; idleBars();
   }
 }
-
 function reRecord() {
   audioBlob = null; audioBase64 = null; recSeconds = 0;
   document.getElementById('rec-timer').textContent = '00:00';
-  document.getElementById('audio-playback').classList.remove('show');
-  document.getElementById('lang-box').classList.remove('show');
+  document.getElementById('audio-playback').classList.remove('show'); document.getElementById('lang-box').classList.remove('show');
   document.getElementById('rec-status').textContent = 'Tap the microphone to start recording';
   idleBars(); updateChecklist();
 }
-
 function startRecTimer() {
   recTimerInt = setInterval(function() {
-    recSeconds++;
-    var m = Math.floor(recSeconds / 60), s = recSeconds % 60;
-    document.getElementById('rec-timer').textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    recSeconds++; var m = Math.floor(recSeconds/60), s = recSeconds%60;
+    document.getElementById('rec-timer').textContent = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
   }, 1000);
 }
-
 function drawBars() {
   if (!analyser) return;
-  var bufLen = analyser.frequencyBinCount;
-  var data   = new Uint8Array(bufLen);
-  var wrap   = document.getElementById('visualiser-wrap');
-  var maxH   = wrap.clientHeight - 10;
+  var bufLen = analyser.frequencyBinCount, data = new Uint8Array(bufLen);
+  var wrap = document.getElementById('visualiser-wrap'), maxH = wrap.clientHeight - 10;
   function frame() {
-    animFrame = requestAnimationFrame(frame);
-    analyser.getByteFrequencyData(data);
+    animFrame = requestAnimationFrame(frame); analyser.getByteFrequencyData(data);
     var step = Math.floor(bufLen / NUM_BARS);
     for (var i = 0; i < NUM_BARS; i++) {
-      var val = data[i * step] / 255;
-      var h   = Math.max(4, Math.round(val * maxH));
-      var bar = document.getElementById('bar-' + i);
-      if (bar) {
-        bar.style.height     = h + 'px';
-        bar.className        = 'vis-bar';
-        bar.style.background = val < 0.4 ? '#00b8a9' : val < 0.7 ? '#f5a623' : '#e05555';
-      }
+      var val = data[i*step]/255, h = Math.max(4, Math.round(val*maxH));
+      var bar = document.getElementById('bar-'+i);
+      if (bar) { bar.style.height = h+'px'; bar.className = 'vis-bar'; bar.style.background = val<0.4?'#00b8a9':val<0.7?'#f5a623':'#e05555'; }
     }
   }
   frame();
 }
-
 function idleBars() {
   cancelAnimationFrame(animFrame);
-  for (var i = 0; i < NUM_BARS; i++) {
-    var bar = document.getElementById('bar-' + i);
-    if (bar) { bar.className = 'vis-bar idle'; bar.style.height = '4px'; bar.style.background = ''; }
-  }
+  for (var i = 0; i < NUM_BARS; i++) { var bar = document.getElementById('bar-'+i); if(bar){bar.className='vis-bar idle';bar.style.height='4px';bar.style.background='';} }
 }
-
 function detectLanguage() {
   if (!audioBase64) return;
-  document.getElementById('lang-box').classList.add('show');
-  document.getElementById('lang-text').textContent = 'Detecting language…';
-  callWorker({ action: 'detect_language', audio: audioBase64, mimeType: audioMime })
+  document.getElementById('lang-box').classList.add('show'); document.getElementById('lang-text').textContent = 'Detecting language…';
+  callWorker({ action:'detect_language', audio:audioBase64, mimeType:audioMime })
     .then(function(r) { document.getElementById('lang-text').textContent = r.language || 'Unable to detect'; })
-    .catch(function()  { document.getElementById('lang-text').textContent = 'Detection failed'; });
+    .catch(function() { document.getElementById('lang-text').textContent = 'Detection failed'; });
 }
 
-// ══════════════════════════════════════════════
-//  SITE IMAGES
-// ══════════════════════════════════════════════
+// SITE IMAGES
 function addSiteImages(input) {
   Array.from(input.files).forEach(function(file) {
-    var url   = URL.createObjectURL(file);
-    var entry = { file: file, objectUrl: url, base64: null, title: '', desc: '' };
+    var url = URL.createObjectURL(file);
+    var entry = { file:file, objectUrl:url, base64:null, title:'', desc:'' };
     siteImages.push(entry);
     readB64(file, function(b64) { entry.base64 = b64; });
   });
-  renderSiteImgs();
-  input.value = '';
+  renderSiteImgs(); input.value = '';
 }
-
 function renderSiteImgs() {
   var grid = document.getElementById('site-img-grid');
   grid.innerHTML = '';
   siteImages.forEach(function(e, idx) {
-    var div = document.createElement('div');
-    div.className = 'img-item';
+    var div = document.createElement('div'); div.className = 'img-item';
     div.innerHTML =
-      '<img src="' + e.objectUrl + '" alt="Site ' + (idx+1) + '"/>' +
-      '<div class="img-item-body">' +
+      '<div class="img-item-header">' +
         '<input type="text" placeholder="Title (mandatory) *" value="' + escAttr(e.title) + '" oninput="siteImages[' + idx + '].title=this.value;updateChecklist()"/>' +
-        '<input type="text" placeholder="Description (optional)" value="' + escAttr(e.desc) + '" oninput="siteImages[' + idx + '].desc=this.value"/>' +
+      '</div>' +
+      '<img src="' + e.objectUrl + '" alt="Site photo ' + (idx+1) + '"/>' +
+      '<div class="img-item-footer">' +
+        '<input type="text" placeholder="Description (optional — leave blank for N/A)" value="' + escAttr(e.desc) + '" oninput="siteImages[' + idx + '].desc=this.value"/>' +
         '<button class="btn-remove-img" onclick="removeSiteImg(' + idx + ')">✕ Remove</button>' +
       '</div>';
     grid.appendChild(div);
   });
 }
-
 function removeSiteImg(idx) {
-  URL.revokeObjectURL(siteImages[idx].objectUrl);
-  siteImages.splice(idx, 1);
-  renderSiteImgs();
-  updateChecklist();
+  URL.revokeObjectURL(siteImages[idx].objectUrl); siteImages.splice(idx, 1); renderSiteImgs(); updateChecklist();
 }
 
-// ══════════════════════════════════════════════
-//  CHECKLIST
-// ══════════════════════════════════════════════
+// CHECKLIST
 function updateChecklist() {
   var ok1 = !!verifiedUser;
-  var ok2 = (document.getElementById('f-location') || { value: '' }).value.trim().length > 0;
-  var ok3 = (document.getElementById('f-vessel')   || { value: '' }).value.trim().length > 0;
+  var ok2 = (document.getElementById('f-location')||{value:''}).value.trim().length > 0;
+  var ok3 = (document.getElementById('f-vessel')||{value:''}).value.trim().length > 0;
   var ok4 = !!audioBase64;
   setCheck('chk-identity', ok1, 'Identity verified');
   setCheck('chk-location', ok2, 'Job location entered');
@@ -658,260 +564,248 @@ function updateChecklist() {
   var siteOk = siteImages.length === 0 || siteImages.every(function(img) { return img.title.trim().length > 0; });
   document.getElementById('btn-finalise').classList.toggle('active', ok1 && ok2 && ok3 && ok4 && siteOk);
 }
-
 function setCheck(id, done, label) {
   var el = document.getElementById(id); if (!el) return;
   el.className = 'check-item' + (done ? ' done' : '');
   el.innerHTML = '<span class="ci">' + (done ? '✅' : '⬜') + '</span> ' + label;
 }
-
 function finalise() {
   updateChecklist();
-  if (!document.getElementById('btn-finalise').classList.contains('active')) {
-    toast('Please complete all required fields first.', 'err'); return;
-  }
+  if (!document.getElementById('btn-finalise').classList.contains('active')) { toast('Please complete all required fields first.', 'err'); return; }
   finaliseOk = true;
   var bf = document.getElementById('btn-finalise');
-  bf.textContent = '✅ Draft Finalised';
-  bf.classList.remove('active');
-  bf.style.background = 'rgba(0,184,169,0.15)';
-  bf.style.color = 'var(--teal)';
-  bf.style.cursor = 'default';
+  bf.textContent = '✅ Draft Finalised'; bf.classList.remove('active');
+  bf.style.background = 'rgba(0,184,169,0.15)'; bf.style.color = 'var(--teal)'; bf.style.cursor = 'default';
   document.getElementById('btn-convert').classList.add('active');
   toast('Draft finalised! Tap Convert to DWR.', 'ok');
-  setTimeout(function() {
-    document.getElementById('btn-convert').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 300);
+  setTimeout(function() { document.getElementById('btn-convert').scrollIntoView({ behavior:'smooth', block:'center' }); }, 300);
 }
 
-// ══════════════════════════════════════════════
-//  COUNTDOWN
-// ══════════════════════════════════════════════
+// COUNTDOWN
 function startCountdown(seconds) {
-  var wrap = document.getElementById('countdown-wrap');
-  var num  = document.getElementById('countdown-num');
-  var sub  = document.getElementById('countdown-sub');
-  var bar  = document.getElementById('countdown-bar');
-  wrap.classList.add('show');
-  document.getElementById('report-ready').classList.remove('show');
-  var rem = seconds;
-  num.textContent = rem; num.className = 'countdown-num'; bar.style.width = '100%';
+  var wrap = document.getElementById('countdown-wrap'), num = document.getElementById('countdown-num');
+  var sub = document.getElementById('countdown-sub'), bar = document.getElementById('countdown-bar');
+  wrap.classList.add('show'); document.getElementById('report-ready').classList.remove('show');
+  var rem = seconds; num.textContent = rem; num.className = 'countdown-num'; bar.style.width = '100%';
   clearInterval(cdInterval);
   cdInterval = setInterval(function() {
-    rem--;
-    if (rem <= 0) { clearInterval(cdInterval); num.textContent = '0'; bar.style.width = '0%'; return; }
-    num.textContent = rem;
-    if (rem <= 10) num.className = 'countdown-num urgent';
-    bar.style.width = Math.round((rem / seconds) * 100) + '%';
+    rem--; if (rem <= 0) { clearInterval(cdInterval); num.textContent = '0'; bar.style.width = '0%'; return; }
+    num.textContent = rem; if (rem <= 10) num.className = 'countdown-num urgent';
+    bar.style.width = Math.round((rem/seconds)*100) + '%';
     sub.textContent = rem === 1 ? 'second remaining' : 'seconds remaining';
   }, 1000);
 }
+function stopCountdown() { clearInterval(cdInterval); document.getElementById('countdown-wrap').classList.remove('show'); }
 
-function stopCountdown() {
-  clearInterval(cdInterval);
-  document.getElementById('countdown-wrap').classList.remove('show');
-}
-
-// ══════════════════════════════════════════════
-//  CONVERT TO DWR
-// ══════════════════════════════════════════════
+// CONVERT TO DWR
 function convertToDWR() {
   if (!finaliseOk) { toast('Please finalise the draft first.', 'err'); return; }
   startCountdown(45);
   document.getElementById('btn-convert').disabled = true;
-
   callWorker({
-    action:       'process_dwr',
-    audio:        audioBase64,
-    audioMime:    audioMime,
+    action: 'process_dwr', audio: audioBase64, audioMime: audioMime,
     engineerName: verifiedUser.name,
-    location:     document.getElementById('f-location').value.trim(),
-    vessel:       document.getElementById('f-vessel').value.trim(),
-    date:         document.getElementById('f-date').value
+    location: document.getElementById('f-location').value.trim(),
+    vessel: document.getElementById('f-vessel').value.trim(),
+    date: document.getElementById('f-date').value
   })
   .then(function(result) {
-    stopCountdown();
-    document.getElementById('btn-convert').disabled = false;
-    generatedDWR = result;
-    renderOutput(result);
+    stopCountdown(); document.getElementById('btn-convert').disabled = false;
+    generatedDWR = result; renderOutput(result);
     document.getElementById('report-ready').classList.add('show');
     toast('DWR generated! Scroll down to view your report.', 'ok');
   })
   .catch(function(err) {
-    stopCountdown();
-    document.getElementById('btn-convert').disabled = false;
+    stopCountdown(); document.getElementById('btn-convert').disabled = false;
     document.getElementById('btn-convert').classList.add('active');
     toast('Error: ' + (err.message || 'Please try again.'), 'err');
   });
 }
 
-// ══════════════════════════════════════════════
-//  RENDER OUTPUT (screen preview)
-// ══════════════════════════════════════════════
+// RENDER OUTPUT
 function renderOutput(data) {
   document.getElementById('out-meta').textContent =
-    'Engineer: '    + verifiedUser.name + '\n' +
-    'Date: '        + document.getElementById('f-date').value + '\n' +
-    'Location: '    + document.getElementById('f-location').value + '\n' +
-    'Vessel / Rig: '+ document.getElementById('f-vessel').value;
+    'Engineer: ' + verifiedUser.name + '\n' +
+    'Date: ' + document.getElementById('f-date').value + '\n' +
+    'Location: ' + document.getElementById('f-location').value + '\n' +
+    'Vessel / Rig: ' + document.getElementById('f-vessel').value;
 
-  var secOut = document.getElementById('out-sections');
-  secOut.innerHTML = '';
+  var secOut = document.getElementById('out-sections'); secOut.innerHTML = '';
   SEC_ORDER.forEach(function(key) {
-    var d   = (data.sections && data.sections[key]) || {};
+    var d = (data.sections && data.sections[key]) || {};
     var txt = (d.polished_text || '').trim();
-    var div = document.createElement('div');
-    div.className = 'output-card';
-    div.innerHTML =
-      '<div class="oc-label">' + SEC_LABELS[key] + '</div>' +
+    var div = document.createElement('div'); div.className = 'output-card';
+    div.innerHTML = '<div class="oc-label">' + SEC_LABELS[key] + '</div>' +
       (txt && txt !== '• Nothing reported for this section.'
         ? '<div class="oc-text">' + escHtml(txt) + '</div>'
         : '<div class="oc-empty">Nothing reported for this section.</div>');
     secOut.appendChild(div);
   });
 
-  var photoOut = document.getElementById('out-photos');
-  photoOut.innerHTML = '';
+  // Photos — title above, image natural ratio, description below
+  var photoOut = document.getElementById('out-photos'); photoOut.innerHTML = '';
   siteImages.forEach(function(img, i) {
-    var div = document.createElement('div');
-    div.className = 'output-card';
-    div.innerHTML =
-      '<div class="oc-label">Site Photo ' + (i+1) + '</div>' +
-      '<img class="output-img" src="' + img.objectUrl + '" alt="' + escAttr(img.title) + '"/>' +
-      '<div class="output-img-title">' + escHtml(img.title) + '</div>' +
-      (img.desc ? '<div class="output-img-desc">' + escHtml(img.desc) + '</div>' : '');
-    photoOut.appendChild(div);
+    var desc = img.desc.trim() || 'N/A';
+    var card = document.createElement('div'); card.className = 'photo-preview-card';
+    card.innerHTML =
+      '<div class="photo-preview-title">📷 Photo ' + (i+1) + ': ' + escHtml(img.title) + '</div>' +
+      '<img class="photo-preview-img" src="' + img.objectUrl + '" alt="' + escAttr(img.title) + '"/>' +
+      '<div class="photo-preview-desc">Description: ' + escHtml(desc) + '</div>';
+    photoOut.appendChild(card);
   });
 
   document.getElementById('output-section').style.display = 'block';
 }
 
-// ══════════════════════════════════════════════
-//  DOWNLOAD PDF — jsPDF + autoTable
-// ══════════════════════════════════════════════
+// DOWNLOAD PDF
 function downloadPDF() {
   if (!generatedDWR) { toast('No report generated yet.', 'err'); return; }
   var btn = document.getElementById('btn-pdf');
   btn.disabled = true; btn.textContent = '⏳ Generating PDF…';
 
-  // Use setTimeout so the UI updates before heavy PDF work starts
   setTimeout(function() {
     try {
       var jsPDFLib = window.jspdf;
-      var doc = new jsPDFLib.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      var pageW  = doc.internal.pageSize.getWidth();
-      var pageH  = doc.internal.pageSize.getHeight();
-      var margin = 15;
-      var y      = margin;
+      var doc = new jsPDFLib.jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+      var pageW = doc.internal.pageSize.getWidth();
+      var pageH = doc.internal.pageSize.getHeight();
+      var margin = 18;
+      var contentW = pageW - margin * 2;
+      var y = margin;
 
-      function checkPage(needed) {
-        if (y + needed > pageH - margin) { doc.addPage(); y = margin; }
-      }
+      function newPage() { doc.addPage(); y = margin; }
+      function checkPage(needed) { if (y + needed > pageH - margin) newPage(); }
 
       // ── Header ──
       doc.setFillColor(10, 22, 40);
-      doc.rect(0, 0, pageW, 24, 'F');
+      doc.rect(0, 0, pageW, 26, 'F');
       doc.setTextColor(245, 166, 35);
-      doc.setFontSize(15); doc.setFont('helvetica', 'bold');
-      doc.text('NEPTUNUS POWER PLANT SERVICES', pageW / 2, 10, { align: 'center' });
-      doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-      doc.setTextColor(200, 210, 230);
-      doc.text('Daily Working Report', pageW / 2, 18, { align: 'center' });
-      y = 32;
+      doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+      doc.text('NEPTUNUS POWER PLANT SERVICES', pageW/2, 11, { align:'center' });
+      doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(200, 210, 230);
+      doc.text('Daily Working Report', pageW/2, 19, { align:'center' });
+      y = 34;
 
-      // ── Meta info table ──
+      // ── Meta table ──
       doc.autoTable({
         startY: y,
-        head:   [],
-        body:   [
+        head: [],
+        body: [
           ['Engineer',     verifiedUser.name],
           ['Date',         document.getElementById('f-date').value],
           ['Location',     document.getElementById('f-location').value],
           ['Vessel / Rig', document.getElementById('f-vessel').value]
         ],
         columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 38, fillColor: [232, 236, 245] },
-          1: { cellWidth: 'auto' }
+          0: { fontStyle:'bold', cellWidth:40, fillColor:[232,236,245] },
+          1: { cellWidth:'auto' }
         },
-        margin: { left: margin, right: margin },
-        styles: { fontSize: 9, cellPadding: 3 },
-        theme:  'grid'
+        margin: { left:margin, right:margin },
+        styles: { fontSize:9, cellPadding:4 },
+        theme: 'grid'
       });
-      y = doc.lastAutoTable.finalY + 8;
+      y = doc.lastAutoTable.finalY + 10;
 
       // ── 7 Sections ──
       SEC_ORDER.forEach(function(key) {
         var label = SEC_LABELS[key];
         var d     = (generatedDWR.sections && generatedDWR.sections[key]) || {};
         var txt   = (d.polished_text || '• Nothing reported for this section.').trim();
+        var lines = txt.split('\n').filter(function(l) { return l.trim().length > 0; });
 
-        checkPage(16);
+        // Estimate height needed: header (9) + lines
+        var estHeight = 12 + lines.length * 6 + 6;
+        checkPage(estHeight);
+
+        // Section header bar
         doc.setFillColor(30, 58, 95);
-        doc.rect(margin, y, pageW - margin * 2, 7, 'F');
+        doc.rect(margin, y, contentW, 8, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-        doc.text(label.toUpperCase(), margin + 2, y + 5);
-        y += 9;
+        doc.text(label.toUpperCase(), margin + 3, y + 5.5);
+        y += 10;
 
-        doc.setTextColor(40, 40, 40);
+        // Bullet points
+        doc.setTextColor(30, 30, 30);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
 
-        txt.split('\n').forEach(function(line) {
+        lines.forEach(function(line) {
           var l = line.trim(); if (!l) return;
-          var wrapped = doc.splitTextToSize(l, pageW - margin * 2 - 4);
-          checkPage(wrapped.length * 5 + 2);
-          doc.text(wrapped, margin + 3, y);
-          y += wrapped.length * 5 + 1;
+          // Preserve bullet or add one
+          var isBullet = l.charAt(0) === '•';
+          var text     = isBullet ? l : '• ' + l;
+          var indent   = margin + 4;
+          var wrapped  = doc.splitTextToSize(text, contentW - 6);
+          checkPage(wrapped.length * 5.5 + 2);
+          // First line with bullet
+          doc.text(wrapped[0], indent, y);
+          y += 5.5;
+          // Continuation lines indented a bit more
+          for (var wi = 1; wi < wrapped.length; wi++) {
+            doc.text(wrapped[wi], indent + 3, y); y += 5.5;
+          }
+          y += 1; // small gap between bullets
         });
-        y += 5;
+        y += 5; // gap after section
       });
 
-      // ── Site Photos ──
+      // ── Site Photos — one per page, natural aspect ratio ──
       if (siteImages.length > 0) {
-        checkPage(16);
-        doc.setFillColor(30, 58, 95);
-        doc.rect(margin, y, pageW - margin * 2, 7, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-        doc.text('SITE PHOTOGRAPHS', margin + 2, y + 5);
-        y += 9;
+        // Section header on new page
+        newPage();
+        doc.setFillColor(10, 22, 40);
+        doc.rect(0, 0, pageW, 14, 'F');
+        doc.setTextColor(245, 166, 35);
+        doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+        doc.text('SITE PHOTOGRAPHS', pageW/2, 9, { align:'center' });
+        y = 20;
 
         siteImages.forEach(function(sImg, si) {
-          checkPage(14);
+          if (si > 0) newPage(); // each photo on its own page after the first
+
+          var desc = sImg.desc.trim() || 'N/A';
+
+          // Photo number + title
           doc.setTextColor(30, 58, 95);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(9);
-          doc.text('Photo ' + (si + 1) + ': ' + sImg.title, margin, y);
-          y += 5;
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
+          doc.text('Photo ' + (si+1) + ': ' + sImg.title, margin, y);
+          y += 7;
 
-          if (sImg.desc) {
-            doc.setFont('helvetica', 'italic');
-            doc.setTextColor(100, 100, 100);
-            doc.setFontSize(8);
-            var dWrapped = doc.splitTextToSize(sImg.desc, pageW - margin * 2);
-            checkPage(dWrapped.length * 4 + 2);
-            doc.text(dWrapped, margin, y);
-            y += dWrapped.length * 4 + 2;
-          }
-
+          // Embed image — calculate natural aspect ratio
           if (sImg.base64) {
-            var maxImgW = pageW - margin * 2;
-            var maxImgH = 90;
-            checkPage(maxImgH + 6);
             try {
-              var fmt    = sImg.file.type && sImg.file.type.includes('png') ? 'PNG' : 'JPEG';
+              // Create an offscreen image to get natural dimensions
+              var tempImg = new Image();
+              tempImg.src = 'data:' + (sImg.file.type || 'image/jpeg') + ';base64,' + sImg.base64;
+
+              var natW = tempImg.naturalWidth  || 1920;
+              var natH = tempImg.naturalHeight || 1080;
+              var ratio = natH / natW;
+
+              // Max width = contentW, max height = 170mm — whichever is smaller
+              var imgW = contentW;
+              var imgH = imgW * ratio;
+              if (imgH > 170) { imgH = 170; imgW = imgH / ratio; }
+
+              // Centre horizontally
+              var imgX = margin + (contentW - imgW) / 2;
+
+              var fmt = sImg.file.type && sImg.file.type.includes('png') ? 'PNG' : 'JPEG';
               var imgUrl = 'data:' + (sImg.file.type || 'image/jpeg') + ';base64,' + sImg.base64;
-              doc.addImage(imgUrl, fmt, margin, y, maxImgW, maxImgH, undefined, 'FAST');
-              y += maxImgH + 4;
+              doc.addImage(imgUrl, fmt, imgX, y, imgW, imgH, undefined, 'FAST');
+              y += imgH + 5;
             } catch(ie) {
-              doc.setTextColor(180, 0, 0);
-              doc.setFontSize(8);
-              doc.text('[Image could not be embedded]', margin, y);
-              y += 5;
+              doc.setTextColor(180, 0, 0); doc.setFontSize(8);
+              doc.text('[Image could not be embedded]', margin, y); y += 5;
             }
           }
-          y += 5;
+
+          // Description below image
+          doc.setTextColor(80, 80, 80);
+          doc.setFont('helvetica', 'italic'); doc.setFontSize(8);
+          doc.text('Description: ' + desc, margin, y);
+          y += 6;
         });
       }
 
@@ -919,11 +813,10 @@ function downloadPDF() {
       var totalPages = doc.internal.getNumberOfPages();
       for (var pi = 1; pi <= totalPages; pi++) {
         doc.setPage(pi);
-        doc.setFontSize(7);
-        doc.setTextColor(150, 150, 150);
-        doc.setFont('helvetica', 'normal');
-        doc.text('NPPS DWR — ' + verifiedUser.name + ' — ' + new Date().toLocaleDateString(), margin, pageH - 8);
-        doc.text('Page ' + pi + ' of ' + totalPages, pageW - margin, pageH - 8, { align: 'right' });
+        doc.setFontSize(7); doc.setTextColor(160, 160, 160); doc.setFont('helvetica', 'normal');
+        doc.line(margin, pageH - 12, pageW - margin, pageH - 12);
+        doc.text('NPPS DWR  |  ' + verifiedUser.name + '  |  ' + new Date().toLocaleDateString('en-IN'), margin, pageH - 8);
+        doc.text('Page ' + pi + ' of ' + totalPages, pageW - margin, pageH - 8, { align:'right' });
       }
 
       // ── Save ──
@@ -942,43 +835,23 @@ function downloadPDF() {
   }, 100);
 }
 
-// ══════════════════════════════════════════════
-//  UTILITIES
-// ══════════════════════════════════════════════
+// UTILITIES
 function callWorker(data) {
-  return fetch(WORKER_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(data)
-  }).then(function(r) {
-    if (!r.ok) throw new Error('Server error ' + r.status);
-    return r.json();
-  });
+  return fetch(WORKER_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) })
+    .then(function(r) { if (!r.ok) throw new Error('Server error ' + r.status); return r.json(); });
 }
-
 function readB64(file, cb) {
   var reader = new FileReader();
   reader.onload = function(e) { cb(e.target.result.split(',')[1]); };
   reader.readAsDataURL(file);
 }
-
 function resetApp() { location.reload(); }
-
 function toast(msg, type) {
-  var el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className   = 'toast on ' + (type || '');
-  clearTimeout(el._t);
-  el._t = setTimeout(function() { el.className = 'toast'; }, 5000);
+  var el = document.getElementById('toast'); el.textContent = msg; el.className = 'toast on ' + (type||'');
+  clearTimeout(el._t); el._t = setTimeout(function() { el.className = 'toast'; }, 5000);
 }
-
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
-}
-
-function escAttr(s) {
-  return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>'); }
+function escAttr(s) { return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 </script>
 </body>
 </html>
