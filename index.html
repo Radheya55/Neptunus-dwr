@@ -12,13 +12,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
-:root {
-  --navy:#0a1628;--navy2:#112240;--steel:#1e3a5f;--accent:#f5a623;--accent2:#e8901a;
-  --teal:#00b8a9;--light:#e8edf4;--muted:#8899aa;--white:#fff;--danger:#e05555;
-  --border:rgba(245,166,35,0.25);--r:12px;
-}
+:root{--navy:#0a1628;--navy2:#112240;--steel:#1e3a5f;--accent:#f5a623;--accent2:#e8901a;--teal:#00b8a9;--light:#e8edf4;--muted:#8899aa;--white:#ffffff;--danger:#e05555;--border:rgba(245,166,35,0.25);--r:12px;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--navy);color:var(--light);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.6;min-height:100vh;padding-bottom:40px;}
+body{background:var(--navy);color:var(--light);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.6;min-height:100vh;padding-bottom:60px;}
 .hdr{background:var(--navy2);border-bottom:2px solid var(--accent);padding:0 1.2rem;display:flex;align-items:center;gap:1rem;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
 .brand{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--navy);flex-shrink:0;}
 .brand-t h1{font-size:1rem;font-weight:700;color:var(--white);line-height:1;}
@@ -34,43 +30,44 @@ body{background:var(--navy);color:var(--light);font-family:-apple-system,BlinkMa
 #screen-form{display:none;}
 .section-card{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem;margin-bottom:1rem;}
 .section-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);font-weight:700;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;}
-.step-num{background:var(--accent);color:var(--navy);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;flex-shrink:0;}
+.section-title .step-num{background:var(--accent);color:var(--navy);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;flex-shrink:0;}
 .field{margin-bottom:0.9rem;}
 .field:last-child{margin-bottom:0;}
 .field label{display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.3rem;}
 .field input,.field select,.field textarea{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--white);padding:0.65rem 0.9rem;font-size:0.95rem;transition:border-color 0.2s;-webkit-appearance:none;font-family:inherit;}
-.field textarea{resize:vertical;min-height:80px;}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);}
 .field input::placeholder,.field textarea::placeholder{color:var(--muted);}
 .field select option{background:var(--navy2);color:var(--white);}
-.auto-fill{background:rgba(0,184,169,0.1);border:1px solid rgba(0,184,169,0.3);color:var(--teal);font-size:0.85rem;padding:0.5rem 0.9rem;border-radius:8px;margin-top:0.3rem;display:none;}
-.btn-proceed{width:100%;background:var(--steel);color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:var(--r);padding:0.85rem;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;cursor:not-allowed;transition:all 0.3s;margin-top:0.5rem;}
-.btn-proceed.active{background:var(--accent);color:var(--navy);cursor:pointer;box-shadow:0 4px 16px rgba(245,166,35,0.35);}
-.locked{opacity:0.35;pointer-events:none;}
-
-/* Team members */
+.field textarea{resize:vertical;min-height:70px;}
+.field .auto-fill{background:rgba(0,184,169,0.1);border:1px solid rgba(0,184,169,0.3);color:var(--teal);font-size:0.85rem;padding:0.5rem 0.9rem;border-radius:8px;margin-top:0.3rem;display:none;}
+.field-note{font-size:0.72rem;color:var(--muted);margin-top:0.25rem;}
+.optional-badge{font-size:0.6rem;background:rgba(255,255,255,0.08);color:var(--muted);padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.4rem;text-transform:uppercase;vertical-align:middle;}
+.required-badge{font-size:0.6rem;background:rgba(224,85,85,0.15);color:var(--danger);padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.4rem;text-transform:uppercase;vertical-align:middle;}
 .team-list{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;}
-.team-member-row{display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0.4rem 0.7rem;}
-.team-member-name{flex:1;font-size:0.9rem;color:var(--light);}
-.btn-remove-member{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:0 0.2rem;}
+.team-member-row{display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:0.4rem 0.7rem;}
+.team-member-row span{flex:1;font-size:0.9rem;color:var(--light);}
+.btn-remove-member{background:transparent;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:0;line-height:1;}
 .btn-remove-member:hover{color:var(--danger);}
 .team-add-row{display:flex;gap:0.5rem;}
-.team-add-row input{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--white);padding:0.5rem 0.7rem;font-size:0.88rem;}
+.team-add-row input{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--white);padding:0.55rem 0.8rem;font-size:0.9rem;}
 .team-add-row input:focus{outline:none;border-color:var(--accent);}
-.btn-add-member{background:var(--accent);color:var(--navy);border:none;border-radius:8px;padding:0.5rem 1rem;font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;}
-
-/* Meeting table */
-.meeting-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
-.meeting-table th{background:var(--steel);color:var(--light);padding:0.5rem 0.6rem;text-align:left;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;}
-.meeting-table td{padding:0.4rem 0.4rem;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:middle;}
+.btn-add-member{background:var(--accent);color:var(--navy);border:none;border-radius:8px;padding:0.55rem 1rem;font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;}
+.btn-add-member:hover{background:var(--accent2);}
+.meeting-table{width:100%;border-collapse:collapse;margin-top:0.4rem;}
+.meeting-table th{background:var(--steel);color:var(--accent);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.6rem 0.7rem;text-align:left;font-weight:700;}
+.meeting-table td{padding:0.5rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:top;}
 .meeting-table tr:last-child td{border-bottom:none;}
-.meeting-name{font-weight:600;color:var(--light);font-size:0.85rem;}
-.time-row{display:flex;gap:0.3rem;align-items:center;}
-.time-row select,.time-row input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--white);padding:0.35rem 0.4rem;font-size:0.82rem;-webkit-appearance:none;}
-.time-row input{width:46px;text-align:center;}
-.meeting-attend-status{font-size:0.78rem;color:var(--teal);margin-top:0.3rem;min-height:16px;}
-
-/* Visualiser */
+.meeting-name{font-size:0.85rem;font-weight:600;color:var(--light);}
+.time-inputs{display:flex;gap:0.3rem;align-items:center;flex-wrap:wrap;}
+.time-inputs input[type=number]{width:46px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--white);padding:0.4rem 0.3rem;font-size:0.85rem;text-align:center;-moz-appearance:textfield;}
+.time-inputs input[type=number]::-webkit-outer-spin-button,.time-inputs input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.time-inputs select{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--white);padding:0.4rem 0.3rem;font-size:0.85rem;-webkit-appearance:none;}
+.time-inputs span{color:var(--muted);font-size:0.85rem;}
+.attendance-status{font-size:0.75rem;color:var(--teal);margin-top:0.4rem;font-style:italic;}
+.btn-proceed{width:100%;background:var(--steel);color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:var(--r);padding:0.85rem;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;cursor:not-allowed;transition:all 0.3s;margin-top:0.5rem;}
+.btn-proceed.active{background:var(--accent);color:var(--navy);cursor:pointer;box-shadow:0 4px 16px rgba(245,166,35,0.35);}
+.btn-proceed.active:hover{background:var(--accent2);}
+.locked{opacity:0.35;pointer-events:none;}
 .visualiser-wrap{background:rgba(0,0,0,0.4);border-radius:10px;padding:0.8rem 0.5rem 0.4rem;margin-bottom:0.8rem;height:80px;display:flex;align-items:flex-end;justify-content:center;gap:3px;overflow:hidden;}
 .vis-bar{width:8px;background:var(--accent);border-radius:3px 3px 0 0;height:4px;transition:height 0.05s ease;position:relative;flex-shrink:0;}
 .vis-bar::after{content:'';position:absolute;top:-4px;left:0;right:0;height:3px;background:#fff;border-radius:2px;opacity:0.9;}
@@ -92,23 +89,15 @@ body{background:var(--navy);color:var(--light);font-family:-apple-system,BlinkMa
 .lang-box.show{display:block;}
 .audio-playback{display:none;margin-top:0.8rem;}
 .audio-playback.show{display:block;}
-.audio-playback audio{width:100%;border-radius:8px;margin-bottom:0.4rem;}
-.btn-rerecord{width:100%;background:transparent;border:1px solid rgba(224,85,85,0.4);color:var(--danger);border-radius:8px;padding:0.5rem;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-bottom:0.5rem;}
+.audio-playback audio{width:100%;border-radius:8px;margin-bottom:0.5rem;}
+.btn-rerecord{width:100%;background:transparent;border:1px solid rgba(224,85,85,0.4);color:var(--danger);border-radius:8px;padding:0.5rem;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
 .btn-rerecord:hover{background:rgba(224,85,85,0.1);}
-
-/* Additional audio */
-.audio-extra-section{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.08);}
-.audio-extra-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.5rem;}
-.audio2-playback{display:none;margin-top:0.5rem;}
-.audio2-playback.show{display:block;}
-.upload-audio-zone{border:2px dashed rgba(0,184,169,0.35);border-radius:10px;padding:1rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-top:0.5rem;}
-.upload-audio-zone:hover{border-color:var(--teal);background:rgba(0,184,169,0.04);}
+.audio-block{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.8rem;margin-top:0.8rem;}
+.audio-block-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.6rem;font-weight:600;}
+.upload-audio-zone{border:2px dashed rgba(245,166,35,0.25);border-radius:8px;padding:0.8rem;text-align:center;cursor:pointer;transition:all 0.2s;}
+.upload-audio-zone:hover{border-color:var(--accent);background:rgba(245,166,35,0.04);}
 .upload-audio-zone input{display:none;}
-.upload-audio-zone .uz-text{font-size:0.82rem;color:var(--muted);}
-.uploaded-audio-preview{display:none;margin-top:0.5rem;}
-.uploaded-audio-preview.show{display:block;}
-
-/* Site photos */
+.upload-audio-zone p{font-size:0.8rem;color:var(--muted);}
 .upload-zone{border:2px dashed rgba(245,166,35,0.35);border-radius:var(--r);padding:1.5rem 1rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:0.8rem;}
 .upload-zone:hover{border-color:var(--accent);background:rgba(245,166,35,0.04);}
 .upload-zone .uz-icon{font-size:2rem;margin-bottom:0.4rem;}
@@ -127,16 +116,17 @@ body{background:var(--navy);color:var(--light);font-family:-apple-system,BlinkMa
 .img-item-footer input::placeholder{color:var(--muted);}
 .btn-remove-img{background:transparent;border:1px solid rgba(224,85,85,0.35);color:var(--danger);border-radius:6px;padding:0.3rem 0.7rem;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
 .btn-remove-img:hover{background:rgba(224,85,85,0.1);}
-
-/* Finalise */
 .btn-finalise{width:100%;background:var(--steel);color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:var(--r);padding:1rem;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;cursor:not-allowed;transition:all 0.3s;margin-top:0.5rem;}
 .btn-finalise.active{background:var(--teal);color:var(--navy);cursor:pointer;box-shadow:0 4px 16px rgba(0,184,169,0.35);}
+.btn-finalise.active:hover{filter:brightness(1.1);}
 .btn-convert{width:100%;background:var(--steel);color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:var(--r);padding:1rem;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;cursor:not-allowed;transition:all 0.3s;margin-top:0.5rem;display:none;}
 .btn-convert.show{display:block;}
 .btn-convert.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--navy);cursor:pointer;box-shadow:0 4px 20px rgba(245,166,35,0.4);}
+.btn-convert.active:hover{filter:brightness(1.1);transform:translateY(-1px);}
 .checklist{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.8rem;}
 .check-item{display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;color:var(--muted);}
 .check-item.done{color:var(--teal);}
+.check-item .ci{font-size:1rem;}
 .countdown-wrap{display:none;background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem 1rem;text-align:center;margin-top:1rem;}
 .countdown-wrap.show{display:block;}
 .countdown-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:0.3rem;}
@@ -147,35 +137,31 @@ body{background:var(--navy);color:var(--light);font-family:-apple-system,BlinkMa
 .countdown-bar{background:linear-gradient(90deg,var(--teal),var(--accent));height:6px;border-radius:20px;transition:width 1s linear;width:100%;}
 .report-ready{display:none;background:rgba(0,184,169,0.15);border:2px solid var(--teal);border-radius:var(--r);padding:1rem;text-align:center;margin-top:1rem;}
 .report-ready.show{display:block;animation:pop-in 0.4s ease;}
+.report-ready .rr-icon{font-size:2rem;margin-bottom:0.3rem;}
+.report-ready .rr-text{font-size:1rem;font-weight:700;color:var(--teal);}
+.report-ready .rr-sub{font-size:0.8rem;color:var(--muted);margin-top:0.2rem;}
 @keyframes pop-in{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
-
-/* OUTPUT */
 #output-section{display:none;margin-top:1rem;}
-.out-section-header{font-size:0.8rem;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;}
-
-/* Editable output card */
+.output-section-header{font-size:0.8rem;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;}
 .output-card{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem;margin-bottom:0.8rem;border-left:3px solid var(--teal);position:relative;}
-.output-card .oc-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--teal);font-weight:700;margin-bottom:0.5rem;padding-right:2rem;}
+.output-card .oc-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--teal);font-weight:700;margin-bottom:0.5rem;padding-right:2.5rem;}
 .output-card .oc-text{font-size:0.88rem;color:var(--light);line-height:1.8;white-space:pre-wrap;}
 .output-card .oc-empty{font-size:0.85rem;color:var(--muted);font-style:italic;}
-.output-card .oc-edit-textarea{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--accent);border-radius:8px;color:var(--white);padding:0.6rem 0.8rem;font-size:0.88rem;line-height:1.8;resize:vertical;min-height:80px;font-family:inherit;display:none;}
-.btn-pencil{position:absolute;top:0.8rem;right:0.8rem;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:var(--muted);cursor:pointer;padding:0.2rem 0.4rem;font-size:0.85rem;transition:all 0.2s;}
+.output-card .oc-edit-area{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--accent);border-radius:8px;color:var(--white);padding:0.7rem;font-size:0.88rem;line-height:1.8;resize:vertical;min-height:80px;font-family:inherit;display:none;}
+.btn-pencil{position:absolute;top:0.8rem;right:0.8rem;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:var(--muted);font-size:0.85rem;cursor:pointer;padding:0.2rem 0.5rem;transition:all 0.2s;line-height:1;}
 .btn-pencil:hover{border-color:var(--accent);color:var(--accent);}
-.btn-save-edit{background:var(--teal);color:var(--navy);border:none;border-radius:6px;padding:0.35rem 0.8rem;font-size:0.8rem;font-weight:700;cursor:pointer;margin-top:0.4rem;display:none;}
-
-/* Photo preview */
+.btn-pencil.editing{border-color:var(--teal);color:var(--teal);}
 .photo-preview-card{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:0.8rem;overflow:hidden;border-left:3px solid var(--accent);}
 .photo-preview-title{font-size:0.85rem;font-weight:700;color:var(--accent);padding:0.8rem 1rem 0.4rem;}
 .photo-preview-img{width:100%;max-height:280px;object-fit:contain;display:block;background:rgba(0,0,0,0.3);}
 .photo-preview-desc{font-size:0.78rem;color:var(--muted);font-style:italic;padding:0.4rem 1rem 0.8rem;}
-
-/* Sign-off preview */
-.signoff-table{width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.85rem;}
-.signoff-table th{background:var(--steel);color:var(--light);padding:0.5rem 0.8rem;text-align:center;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;}
-.signoff-table td{border:1px solid rgba(255,255,255,0.1);padding:0.6rem 0.8rem;color:var(--light);vertical-align:top;}
-.signoff-table .sig-box{height:50px;border:1px dashed rgba(255,255,255,0.2);border-radius:4px;margin-top:0.3rem;}
-
-/* Downloads */
+.signoff-table{width:100%;border-collapse:collapse;margin-top:0.5rem;}
+.signoff-table th{background:var(--steel);color:var(--accent);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.6rem 0.8rem;font-weight:700;text-align:center;}
+.signoff-table td{padding:0.5rem 0.8rem;border:1px solid rgba(255,255,255,0.08);font-size:0.85rem;vertical-align:top;}
+.signoff-table td.slabel{color:var(--muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;background:rgba(255,255,255,0.02);}
+.signoff-table td.sval{color:var(--light);}
+.sig-box{border:1px dashed rgba(255,255,255,0.2);border-radius:6px;height:50px;margin-top:0.3rem;display:flex;align-items:center;justify-content:center;}
+.sig-box span{font-size:0.7rem;color:var(--muted);}
 .download-wrap{display:flex;flex-direction:column;gap:0.7rem;margin-top:1rem;}
 .btn-dl{width:100%;padding:0.9rem;border-radius:var(--r);border:none;font-size:1rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
 .btn-dl-pdf{background:#c0392b;color:#fff;box-shadow:0 4px 14px rgba(192,57,43,0.4);}
@@ -183,7 +169,6 @@ body{background:var(--navy);color:var(--light);font-family:-apple-system,BlinkMa
 .btn-dl:disabled{opacity:0.5;cursor:not-allowed;transform:none;filter:none;}
 .btn-new-dwr{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--r);padding:0.75rem;font-size:0.9rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;margin-top:1rem;transition:all 0.2s;}
 .btn-new-dwr:hover{border-color:var(--accent);color:var(--accent);}
-
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:0.7rem 1.2rem;font-size:0.85rem;color:var(--light);box-shadow:0 8px 28px rgba(0,0,0,0.5);z-index:200;opacity:0;transition:all 0.3s;pointer-events:none;max-width:320px;text-align:center;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.err{border-color:var(--danger);}
@@ -193,1024 +178,486 @@ body{background:var(--navy);color:var(--light);font-family:-apple-system,BlinkMa
 .spin{width:48px;height:48px;border:4px solid rgba(245,166,35,0.2);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg)}}
 .loader-msg{font-size:1rem;color:var(--light);text-align:center;max-width:280px;line-height:1.6;}
-input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.6;}
 </style>
 </head>
 <body>
-
 <header class="hdr">
   <div class="brand">NP</div>
-  <div class="brand-t">
-    <h1>NPPS DWR Generator</h1>
-    <p>Neptunus Power Plant Services</p>
-  </div>
+  <div class="brand-t"><h1>NPPS DWR Generator</h1><p>Neptunus Power Plant Services</p></div>
 </header>
-<div class="loader-overlay" id="loader"><div class="spin"></div><div class="loader-msg" id="loader-msg">Processing…</div></div>
+<div class="loader-overlay" id="loader"><div class="spin"></div><div class="loader-msg" id="loader-msg">Processing...</div></div>
 <div class="toast" id="toast"></div>
 
-<!-- LANDING -->
 <div id="screen-land">
-  <div class="land-icon">⚙️</div>
+  <div class="land-icon">&#9881;&#65039;</div>
   <h2 class="land-title">Daily Working<br/><span>Report</span></h2>
   <p class="land-sub">Record your day, upload site photos, and generate a professional DWR instantly.</p>
-  <button class="btn-cta" onclick="startDWR()"><span>＋</span> Create DWR</button>
+  <button class="btn-cta" onclick="startDWR()"><span>+</span> Create DWR</button>
 </div>
 
-<!-- FORM -->
 <div id="screen-form">
 <div class="wrap">
 
-  <!-- SECTION 1: IDENTITY -->
-  <div class="section-card" id="card-identity">
-    <div class="section-title"><span class="step-num">1</span> Who Are You?</div>
-    <div class="field"><label>Your Name *</label>
-      <select id="sel-name" onchange="onNameChange()"><option value="">— Select your name —</option></select>
+<div class="section-card" id="card-identity">
+  <div class="section-title"><span class="step-num">1</span> Who Are You?</div>
+  <div class="field"><label>Your Name *</label><select id="sel-name" onchange="onNameChange()"><option value="">- Select your name -</option></select></div>
+  <div class="field"><label>Your Neptunus Email</label><div class="auto-fill" id="auto-email">-</div></div>
+  <div class="field"><label>Employee Number *</label><input type="text" id="inp-empno" placeholder="Enter your employee number" oninput="checkIdentity()"/></div>
+  <button class="btn-proceed" id="btn-proceed" onclick="unlockForm()">Verify &amp; Proceed</button>
+</div>
+
+<div id="form-body" class="locked">
+
+<div class="section-card">
+  <div class="section-title"><span class="step-num">2</span> Job Details</div>
+  <div class="field"><label>DWR Date <span class="required-badge">Required</span></label><input type="date" id="f-date" oninput="updateChecklist()"/></div>
+  <div class="field"><label>Job Location <span class="optional-badge">Optional</span></label><input type="text" id="f-location" placeholder="e.g. Mumbai Dockyard, Berth 4"/></div>
+  <div class="field"><label>Rig / Vessel Name <span class="optional-badge">Optional</span></label><input type="text" id="f-vessel" placeholder="e.g. MV Ocean Star"/></div>
+  <div class="field"><label>Customer Name <span class="optional-badge">Optional</span></label><input type="text" id="f-customer" placeholder="e.g. Indian Navy"/></div>
+  <div class="field"><label>Engine Make &amp; Model <span class="optional-badge">Optional</span></label><input type="text" id="f-engine-model" placeholder="e.g. Caterpillar 3516C"/></div>
+  <div class="field"><label>Engine Serial Number <span class="optional-badge">Optional</span></label><input type="text" id="f-engine-serial" placeholder="e.g. CAT-3516-00291"/></div>
+  <div class="field"><label>Engine Reference Number <span class="optional-badge">Optional</span></label><input type="text" id="f-engine-ref" placeholder="e.g. WO-2526-0044"/></div>
+  <div class="field">
+    <label>Team Members <span class="optional-badge">Optional</span></label>
+    <p class="field-note">Add each team member. These names appear in meeting attendance below.</p>
+    <div class="team-list" id="team-list"></div>
+    <div class="team-add-row">
+      <input type="text" id="team-inp" placeholder="Type a name and tap Add" onkeydown="if(event.key==='Enter'){addTeamMember();}"/>
+      <button class="btn-add-member" onclick="addTeamMember()">+ Add</button>
     </div>
-    <div class="field"><label>Your Neptunus Email</label><div class="auto-fill" id="auto-email">—</div></div>
-    <div class="field"><label>Employee Number *</label>
-      <input type="text" id="inp-empno" placeholder="Enter your employee number" oninput="checkIdentity()"/>
+  </div>
+</div>
+
+<div class="section-card">
+  <div class="section-title"><span class="step-num">3</span> Meeting Details</div>
+  <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Both meetings are compulsory on every site. Enter time and attendance for each.</p>
+  <table class="meeting-table">
+    <thead><tr><th style="width:32%">Meeting</th><th style="width:34%">Time</th><th>Attendance</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><div class="meeting-name">Toolbox Meeting</div></td>
+        <td>
+          <div class="time-inputs">
+            <input type="number" id="tb-hour" min="1" max="12" placeholder="HH" oninput="clampHour(this)"/>
+            <span>:</span>
+            <input type="number" id="tb-min" min="0" max="59" placeholder="MM" oninput="clampMin(this)"/>
+            <select id="tb-ampm"><option>AM</option><option>PM</option></select>
+          </div>
+        </td>
+        <td>
+          <select id="tb-attendance" onchange="updateAttendance('tb')"><option value="all">All team members attended</option></select>
+          <div class="attendance-status" id="tb-status"></div>
+        </td>
+      </tr>
+      <tr>
+        <td><div class="meeting-name">Safety Meeting</div></td>
+        <td>
+          <div class="time-inputs">
+            <input type="number" id="sm-hour" min="1" max="12" placeholder="HH" oninput="clampHour(this)"/>
+            <span>:</span>
+            <input type="number" id="sm-min" min="0" max="59" placeholder="MM" oninput="clampMin(this)"/>
+            <select id="sm-ampm"><option>AM</option><option>PM</option></select>
+          </div>
+        </td>
+        <td>
+          <select id="sm-attendance" onchange="updateAttendance('sm')"><option value="all">All team members attended</option></select>
+          <div class="attendance-status" id="sm-status"></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-card">
+  <div class="section-title"><span class="step-num">4</span> Voice Recording</div>
+  <div class="recorder-wrap">
+    <div class="visualiser-wrap" id="visualiser-wrap"></div>
+    <div class="rec-timer" id="rec-timer">00:00</div>
+    <div class="rec-status" id="rec-status">Tap the microphone to start recording</div>
+    <div class="rec-btn-row">
+      <button class="btn-rec-sm" id="btn-pause" onclick="pauseRecording()" disabled>&#9208;</button>
+      <button class="btn-record" id="btn-record" onclick="toggleRecord()">&#127908;</button>
+      <button class="btn-rec-sm" id="btn-stop" onclick="stopRecording()" disabled>&#9209;</button>
     </div>
-    <button class="btn-proceed" id="btn-proceed" onclick="unlockForm()">✓ Verify &amp; Proceed</button>
+    <div class="lang-box" id="lang-box">&#127760; <span id="lang-text">Detecting language...</span></div>
+    <div class="audio-playback" id="audio-playback">
+      <audio id="audio-preview" controls></audio>
+      <button class="btn-rerecord" onclick="reRecord()">Re-record</button>
+    </div>
+  </div>
+  <div class="audio-block">
+    <div class="audio-block-title">Additional Recording (optional - if you forgot a point)</div>
+    <div class="recorder-wrap" style="margin-bottom:0.5rem;">
+      <div class="rec-btn-row" style="margin-bottom:0.5rem;">
+        <button class="btn-rec-sm" id="btn-pause2" onclick="pauseRecording2()" disabled>&#9208;</button>
+        <button class="btn-record" id="btn-record2" onclick="toggleRecord2()" style="width:56px;height:56px;font-size:1.4rem;">&#127908;</button>
+        <button class="btn-rec-sm" id="btn-stop2" onclick="stopRecording2()" disabled>&#9209;</button>
+      </div>
+      <div class="rec-timer" id="rec-timer2" style="font-size:1.4rem;">00:00</div>
+      <div class="rec-status" id="rec-status2" style="font-size:0.75rem;">Tap to record additional audio</div>
+    </div>
+    <div class="audio-playback" id="audio-playback2">
+      <audio id="audio-preview2" controls style="width:100%;border-radius:8px;margin-bottom:0.4rem;"></audio>
+      <button class="btn-rerecord" onclick="reRecord2()">Re-record additional</button>
+    </div>
+  </div>
+  <div class="audio-block">
+    <div class="audio-block-title">Upload Audio File (optional - MP3, M4A, WAV, OGG)</div>
+    <div class="upload-audio-zone" onclick="document.getElementById('inp-audio-file').click()">
+      <p>&#128193; Tap to upload an audio file</p>
+      <input type="file" id="inp-audio-file" accept="audio/*" onchange="handleAudioFile(this)"/>
+    </div>
+    <div id="audio-file-preview" style="display:none;margin-top:0.5rem;">
+      <audio id="audio-file-player" controls style="width:100%;border-radius:8px;"></audio>
+      <button class="btn-rerecord" style="margin-top:0.4rem;" onclick="clearAudioFile()">Remove file</button>
+    </div>
+  </div>
+</div>
+
+<div class="section-card">
+  <div class="section-title"><span class="step-num">5</span> Site Photos</div>
+  <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Each photo requires a mandatory title. Description is optional - if left blank it will show as N/A.</p>
+  <div class="upload-zone" onclick="document.getElementById('inp-site-imgs').click()">
+    <div class="uz-icon">&#128247;</div>
+    <div class="uz-text">Tap to upload site photos</div>
+    <input type="file" id="inp-site-imgs" accept="image/*" multiple onchange="addSiteImages(this)"/>
+  </div>
+  <div class="img-grid" id="site-img-grid"></div>
+</div>
+
+<div class="section-card">
+  <div class="section-title"><span class="step-num">6</span> Finalise &amp; Generate</div>
+  <div class="checklist">
+    <div class="check-item" id="chk-identity"><span class="ci">&#11036;</span> Identity verified</div>
+    <div class="check-item" id="chk-date"><span class="ci">&#11036;</span> DWR date selected</div>
+    <div class="check-item" id="chk-audio"><span class="ci">&#11036;</span> Audio recorded or uploaded</div>
+  </div>
+  <button class="btn-finalise" id="btn-finalise" onclick="finalise()">Finalise Draft</button>
+  <button class="btn-convert show" id="btn-convert" onclick="convertToDWR()">Convert to DWR</button>
+  <div class="countdown-wrap" id="countdown-wrap">
+    <div class="countdown-label">Generating your DWR - please wait</div>
+    <div class="countdown-num" id="countdown-num">55</div>
+    <div class="countdown-sub" id="countdown-sub">seconds remaining</div>
+    <div class="countdown-bar-bg"><div class="countdown-bar" id="countdown-bar"></div></div>
+  </div>
+  <div class="report-ready" id="report-ready">
+    <div class="rr-icon">&#9989;</div>
+    <div class="rr-text">Report Ready!</div>
+    <div class="rr-sub">Scroll down to review, edit if needed, then download PDF</div>
+  </div>
+</div>
+
+</div>
+
+<div id="output-section">
+  <div class="output-section-header">Your DWR Preview - Tap pencil icon to edit any section</div>
+
+  <div class="output-card" id="oc-meta">
+    <div class="oc-label">Report Details</div>
+    <button class="btn-pencil" onclick="toggleEdit('meta')" title="Edit">&#9999;&#65039;</button>
+    <div class="oc-text" id="out-meta"></div>
+    <textarea class="oc-edit-area" id="edit-meta" oninput="syncEdit('meta')"></textarea>
   </div>
 
-  <div id="form-body" class="locked">
-
-    <!-- SECTION 2: JOB DETAILS -->
-    <div class="section-card">
-      <div class="section-title"><span class="step-num">2</span> Job Details</div>
-      <div class="field"><label>DWR Date * (compulsory)</label>
-        <input type="date" id="f-date" required oninput="updateChecklist()"/>
-      </div>
-      <div class="field"><label>Job Location *</label>
-        <input type="text" id="f-location" placeholder="e.g. Mumbai Dockyard, Berth 4" oninput="updateChecklist()"/>
-      </div>
-      <div class="field"><label>Rig / Vessel Name *</label>
-        <input type="text" id="f-vessel" placeholder="e.g. MV Ocean Star" oninput="updateChecklist()"/>
-      </div>
-      <div class="field"><label>Customer Name</label>
-        <input type="text" id="f-customer" placeholder="e.g. Indian Navy" oninput="updateMeetingAttendance()"/>
-      </div>
-      <div class="field"><label>Engine Make &amp; Model</label>
-        <input type="text" id="f-engine-model" placeholder="e.g. Caterpillar 3516C"/>
-      </div>
-      <div class="field"><label>Engine Serial Number</label>
-        <input type="text" id="f-engine-serial" placeholder="e.g. CAT-3516-2024-001"/>
-      </div>
-      <div class="field"><label>Engine Reference Number</label>
-        <input type="text" id="f-engine-ref" placeholder="e.g. WO-2024-0892"/>
-      </div>
-    </div>
-
-    <!-- SECTION 3: TEAM MEMBERS -->
-    <div class="section-card">
-      <div class="section-title"><span class="step-num">3</span> Team Members</div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Add all team members on site today. These names will appear in the meeting attendance section below.</p>
-      <div class="team-list" id="team-list"></div>
-      <div class="team-add-row">
-        <input type="text" id="inp-team-member" placeholder="Type team member name…" onkeydown="if(event.key==='Enter')addTeamMember()"/>
-        <button class="btn-add-member" onclick="addTeamMember()">+ Add</button>
-      </div>
-    </div>
-
-    <!-- SECTION 4: MEETING DETAILS -->
-    <div class="section-card">
-      <div class="section-title"><span class="step-num">4</span> Meeting Details</div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Both meetings are compulsory on every site.</p>
-      <table class="meeting-table">
-        <thead>
-          <tr>
-            <th style="width:32%">Meeting</th>
-            <th style="width:34%">Time</th>
-            <th style="width:34%">Attendance</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><div class="meeting-name">Toolbox Meeting</div></td>
-            <td>
-              <div class="time-row">
-                <input type="number" id="tb-hour" min="1" max="12" placeholder="HH" style="width:42px"/>
-                <span style="color:var(--muted)">:</span>
-                <input type="number" id="tb-min" min="0" max="59" placeholder="MM" style="width:42px"/>
-                <select id="tb-ampm"><option>AM</option><option>PM</option></select>
-              </div>
-            </td>
-            <td>
-              <select id="tb-attend" onchange="updateAttendStatus('tb')">
-                <option value="all">All attended</option>
-              </select>
-              <div class="meeting-attend-status" id="tb-status">✅ All team members attended</div>
-            </td>
-          </tr>
-          <tr>
-            <td><div class="meeting-name">Safety Meeting</div></td>
-            <td>
-              <div class="time-row">
-                <input type="number" id="sm-hour" min="1" max="12" placeholder="HH" style="width:42px"/>
-                <span style="color:var(--muted)">:</span>
-                <input type="number" id="sm-min" min="0" max="59" placeholder="MM" style="width:42px"/>
-                <select id="sm-ampm"><option>AM</option><option>PM</option></select>
-              </div>
-            </td>
-            <td>
-              <select id="sm-attend" onchange="updateAttendStatus('sm')">
-                <option value="all">All attended</option>
-              </select>
-              <div class="meeting-attend-status" id="sm-status">✅ All team members attended</div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- SECTION 5: AUDIO -->
-    <div class="section-card">
-      <div class="section-title"><span class="step-num">5</span> Voice Recording</div>
-      <div class="recorder-wrap">
-        <div class="visualiser-wrap" id="visualiser-wrap"></div>
-        <div class="rec-timer" id="rec-timer">00:00</div>
-        <div class="rec-status" id="rec-status">Tap the microphone to start recording</div>
-        <div class="rec-btn-row">
-          <button class="btn-rec-sm" id="btn-pause" onclick="pauseRecording()" disabled>⏸</button>
-          <button class="btn-record" id="btn-record" onclick="toggleRecord()">🎙️</button>
-          <button class="btn-rec-sm" id="btn-stop" onclick="stopRecording()" disabled>⏹</button>
-        </div>
-        <div class="lang-box" id="lang-box">🌐 <span id="lang-text">Detecting language…</span></div>
-        <div class="audio-playback" id="audio-playback">
-          <audio id="audio-preview" controls></audio>
-          <button class="btn-rerecord" onclick="reRecord()">🔄 Re-record Primary</button>
-        </div>
-
-        <!-- Additional audio -->
-        <div class="audio-extra-section">
-          <div class="audio-extra-label">Additional Recording (if you forgot a point)</div>
-          <div class="rec-btn-row" style="margin-top:0.5rem;">
-            <button class="btn-rec-sm" id="btn-pause2" onclick="pauseRecording2()" disabled>⏸</button>
-            <button class="btn-record" id="btn-record2" onclick="toggleRecord2()" style="width:56px;height:56px;font-size:1.4rem;" title="Record additional">🎙️</button>
-            <button class="btn-rec-sm" id="btn-stop2" onclick="stopRecording2()" disabled>⏹</button>
-          </div>
-          <div class="rec-status" id="rec-status2" style="font-size:0.75rem;">Optional — tap to add more</div>
-          <div class="audio2-playback" id="audio2-playback">
-            <audio id="audio2-preview" controls></audio>
-            <button class="btn-rerecord" onclick="reRecord2()" style="font-size:0.8rem;">🔄 Re-record Additional</button>
-          </div>
-
-          <div class="audio-extra-label" style="margin-top:1rem;">Upload Existing Audio File</div>
-          <div class="upload-audio-zone" onclick="document.getElementById('inp-audio-file').click()">
-            <div class="uz-text">🎵 Tap to upload audio file (MP3, M4A, WAV, OGG…)</div>
-            <input type="file" id="inp-audio-file" accept="audio/*" onchange="handleAudioFileUpload(this)"/>
-          </div>
-          <div class="uploaded-audio-preview" id="uploaded-audio-preview">
-            <audio id="uploaded-audio-player" controls style="width:100%;border-radius:8px;margin-top:0.4rem;"></audio>
-            <button class="btn-rerecord" onclick="clearUploadedAudio()" style="font-size:0.8rem;margin-top:0.3rem;">✕ Remove uploaded file</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- SECTION 6: SITE PHOTOS -->
-    <div class="section-card">
-      <div class="section-title"><span class="step-num">6</span> Site Photos</div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Each photo needs a mandatory title. Description is optional — if blank it will show as N/A.</p>
-      <div class="upload-zone" onclick="document.getElementById('inp-site-imgs').click()">
-        <div class="uz-icon">📷</div>
-        <div class="uz-text">Tap to upload site photos</div>
-        <input type="file" id="inp-site-imgs" accept="image/*" multiple onchange="addSiteImages(this)"/>
-      </div>
-      <div class="img-grid" id="site-img-grid"></div>
-    </div>
-
-    <!-- SECTION 7: FINALISE -->
-    <div class="section-card">
-      <div class="section-title"><span class="step-num">7</span> Finalise &amp; Generate</div>
-      <div class="checklist">
-        <div class="check-item" id="chk-identity">⬜ Identity verified</div>
-        <div class="check-item" id="chk-date">⬜ DWR date selected</div>
-        <div class="check-item" id="chk-location">⬜ Job location entered</div>
-        <div class="check-item" id="chk-vessel">⬜ Vessel / rig name entered</div>
-        <div class="check-item" id="chk-audio">⬜ Audio recorded</div>
-      </div>
-      <button class="btn-finalise" id="btn-finalise" onclick="finalise()">✓ Finalise Draft</button>
-      <button class="btn-convert show" id="btn-convert" onclick="convertToDWR()">⚡ Convert to DWR</button>
-      <div class="countdown-wrap" id="countdown-wrap">
-        <div class="countdown-label">Generating your DWR — please wait</div>
-        <div class="countdown-num" id="countdown-num">45</div>
-        <div class="countdown-sub" id="countdown-sub">seconds remaining</div>
-        <div class="countdown-bar-bg"><div class="countdown-bar" id="countdown-bar"></div></div>
-      </div>
-      <div class="report-ready" id="report-ready">
-        <div style="font-size:2rem;">✅</div>
-        <div style="font-size:1rem;font-weight:700;color:var(--teal);">Report Ready!</div>
-        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.2rem;">Scroll down to review, edit, and download your DWR</div>
-      </div>
-    </div>
-
-  </div><!-- /form-body -->
-
-  <!-- OUTPUT -->
-  <div id="output-section">
-    <div class="out-section-header">✦ DWR Preview — tap ✏️ to edit any section</div>
-
-    <!-- Job details card -->
-    <div class="output-card" id="out-meta-card">
-      <div class="oc-label">Report Details</div>
-      <button class="btn-pencil" onclick="toggleEdit('meta')" title="Edit">✏️</button>
-      <div class="oc-text" id="out-meta"></div>
-      <textarea class="oc-edit-textarea" id="edit-meta"></textarea>
-      <button class="btn-save-edit" id="save-meta" onclick="saveEdit('meta')">✔ Save</button>
-    </div>
-
-    <!-- Meeting details card -->
-    <div class="output-card" id="out-meeting-card">
-      <div class="oc-label">Meeting Details</div>
-      <button class="btn-pencil" onclick="toggleEdit('meeting')" title="Edit">✏️</button>
-      <div class="oc-text" id="out-meeting"></div>
-      <textarea class="oc-edit-textarea" id="edit-meeting"></textarea>
-      <button class="btn-save-edit" id="save-meeting" onclick="saveEdit('meeting')">✔ Save</button>
-    </div>
-
-    <!-- 12 DWR sections -->
-    <div id="out-sections"></div>
-
-    <!-- Photos -->
-    <div id="out-photos"></div>
-
-    <!-- Sign-off -->
-    <div class="output-card">
-      <div class="oc-label">Sign-Off</div>
-      <table class="signoff-table">
-        <thead>
-          <tr><th>On Behalf of Neptunus</th><th>On Behalf of Customer</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Name:</strong> <span id="so-neptunus-name">—</span></td>
-            <td><strong>Name:</strong> <span id="so-customer-name">—</span></td>
-          </tr>
-          <tr>
-            <td><strong>Date:</strong> <span id="so-date">—</span></td>
-            <td><strong>Date:</strong> <span id="so-date2">—</span></td>
-          </tr>
-          <tr>
-            <td><strong>Signature:</strong><div class="sig-box"></div></td>
-            <td><strong>Signature:</strong><div class="sig-box"></div></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="download-wrap">
-      <button class="btn-dl btn-dl-pdf" id="btn-pdf" onclick="downloadPDF()">📄 Download PDF</button>
-    </div>
-    <button class="btn-new-dwr" onclick="resetApp()">＋ Start New DWR</button>
+  <div class="output-card" id="oc-meetings">
+    <div class="oc-label">Meeting Details</div>
+    <button class="btn-pencil" onclick="toggleEdit('meetings')" title="Edit">&#9999;&#65039;</button>
+    <div class="oc-text" id="out-meetings"></div>
+    <textarea class="oc-edit-area" id="edit-meetings" oninput="syncEdit('meetings')"></textarea>
   </div>
+
+  <div id="out-sections"></div>
+  <div id="out-photos"></div>
+
+  <div class="output-card" style="border-left-color:var(--accent);">
+    <div class="oc-label">Sign-Off</div>
+    <table class="signoff-table">
+      <thead><tr><th colspan="2">On Behalf of Neptunus</th><th colspan="2">On Behalf of Customer</th></tr></thead>
+      <tbody>
+        <tr><td class="slabel">Name</td><td class="sval" id="so-nep-name">-</td><td class="slabel">Name</td><td class="sval" id="so-cust-name">-</td></tr>
+        <tr><td class="slabel">Date</td><td class="sval" id="so-nep-date">-</td><td class="slabel">Date</td><td class="sval" id="so-cust-date">-</td></tr>
+        <tr><td class="slabel">Signature</td><td class="sval"><div class="sig-box"><span>Sign here</span></div></td><td class="slabel">Signature</td><td class="sval"><div class="sig-box"><span>Sign here</span></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="download-wrap">
+    <button class="btn-dl btn-dl-pdf" id="btn-pdf" onclick="downloadPDF()">&#128196; Download PDF</button>
+  </div>
+  <button class="btn-new-dwr" onclick="resetApp()">+ Start New DWR</button>
+</div>
 
 </div>
 </div>
 
 <script>
-var WORKER_URL = 'https://npps-dwr-worker.radheya-supnekar.workers.dev';
-
-// STATE
-var employees=[], verifiedUser=null;
-var mediaRecorder=null, audioChunks=[], audioBlob=null, audioBase64=null, audioMime='audio/webm';
-var mediaRecorder2=null, audioChunks2=[], audioBlob2=null, audioBase64_2=null, audioMime2='audio/webm';
-var audioFileBase64=null, audioFileMime=null;
-var isRecording=false, isPaused=false, recSeconds=0, recTimerInt=null;
-var isRecording2=false, isPaused2=false, recSeconds2=0, recTimerInt2=null;
-var animFrame=null, audioCtx=null, analyser=null;
-var teamMembers=[], siteImages=[], generatedDWR=null, finaliseOk=false, cdInterval=null;
-var NUM_BARS=28;
-
+var WORKER_URL='https://npps-dwr-worker.radheya-supnekar.workers.dev';
+var employees=[],verifiedUser=null,teamMembers=[];
+var mediaRecorder=null,audioChunks=[],audioBlob=null,audioBase64=null,audioMime='audio/webm';
+var isRecording=false,isPaused=false,recSeconds=0,recTimerInt=null,animFrame=null,audioCtx=null,analyser=null;
+var mediaRecorder2=null,audioChunks2=[],audioBlob2=null,audioBase64_2=null,audioMime2='audio/webm';
+var isRecording2=false,isPaused2=false,recSeconds2=0,recTimerInt2=null;
+var audioFileBase64=null,audioFileMime=null;
+var siteImages=[],generatedDWR=null,finaliseOk=false,cdInterval=null,NUM_BARS=28;
+var outputStore={};
 var SEC_ORDER=['scope_done','scope_not_done','additional_tasks','critical_issues','lost_time','spares_consumables','customer_manpower','accidents_safety','tools_issues','customer_property','plan_tomorrow','additional_notes'];
-var SEC_LABELS={
-  scope_done:'Scope of Work Completed Today',
-  scope_not_done:'Scope Planned but Not Completed',
-  additional_tasks:'Additional Tasks Done (Not in Original Scope)',
-  critical_issues:'Critical Issues / Observations',
-  lost_time:'Lost / Idle / Rework Time',
-  spares_consumables:'Spares & Consumables Used / Required',
-  customer_manpower:'Customer Manpower & Resources Used',
-  accidents_safety:'Accidents, Injuries, Near Misses or Safety Violations',
-  tools_issues:'Lost, Damaged or Malfunctioning Tools',
-  customer_property:'Damage to Customer Property',
-  plan_tomorrow:'Plan for Tomorrow',
-  additional_notes:'Additional Notes / HSE / Permits'
-};
+var SEC_LABELS={scope_done:'Scope of Work Completed Today',scope_not_done:'Scope Planned but Not Completed',additional_tasks:'Additional Tasks Done (Not in Original Scope)',critical_issues:'Critical Issues / Observations',lost_time:'Lost / Idle / Rework Time',spares_consumables:'Spares & Consumables Used / Required',customer_manpower:'Customer Manpower & Resources Used',accidents_safety:'Accidents, Injuries, Near Misses or Safety Violations',tools_issues:'Lost, Damaged or Malfunctioning Tools',customer_property:'Damage to Customer Property',plan_tomorrow:'Plan for Tomorrow',additional_notes:'Additional Notes / HSE / Permits'};
 
-// INIT
-window.addEventListener('load',function(){loadEmployees();buildBars();updateChecklist();});
+window.addEventListener('load',function(){loadEmployees();buildBars();updateChecklist();document.getElementById('f-date').value=new Date().toISOString().split('T')[0];});
 
-function buildBars(){
-  var wrap=document.getElementById('visualiser-wrap'); wrap.innerHTML='';
-  for(var i=0;i<NUM_BARS;i++){var b=document.createElement('div');b.className='vis-bar idle';b.id='bar-'+i;wrap.appendChild(b);}
-}
+function buildBars(){var wrap=document.getElementById('visualiser-wrap');wrap.innerHTML='';for(var i=0;i<NUM_BARS;i++){var bar=document.createElement('div');bar.className='vis-bar idle';bar.id='bar-'+i;wrap.appendChild(bar);}}
 
-function loadEmployees(){
-  fetch('employees.json?v='+Date.now())
-    .then(function(r){return r.json();})
-    .then(function(data){
-      employees=data;
-      var sel=document.getElementById('sel-name');
-      data.forEach(function(emp){
-        var opt=document.createElement('option');
-        opt.value=emp.empNo; opt.textContent=emp.name; opt.setAttribute('data-email',emp.email);
-        sel.appendChild(opt);
-      });
-    })
-    .catch(function(){toast('Could not load employee list. Please refresh.','err');});
-}
+function loadEmployees(){fetch('employees.json?v='+Date.now()).then(function(r){return r.json();}).then(function(data){employees=data;var sel=document.getElementById('sel-name');data.forEach(function(emp){var opt=document.createElement('option');opt.value=emp.empNo;opt.textContent=emp.name;opt.setAttribute('data-email',emp.email);sel.appendChild(opt);});}).catch(function(){toast('Could not load employee list. Please refresh.','err');});}
 
 function startDWR(){document.getElementById('screen-land').style.display='none';document.getElementById('screen-form').style.display='block';}
+function onNameChange(){var sel=document.getElementById('sel-name'),opt=sel.options[sel.selectedIndex],emailEl=document.getElementById('auto-email');if(opt&&opt.getAttribute('data-email')){emailEl.textContent=opt.getAttribute('data-email');emailEl.style.display='block';}else{emailEl.style.display='none';}checkIdentity();}
+function checkIdentity(){var sel=document.getElementById('sel-name'),opt=sel.options[sel.selectedIndex],empNo=document.getElementById('inp-empno').value.trim();document.getElementById('btn-proceed').classList.toggle('active',!!(opt&&opt.value&&opt.value===empNo));}
+function unlockForm(){var sel=document.getElementById('sel-name'),opt=sel.options[sel.selectedIndex],empNo=document.getElementById('inp-empno').value.trim();if(!opt||!opt.value||opt.value!==empNo){toast('Employee number does not match.','err');return;}verifiedUser={name:opt.textContent,email:opt.getAttribute('data-email'),empNo:empNo};document.getElementById('form-body').classList.remove('locked');document.getElementById('card-identity').style.borderColor='var(--teal)';var bp=document.getElementById('btn-proceed');bp.textContent='Verified - '+verifiedUser.name;bp.classList.remove('active');bp.style.background='rgba(0,184,169,0.15)';bp.style.color='var(--teal)';bp.style.cursor='default';bp.onclick=null;updateChecklist();toast('Identity verified!','ok');setTimeout(function(){document.getElementById('form-body').scrollIntoView({behavior:'smooth',block:'start'});},300);}
 
-// IDENTITY
-function onNameChange(){
-  var sel=document.getElementById('sel-name'), opt=sel.options[sel.selectedIndex];
-  var emailEl=document.getElementById('auto-email');
-  if(opt&&opt.getAttribute('data-email')){emailEl.textContent=opt.getAttribute('data-email');emailEl.style.display='block';}
-  else{emailEl.style.display='none';}
-  checkIdentity();
-}
-function checkIdentity(){
-  var sel=document.getElementById('sel-name'), opt=sel.options[sel.selectedIndex];
-  var empNo=document.getElementById('inp-empno').value.trim();
-  document.getElementById('btn-proceed').classList.toggle('active',!!(opt&&opt.value&&opt.value===empNo));
-}
-function unlockForm(){
-  var sel=document.getElementById('sel-name'), opt=sel.options[sel.selectedIndex];
-  var empNo=document.getElementById('inp-empno').value.trim();
-  if(!opt||!opt.value||opt.value!==empNo){toast('Employee number does not match.','err');return;}
-  verifiedUser={name:opt.textContent, email:opt.getAttribute('data-email'), empNo:empNo};
-  document.getElementById('form-body').classList.remove('locked');
-  document.getElementById('card-identity').style.borderColor='var(--teal)';
-  var bp=document.getElementById('btn-proceed');
-  bp.textContent='✓ Verified — '+verifiedUser.name; bp.classList.remove('active');
-  bp.style.background='rgba(0,184,169,0.15)'; bp.style.color='var(--teal)'; bp.style.cursor='default'; bp.onclick=null;
-  updateChecklist(); toast('Identity verified!','ok');
-  setTimeout(function(){document.getElementById('form-body').scrollIntoView({behavior:'smooth',block:'start'});},300);
-}
+function addTeamMember(){var inp=document.getElementById('team-inp');var name=inp.value.trim();if(!name)return;if(teamMembers.indexOf(name)>=0){toast('Already added.','err');return;}teamMembers.push(name);inp.value='';renderTeamList();refreshAttendanceDropdowns();}
+function removeTeamMember(idx){teamMembers.splice(idx,1);renderTeamList();refreshAttendanceDropdowns();}
+function renderTeamList(){var list=document.getElementById('team-list');list.innerHTML='';teamMembers.forEach(function(name,idx){var row=document.createElement('div');row.className='team-member-row';row.innerHTML='<span>- '+escHtml(name)+'</span><button class="btn-remove-member" onclick="removeTeamMember('+idx+')" title="Remove">x</button>';list.appendChild(row);});}
+function refreshAttendanceDropdowns(){['tb','sm'].forEach(function(prefix){var sel=document.getElementById(prefix+'-attendance');sel.innerHTML='<option value="all">All team members attended</option>';teamMembers.forEach(function(name){var opt=document.createElement('option');opt.value='absent:'+name;opt.textContent=name+' was absent';sel.appendChild(opt);});updateAttendance(prefix);});}
+function updateAttendance(prefix){var sel=document.getElementById(prefix+'-attendance'),statusEl=document.getElementById(prefix+'-status'),val=sel.value;if(val==='all'){statusEl.textContent='All team members attended';}else if(val.startsWith('absent:')){statusEl.textContent='All attended except '+val.replace('absent:','');}else{statusEl.textContent='';}}
+function getMeetingAttendanceText(prefix){var sel=document.getElementById(prefix+'-attendance'),val=sel.value;if(val==='all'||!teamMembers.length)return'All team members attended';if(val.startsWith('absent:'))return'All attended except '+val.replace('absent:','');return'See notes';}
+function getMeetingTime(prefix){var h=document.getElementById(prefix+'-hour').value,m=document.getElementById(prefix+'-min').value,ap=document.getElementById(prefix+'-ampm').value;if(!h)return'Not recorded';var mm=m?(m.length===1?'0'+m:m):'00';return h+':'+mm+' '+ap;}
+function clampHour(el){if(el.value>12)el.value=12;if(el.value<1&&el.value!=='')el.value=1;}
+function clampMin(el){if(el.value>59)el.value=59;if(el.value<0)el.value=0;}
 
-// TEAM MEMBERS
-function addTeamMember(){
-  var inp=document.getElementById('inp-team-member');
-  var name=inp.value.trim(); if(!name)return;
-  teamMembers.push(name); inp.value='';
-  renderTeamList(); updateMeetingDropdowns();
-}
-function removeTeamMember(idx){
-  teamMembers.splice(idx,1); renderTeamList(); updateMeetingDropdowns();
-}
-function renderTeamList(){
-  var list=document.getElementById('team-list'); list.innerHTML='';
-  teamMembers.forEach(function(name,idx){
-    var row=document.createElement('div'); row.className='team-member-row';
-    row.innerHTML='<span class="team-member-name">• '+escHtml(name)+'</span><button class="btn-remove-member" onclick="removeTeamMember('+idx+')" title="Remove">✕</button>';
-    list.appendChild(row);
-  });
-}
-function updateMeetingDropdowns(){
-  ['tb-attend','sm-attend'].forEach(function(id){
-    var sel=document.getElementById(id);
-    var cur=sel.value; sel.innerHTML='<option value="all">All attended</option>';
-    teamMembers.forEach(function(name,idx){
-      var opt=document.createElement('option'); opt.value='absent-'+idx; opt.textContent='Absent: '+name;
-      sel.appendChild(opt);
-    });
-    sel.value=cur;
-  });
-  updateAttendStatus('tb'); updateAttendStatus('sm');
-}
-function updateMeetingAttendance(){updateMeetingDropdowns();}
-function updateAttendStatus(prefix){
-  var sel=document.getElementById(prefix+'-attend');
-  var statusEl=document.getElementById(prefix+'-status');
-  if(sel.value==='all'){
-    statusEl.textContent='✅ All team members attended';
-    statusEl.style.color='var(--teal)';
-  } else {
-    var idx=parseInt(sel.value.replace('absent-',''));
-    var absentName=teamMembers[idx]||'Unknown';
-    statusEl.textContent='⚠️ All attended except '+absentName;
-    statusEl.style.color='var(--accent)';
-  }
-}
-
-// RECORDING — PRIMARY
-function getBestMime(){
-  var types=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];
-  for(var i=0;i<types.length;i++){if(MediaRecorder.isTypeSupported(types[i]))return types[i];}
-  return '';
-}
+function getBestMime(){var types=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];for(var i=0;i<types.length;i++){if(MediaRecorder.isTypeSupported(types[i]))return types[i];}return'';}
 function toggleRecord(){if(!isRecording)startRecording();else if(!isPaused)pauseRecording();else resumeRecording();}
-function startRecording(){
-  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:44100}})
-    .then(function(stream){
-      audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-      analyser=audioCtx.createAnalyser(); analyser.fftSize=64;
-      audioCtx.createMediaStreamSource(stream).connect(analyser);
-      var mime=getBestMime(); audioMime=mime||'audio/webm';
-      mediaRecorder=new MediaRecorder(stream,mime?{mimeType:mime}:{}); audioChunks=[];
-      mediaRecorder.ondataavailable=function(e){if(e.data&&e.data.size>0)audioChunks.push(e.data);};
-      mediaRecorder.onstop=function(){
-        var actual=mediaRecorder.mimeType||audioMime; audioMime=actual.split(';')[0];
-        audioBlob=new Blob(audioChunks,{type:actual});
-        document.getElementById('audio-preview').src=URL.createObjectURL(audioBlob);
-        document.getElementById('audio-playback').classList.add('show');
-        var reader=new FileReader();
-        reader.onload=function(e){audioBase64=e.target.result.split(',')[1];updateChecklist();detectLanguage();};
-        reader.readAsDataURL(audioBlob);
-      };
-      mediaRecorder.start(500); isRecording=true; isPaused=false;
-      document.getElementById('btn-record').className='btn-record recording';
-      document.getElementById('btn-record').innerHTML='⏸';
-      document.getElementById('btn-pause').disabled=false; document.getElementById('btn-stop').disabled=false;
-      document.getElementById('rec-status').innerHTML='<span class="dot"></span> Recording…';
-      document.getElementById('audio-playback').classList.remove('show');
-      document.getElementById('lang-box').classList.remove('show');
-      startRecTimer(); drawBars();
-    })
-    .catch(function(){toast('Microphone access denied. Please allow microphone permission.','err');});
-}
-function pauseRecording(){
-  if(mediaRecorder&&isRecording&&!isPaused){
-    mediaRecorder.pause(); isPaused=true; clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').className='btn-record paused'; document.getElementById('btn-record').innerHTML='▶';
-    document.getElementById('rec-status').textContent='Paused — tap ▶ to resume'; idleBars();
-  }
-}
-function resumeRecording(){
-  if(mediaRecorder&&isPaused){
-    mediaRecorder.resume(); isPaused=false; startRecTimer(); drawBars();
-    document.getElementById('btn-record').className='btn-record recording'; document.getElementById('btn-record').innerHTML='⏸';
-    document.getElementById('rec-status').innerHTML='<span class="dot"></span> Recording…';
-  }
-}
-function stopRecording(){
-  if(mediaRecorder&&isRecording){
-    mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(function(t){t.stop();});
-    isRecording=false; isPaused=false; clearInterval(recTimerInt); cancelAnimationFrame(animFrame);
-    document.getElementById('btn-record').className='btn-record'; document.getElementById('btn-record').innerHTML='🎙️';
-    document.getElementById('btn-pause').disabled=true; document.getElementById('btn-stop').disabled=true;
-    document.getElementById('rec-status').textContent='Primary recording complete'; idleBars();
-  }
-}
-function reRecord(){
-  audioBlob=null; audioBase64=null; recSeconds=0;
-  document.getElementById('rec-timer').textContent='00:00';
-  document.getElementById('audio-playback').classList.remove('show');
-  document.getElementById('lang-box').classList.remove('show');
-  document.getElementById('rec-status').textContent='Tap the microphone to start recording';
-  idleBars(); updateChecklist();
-}
-function startRecTimer(){
-  recTimerInt=setInterval(function(){
-    recSeconds++; var m=Math.floor(recSeconds/60),s=recSeconds%60;
-    document.getElementById('rec-timer').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-  },1000);
-}
+function startRecording(){navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,sampleRate:44100}}).then(function(stream){audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=64;audioCtx.createMediaStreamSource(stream).connect(analyser);var mime=getBestMime();audioMime=mime||'audio/webm';mediaRecorder=new MediaRecorder(stream,mime?{mimeType:mime}:{});audioChunks=[];mediaRecorder.ondataavailable=function(e){if(e.data&&e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=function(){var actual=mediaRecorder.mimeType||audioMime;audioMime=actual.split(';')[0];audioBlob=new Blob(audioChunks,{type:actual});document.getElementById('audio-preview').src=URL.createObjectURL(audioBlob);document.getElementById('audio-playback').classList.add('show');var reader=new FileReader();reader.onload=function(e){audioBase64=e.target.result.split(',')[1];updateChecklist();detectLanguage();};reader.readAsDataURL(audioBlob);};mediaRecorder.start(500);isRecording=true;isPaused=false;document.getElementById('btn-record').className='btn-record recording';document.getElementById('btn-record').innerHTML='||';document.getElementById('btn-pause').disabled=false;document.getElementById('btn-stop').disabled=false;document.getElementById('rec-status').innerHTML='<span class="dot"></span> Recording...';document.getElementById('audio-playback').classList.remove('show');document.getElementById('lang-box').classList.remove('show');startRecTimer();drawBars();}).catch(function(){toast('Microphone access denied.','err');});}
+function pauseRecording(){if(mediaRecorder&&isRecording&&!isPaused){mediaRecorder.pause();isPaused=true;clearInterval(recTimerInt);cancelAnimationFrame(animFrame);document.getElementById('btn-record').className='btn-record paused';document.getElementById('btn-record').innerHTML='>';document.getElementById('rec-status').textContent='Paused - tap to resume';idleBars();}}
+function resumeRecording(){if(mediaRecorder&&isPaused){mediaRecorder.resume();isPaused=false;startRecTimer();drawBars();document.getElementById('btn-record').className='btn-record recording';document.getElementById('btn-record').innerHTML='||';document.getElementById('rec-status').innerHTML='<span class="dot"></span> Recording...';}}
+function stopRecording(){if(mediaRecorder&&isRecording){mediaRecorder.stop();mediaRecorder.stream.getTracks().forEach(function(t){t.stop();});isRecording=false;isPaused=false;clearInterval(recTimerInt);cancelAnimationFrame(animFrame);document.getElementById('btn-record').className='btn-record';document.getElementById('btn-record').innerHTML='mic';document.getElementById('btn-pause').disabled=true;document.getElementById('btn-stop').disabled=true;document.getElementById('rec-status').textContent='Recording complete - listen below';idleBars();}}
+function reRecord(){audioBlob=null;audioBase64=null;recSeconds=0;document.getElementById('rec-timer').textContent='00:00';document.getElementById('audio-playback').classList.remove('show');document.getElementById('lang-box').classList.remove('show');document.getElementById('rec-status').textContent='Tap the microphone to start recording';idleBars();updateChecklist();}
+function startRecTimer(){recTimerInt=setInterval(function(){recSeconds++;var m=Math.floor(recSeconds/60),s=recSeconds%60;document.getElementById('rec-timer').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;},1000);}
 
-// RECORDING — ADDITIONAL
 function toggleRecord2(){if(!isRecording2)startRecording2();else if(!isPaused2)pauseRecording2();else resumeRecording2();}
-function startRecording2(){
-  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})
-    .then(function(stream){
-      var mime=getBestMime(); audioMime2=mime||'audio/webm';
-      mediaRecorder2=new MediaRecorder(stream,mime?{mimeType:mime}:{}); audioChunks2=[];
-      mediaRecorder2.ondataavailable=function(e){if(e.data&&e.data.size>0)audioChunks2.push(e.data);};
-      mediaRecorder2.onstop=function(){
-        var actual=mediaRecorder2.mimeType||audioMime2; audioMime2=actual.split(';')[0];
-        audioBlob2=new Blob(audioChunks2,{type:actual});
-        document.getElementById('audio2-preview').src=URL.createObjectURL(audioBlob2);
-        document.getElementById('audio2-playback').classList.add('show');
-        var reader=new FileReader();
-        reader.onload=function(e){audioBase64_2=e.target.result.split(',')[1];};
-        reader.readAsDataURL(audioBlob2);
-      };
-      mediaRecorder2.start(500); isRecording2=true; isPaused2=false;
-      document.getElementById('btn-record2').className='btn-record recording';
-      document.getElementById('btn-record2').innerHTML='⏸';
-      document.getElementById('btn-pause2').disabled=false; document.getElementById('btn-stop2').disabled=false;
-      document.getElementById('rec-status2').innerHTML='<span class="dot"></span> Recording additional…';
-      recTimerInt2=setInterval(function(){recSeconds2++;},1000);
-    })
-    .catch(function(){toast('Microphone access denied.','err');});
-}
-function pauseRecording2(){
-  if(mediaRecorder2&&isRecording2&&!isPaused2){
-    mediaRecorder2.pause(); isPaused2=true; clearInterval(recTimerInt2);
-    document.getElementById('btn-record2').className='btn-record paused'; document.getElementById('btn-record2').innerHTML='▶';
-    document.getElementById('rec-status2').textContent='Paused — tap ▶ to resume';
-  }
-}
-function resumeRecording2(){
-  if(mediaRecorder2&&isPaused2){
-    mediaRecorder2.resume(); isPaused2=false;
-    recTimerInt2=setInterval(function(){recSeconds2++;},1000);
-    document.getElementById('btn-record2').className='btn-record recording'; document.getElementById('btn-record2').innerHTML='⏸';
-    document.getElementById('rec-status2').innerHTML='<span class="dot"></span> Recording additional…';
-  }
-}
-function stopRecording2(){
-  if(mediaRecorder2&&isRecording2){
-    mediaRecorder2.stop(); mediaRecorder2.stream.getTracks().forEach(function(t){t.stop();});
-    isRecording2=false; isPaused2=false; clearInterval(recTimerInt2);
-    document.getElementById('btn-record2').className='btn-record'; document.getElementById('btn-record2').innerHTML='🎙️';
-    document.getElementById('btn-pause2').disabled=true; document.getElementById('btn-stop2').disabled=true;
-    document.getElementById('rec-status2').textContent='Additional recording complete';
-  }
-}
-function reRecord2(){
-  audioBlob2=null; audioBase64_2=null; recSeconds2=0;
-  document.getElementById('audio2-playback').classList.remove('show');
-  document.getElementById('rec-status2').textContent='Optional — tap to add more';
-}
+function startRecording2(){navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}).then(function(stream){var mime=getBestMime();audioMime2=mime||'audio/webm';mediaRecorder2=new MediaRecorder(stream,mime?{mimeType:mime}:{});audioChunks2=[];mediaRecorder2.ondataavailable=function(e){if(e.data&&e.data.size>0)audioChunks2.push(e.data);};mediaRecorder2.onstop=function(){var actual=mediaRecorder2.mimeType||audioMime2;audioMime2=actual.split(';')[0];audioBlob2=new Blob(audioChunks2,{type:actual});document.getElementById('audio-preview2').src=URL.createObjectURL(audioBlob2);document.getElementById('audio-playback2').classList.add('show');var reader=new FileReader();reader.onload=function(e){audioBase64_2=e.target.result.split(',')[1];};reader.readAsDataURL(audioBlob2);};mediaRecorder2.start(500);isRecording2=true;isPaused2=false;document.getElementById('btn-record2').className='btn-record recording';document.getElementById('btn-record2').innerHTML='||';document.getElementById('btn-pause2').disabled=false;document.getElementById('btn-stop2').disabled=false;document.getElementById('rec-status2').innerHTML='<span class="dot"></span> Recording additional...';document.getElementById('audio-playback2').classList.remove('show');recTimerInt2=setInterval(function(){recSeconds2++;var m=Math.floor(recSeconds2/60),s=recSeconds2%60;document.getElementById('rec-timer2').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;},1000);}).catch(function(){toast('Microphone access denied.','err');});}
+function pauseRecording2(){if(mediaRecorder2&&isRecording2&&!isPaused2){mediaRecorder2.pause();isPaused2=true;clearInterval(recTimerInt2);document.getElementById('btn-record2').className='btn-record paused';document.getElementById('btn-record2').innerHTML='>';document.getElementById('rec-status2').textContent='Paused';}}
+function resumeRecording2(){if(mediaRecorder2&&isPaused2){mediaRecorder2.resume();isPaused2=false;recTimerInt2=setInterval(function(){recSeconds2++;var m=Math.floor(recSeconds2/60),s=recSeconds2%60;document.getElementById('rec-timer2').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;},1000);document.getElementById('btn-record2').className='btn-record recording';document.getElementById('btn-record2').innerHTML='||';document.getElementById('rec-status2').innerHTML='<span class="dot"></span> Recording additional...';}}
+function stopRecording2(){if(mediaRecorder2&&isRecording2){mediaRecorder2.stop();mediaRecorder2.stream.getTracks().forEach(function(t){t.stop();});isRecording2=false;isPaused2=false;clearInterval(recTimerInt2);document.getElementById('btn-record2').className='btn-record';document.getElementById('btn-record2').innerHTML='mic';document.getElementById('btn-pause2').disabled=true;document.getElementById('btn-stop2').disabled=true;document.getElementById('rec-status2').textContent='Additional recording complete';}}
+function reRecord2(){audioBlob2=null;audioBase64_2=null;recSeconds2=0;document.getElementById('rec-timer2').textContent='00:00';document.getElementById('audio-playback2').classList.remove('show');document.getElementById('rec-status2').textContent='Tap to record additional audio';}
 
-// UPLOADED AUDIO FILE
-function handleAudioFileUpload(input){
-  var file=input.files[0]; if(!file)return;
-  audioFileMime=file.type||'audio/mpeg';
-  var reader=new FileReader();
-  reader.onload=function(e){
-    audioFileBase64=e.target.result.split(',')[1];
-    document.getElementById('uploaded-audio-player').src=e.target.result;
-    document.getElementById('uploaded-audio-preview').classList.add('show');
-    toast('Audio file uploaded!','ok');
-  };
-  reader.readAsDataURL(file);
-}
-function clearUploadedAudio(){
-  audioFileBase64=null; audioFileMime=null;
-  document.getElementById('inp-audio-file').value='';
-  document.getElementById('uploaded-audio-preview').classList.remove('show');
-}
+function handleAudioFile(input){var file=input.files[0];if(!file)return;audioFileMime=file.type||'audio/mpeg';document.getElementById('audio-file-player').src=URL.createObjectURL(file);document.getElementById('audio-file-preview').style.display='block';var reader=new FileReader();reader.onload=function(e){audioFileBase64=e.target.result.split(',')[1];updateChecklist();};reader.readAsDataURL(file);toast('Audio file loaded.','ok');}
+function clearAudioFile(){audioFileBase64=null;audioFileMime=null;document.getElementById('inp-audio-file').value='';document.getElementById('audio-file-preview').style.display='none';updateChecklist();}
 
-// VISUALISER
-function drawBars(){
-  if(!analyser)return;
-  var bufLen=analyser.frequencyBinCount, data=new Uint8Array(bufLen);
-  var wrap=document.getElementById('visualiser-wrap'), maxH=wrap.clientHeight-10;
-  function frame(){
-    animFrame=requestAnimationFrame(frame); analyser.getByteFrequencyData(data);
-    var step=Math.floor(bufLen/NUM_BARS);
-    for(var i=0;i<NUM_BARS;i++){
-      var val=data[i*step]/255, h=Math.max(4,Math.round(val*maxH));
-      var bar=document.getElementById('bar-'+i);
-      if(bar){bar.style.height=h+'px';bar.className='vis-bar';bar.style.background=val<0.4?'#00b8a9':val<0.7?'#f5a623':'#e05555';}
-    }
-  }
-  frame();
-}
-function idleBars(){
-  cancelAnimationFrame(animFrame);
-  for(var i=0;i<NUM_BARS;i++){var bar=document.getElementById('bar-'+i);if(bar){bar.className='vis-bar idle';bar.style.height='4px';bar.style.background='';}}
-}
-function detectLanguage(){
-  if(!audioBase64)return;
-  document.getElementById('lang-box').classList.add('show'); document.getElementById('lang-text').textContent='Detecting language…';
-  callWorker({action:'detect_language',audio:audioBase64,mimeType:audioMime})
-    .then(function(r){document.getElementById('lang-text').textContent=r.language||'Unable to detect';})
-    .catch(function(){document.getElementById('lang-text').textContent='Detection failed';});
-}
+function drawBars(){if(!analyser)return;var bufLen=analyser.frequencyBinCount,data=new Uint8Array(bufLen);var wrap=document.getElementById('visualiser-wrap'),maxH=wrap.clientHeight-10;function frame(){animFrame=requestAnimationFrame(frame);analyser.getByteFrequencyData(data);var step=Math.floor(bufLen/NUM_BARS);for(var i=0;i<NUM_BARS;i++){var val=data[i*step]/255,h=Math.max(4,Math.round(val*maxH));var bar=document.getElementById('bar-'+i);if(bar){bar.style.height=h+'px';bar.className='vis-bar';bar.style.background=val<0.4?'#00b8a9':val<0.7?'#f5a623':'#e05555';}}}frame();}
+function idleBars(){cancelAnimationFrame(animFrame);for(var i=0;i<NUM_BARS;i++){var bar=document.getElementById('bar-'+i);if(bar){bar.className='vis-bar idle';bar.style.height='4px';bar.style.background='';}}}
+function detectLanguage(){if(!audioBase64)return;document.getElementById('lang-box').classList.add('show');document.getElementById('lang-text').textContent='Detecting language...';callWorker({action:'detect_language',audio:audioBase64,mimeType:audioMime}).then(function(r){document.getElementById('lang-text').textContent=r.language||'Unable to detect';}).catch(function(){document.getElementById('lang-text').textContent='Detection failed';});}
 
-// SITE IMAGES
-function addSiteImages(input){
-  Array.from(input.files).forEach(function(file){
-    var url=URL.createObjectURL(file);
-    var entry={file:file,objectUrl:url,base64:null,title:'',desc:''};
-    siteImages.push(entry); readB64(file,function(b64){entry.base64=b64;});
-  });
-  renderSiteImgs(); input.value='';
-}
-function renderSiteImgs(){
-  var grid=document.getElementById('site-img-grid'); grid.innerHTML='';
-  siteImages.forEach(function(e,idx){
-    var div=document.createElement('div'); div.className='img-item';
-    div.innerHTML='<div class="img-item-header"><input type="text" placeholder="Title (mandatory) *" value="'+escAttr(e.title)+'" oninput="siteImages['+idx+'].title=this.value;updateChecklist()"/></div>'+
-      '<img src="'+e.objectUrl+'" alt="Site photo '+(idx+1)+'"/>'+
-      '<div class="img-item-footer"><input type="text" placeholder="Description (optional — leave blank for N/A)" value="'+escAttr(e.desc)+'" oninput="siteImages['+idx+'].desc=this.value"/>'+
-      '<button class="btn-remove-img" onclick="removeSiteImg('+idx+')">✕ Remove</button></div>';
-    grid.appendChild(div);
-  });
-}
+function addSiteImages(input){Array.from(input.files).forEach(function(file){var url=URL.createObjectURL(file);var entry={file:file,objectUrl:url,base64:null,title:'',desc:''};siteImages.push(entry);readB64(file,function(b64){entry.base64=b64;});});renderSiteImgs();input.value='';}
+function renderSiteImgs(){var grid=document.getElementById('site-img-grid');grid.innerHTML='';siteImages.forEach(function(e,idx){var div=document.createElement('div');div.className='img-item';div.innerHTML='<div class="img-item-header"><input type="text" placeholder="Title (mandatory) *" value="'+escAttr(e.title)+'" oninput="siteImages['+idx+'].title=this.value;updateChecklist()"/></div><img src="'+e.objectUrl+'" alt="Photo '+(idx+1)+'"/><div class="img-item-footer"><input type="text" placeholder="Description (optional - leave blank for N/A)" value="'+escAttr(e.desc)+'" oninput="siteImages['+idx+'].desc=this.value"/><button class="btn-remove-img" onclick="removeSiteImg('+idx+')">Remove</button></div>';grid.appendChild(div);});}
 function removeSiteImg(idx){URL.revokeObjectURL(siteImages[idx].objectUrl);siteImages.splice(idx,1);renderSiteImgs();updateChecklist();}
 
-// CHECKLIST
-function updateChecklist(){
-  var ok1=!!verifiedUser;
-  var ok2=document.getElementById('f-date')&&document.getElementById('f-date').value.length>0;
-  var ok3=(document.getElementById('f-location')||{value:''}).value.trim().length>0;
-  var ok4=(document.getElementById('f-vessel')||{value:''}).value.trim().length>0;
-  var ok5=!!audioBase64;
-  setCheck('chk-identity',ok1,'Identity verified');
-  setCheck('chk-date',ok2,'DWR date selected');
-  setCheck('chk-location',ok3,'Job location entered');
-  setCheck('chk-vessel',ok4,'Vessel / rig name entered');
-  setCheck('chk-audio',ok5,'Audio recorded');
-  var siteOk=siteImages.length===0||siteImages.every(function(img){return img.title.trim().length>0;});
-  document.getElementById('btn-finalise').classList.toggle('active',ok1&&ok2&&ok3&&ok4&&ok5&&siteOk);
-}
-function setCheck(id,done,label){
-  var el=document.getElementById(id); if(!el)return;
-  el.className='check-item'+(done?' done':'');
-  el.innerHTML='<span>'+(done?'✅':'⬜')+'</span> '+label;
-}
-function finalise(){
-  updateChecklist();
-  if(!document.getElementById('btn-finalise').classList.contains('active')){toast('Please complete all required fields first.','err');return;}
-  finaliseOk=true;
-  var bf=document.getElementById('btn-finalise');
-  bf.textContent='✅ Draft Finalised'; bf.classList.remove('active');
-  bf.style.background='rgba(0,184,169,0.15)'; bf.style.color='var(--teal)'; bf.style.cursor='default';
-  document.getElementById('btn-convert').classList.add('active');
-  toast('Draft finalised! Tap Convert to DWR.','ok');
-  setTimeout(function(){document.getElementById('btn-convert').scrollIntoView({behavior:'smooth',block:'center'});},300);
-}
+function updateChecklist(){var ok1=!!verifiedUser,ok2=!!document.getElementById('f-date').value,ok3=!!(audioBase64||audioBase64_2||audioFileBase64);setCheck('chk-identity',ok1,'Identity verified');setCheck('chk-date',ok2,'DWR date selected');setCheck('chk-audio',ok3,'Audio recorded or uploaded');var siteOk=siteImages.length===0||siteImages.every(function(img){return img.title.trim().length>0;});document.getElementById('btn-finalise').classList.toggle('active',ok1&&ok2&&ok3&&siteOk);}
+function setCheck(id,done,label){var el=document.getElementById(id);if(!el)return;el.className='check-item'+(done?' done':'');el.innerHTML='<span class="ci">'+(done?'&#9989;':'&#11036;')+'</span> '+label;}
+function finalise(){updateChecklist();if(!document.getElementById('btn-finalise').classList.contains('active')){toast('Please complete all required fields first.','err');return;}finaliseOk=true;var bf=document.getElementById('btn-finalise');bf.textContent='Draft Finalised';bf.classList.remove('active');bf.style.background='rgba(0,184,169,0.15)';bf.style.color='var(--teal)';bf.style.cursor='default';document.getElementById('btn-convert').classList.add('active');toast('Draft finalised! Tap Convert to DWR.','ok');setTimeout(function(){document.getElementById('btn-convert').scrollIntoView({behavior:'smooth',block:'center'});},300);}
 
-// COUNTDOWN
-function startCountdown(seconds){
-  var wrap=document.getElementById('countdown-wrap'),num=document.getElementById('countdown-num');
-  var sub=document.getElementById('countdown-sub'),bar=document.getElementById('countdown-bar');
-  wrap.classList.add('show'); document.getElementById('report-ready').classList.remove('show');
-  var rem=seconds; num.textContent=rem; num.className='countdown-num'; bar.style.width='100%';
-  clearInterval(cdInterval);
-  cdInterval=setInterval(function(){
-    rem--; if(rem<=0){clearInterval(cdInterval);num.textContent='0';bar.style.width='0%';return;}
-    num.textContent=rem; if(rem<=10)num.className='countdown-num urgent';
-    bar.style.width=Math.round((rem/seconds)*100)+'%';
-    sub.textContent=rem===1?'second remaining':'seconds remaining';
-  },1000);
-}
+function startCountdown(seconds){var wrap=document.getElementById('countdown-wrap'),num=document.getElementById('countdown-num'),sub=document.getElementById('countdown-sub'),bar=document.getElementById('countdown-bar');wrap.classList.add('show');document.getElementById('report-ready').classList.remove('show');var rem=seconds;num.textContent=rem;num.className='countdown-num';bar.style.width='100%';clearInterval(cdInterval);cdInterval=setInterval(function(){rem--;if(rem<=0){clearInterval(cdInterval);num.textContent='0';bar.style.width='0%';return;}num.textContent=rem;if(rem<=10)num.className='countdown-num urgent';bar.style.width=Math.round((rem/seconds)*100)+'%';sub.textContent=rem===1?'second remaining':'seconds remaining';},1000);}
 function stopCountdown(){clearInterval(cdInterval);document.getElementById('countdown-wrap').classList.remove('show');}
 
-// CONVERT TO DWR
-function convertToDWR(){
-  if(!finaliseOk){toast('Please finalise the draft first.','err');return;}
-  var audioCount=(audioBase64?1:0)+(audioBase64_2?1:0)+(audioFileBase64?1:0);
-  startCountdown(40+(audioCount-1)*15);
-  document.getElementById('btn-convert').disabled=true;
+function convertToDWR(){if(!finaliseOk){toast('Please finalise the draft first.','err');return;}startCountdown(55);document.getElementById('btn-convert').disabled=true;var payload={action:'process_dwr',audio:audioBase64,audioMime:audioMime};if(audioBase64_2){payload.audio2=audioBase64_2;payload.audio2Mime=audioMime2;}if(audioFileBase64){payload.audioFile=audioFileBase64;payload.audioFileMime=audioFileMime;}callWorker(payload).then(function(result){stopCountdown();document.getElementById('btn-convert').disabled=false;generatedDWR=result;renderOutput(result);document.getElementById('report-ready').classList.add('show');toast('DWR generated! Review below then download PDF.','ok');}).catch(function(err){stopCountdown();document.getElementById('btn-convert').disabled=false;document.getElementById('btn-convert').classList.add('active');toast('Error: '+(err.message||'Please try again.'),'err');});}
 
-  var payload={
-    action:'process_dwr',
-    audio:audioBase64, audioMime:audioMime,
-    engineerName:verifiedUser.name,
-    location:document.getElementById('f-location').value.trim(),
-    vessel:document.getElementById('f-vessel').value.trim(),
-    date:document.getElementById('f-date').value
-  };
-  if(audioBase64_2){payload.audio2=audioBase64_2; payload.audio2Mime=audioMime2;}
-  if(audioFileBase64){payload.audioFile=audioFileBase64; payload.audioFileMime=audioFileMime;}
-
-  callWorker(payload)
-    .then(function(result){
-      stopCountdown(); document.getElementById('btn-convert').disabled=false;
-      generatedDWR=result; renderOutput(result);
-      document.getElementById('report-ready').classList.add('show');
-      toast('DWR generated! Scroll down to review.','ok');
-    })
-    .catch(function(err){
-      stopCountdown(); document.getElementById('btn-convert').disabled=false;
-      document.getElementById('btn-convert').classList.add('active');
-      toast('Error: '+(err.message||'Please try again.'),'err');
-    });
-}
-
-// RENDER OUTPUT
 function renderOutput(data){
   var dateVal=document.getElementById('f-date').value;
-  var dateDisp=dateVal?new Date(dateVal).toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):'-';
+  var dateDisp=dateVal?new Date(dateVal+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):'--';
+  var metaLines=['Engineer: '+verifiedUser.name,'Date: '+dateDisp];
+  var loc=document.getElementById('f-location').value,ves=document.getElementById('f-vessel').value,cust=document.getElementById('f-customer').value;
+  var em=document.getElementById('f-engine-model').value,es=document.getElementById('f-engine-serial').value,er=document.getElementById('f-engine-ref').value;
+  if(loc)metaLines.push('Location: '+loc);
+  if(ves)metaLines.push('Vessel / Rig: '+ves);
+  if(cust)metaLines.push('Customer: '+cust);
+  if(em)metaLines.push('Engine Make & Model: '+em);
+  if(es)metaLines.push('Engine Serial No.: '+es);
+  if(er)metaLines.push('Engine Ref No.: '+er);
+  if(teamMembers.length)metaLines.push('Team Members:\n'+teamMembers.map(function(n){return'  - '+n;}).join('\n'));
+  outputStore['meta']=metaLines.join('\n');
+  document.getElementById('out-meta').textContent=outputStore['meta'];
+  document.getElementById('edit-meta').value=outputStore['meta'];
 
-  // Meta
-  var metaText=
-    'Engineer: '+verifiedUser.name+'\n'+
-    'Date: '+dateDisp+'\n'+
-    'Location: '+document.getElementById('f-location').value+'\n'+
-    'Vessel / Rig: '+document.getElementById('f-vessel').value+'\n'+
-    (document.getElementById('f-customer').value?'Customer: '+document.getElementById('f-customer').value+'\n':'')+
-    (document.getElementById('f-engine-model').value?'Engine Make & Model: '+document.getElementById('f-engine-model').value+'\n':'')+
-    (document.getElementById('f-engine-serial').value?'Engine Serial No: '+document.getElementById('f-engine-serial').value+'\n':'')+
-    (document.getElementById('f-engine-ref').value?'Engine Ref No: '+document.getElementById('f-engine-ref').value+'\n':'')+
-    (teamMembers.length>0?'Team Members:\n'+teamMembers.map(function(n){return '  • '+n;}).join('\n'):'');
-  document.getElementById('out-meta').textContent=metaText;
-  document.getElementById('edit-meta').value=metaText;
+  var meetLines=['Toolbox Meeting','  Time: '+getMeetingTime('tb'),'  Attendance: '+getMeetingAttendanceText('tb'),'','Safety Meeting','  Time: '+getMeetingTime('sm'),'  Attendance: '+getMeetingAttendanceText('sm')];
+  outputStore['meetings']=meetLines.join('\n');
+  document.getElementById('out-meetings').textContent=outputStore['meetings'];
+  document.getElementById('edit-meetings').value=outputStore['meetings'];
 
-  // Meeting
-  var tbH=document.getElementById('tb-hour').value||'-';
-  var tbM=document.getElementById('tb-min').value||'00';
-  var tbAP=document.getElementById('tb-ampm').value;
-  var tbTime=tbH+':'+tbM.padStart(2,'0')+' '+tbAP;
-  var tbSt=document.getElementById('tb-status').textContent;
-  var smH=document.getElementById('sm-hour').value||'-';
-  var smM=document.getElementById('sm-min').value||'00';
-  var smAP=document.getElementById('sm-ampm').value;
-  var smTime=smH+':'+smM.padStart(2,'0')+' '+smAP;
-  var smSt=document.getElementById('sm-status').textContent;
-  var meetingText='Toolbox Meeting\n  Time: '+tbTime+'\n  Attendance: '+tbSt+'\n\nSafety Meeting\n  Time: '+smTime+'\n  Attendance: '+smSt;
-  document.getElementById('out-meeting').textContent=meetingText;
-  document.getElementById('edit-meeting').value=meetingText;
-
-  // 12 Sections
-  var secOut=document.getElementById('out-sections'); secOut.innerHTML='';
+  var secOut=document.getElementById('out-sections');secOut.innerHTML='';
   SEC_ORDER.forEach(function(key){
     var d=(data.sections&&data.sections[key])||{};
-    var txt=(d.polished_text||'').trim();
-    var div=document.createElement('div'); div.className='output-card'; div.id='card-'+key;
-    div.innerHTML=
-      '<div class="oc-label">'+SEC_LABELS[key]+'</div>'+
-      '<button class="btn-pencil" onclick="toggleEdit(\''+key+'\')" title="Edit">✏️</button>'+
-      (txt&&txt!=='• Nothing reported for this section.'
-        ?'<div class="oc-text" id="out-'+key+'">'+escHtml(txt)+'</div>'
-        :'<div class="oc-empty" id="out-'+key+'">Nothing reported for this section.</div>')+
-      '<textarea class="oc-edit-textarea" id="edit-'+key+'">'+(txt||'')+'</textarea>'+
-      '<button class="btn-save-edit" id="save-'+key+'" onclick="saveEdit(\''+key+'\')">✔ Save</button>';
-    secOut.appendChild(div);
+    var txt=(d.polished_text||'- Nothing reported for this section.').trim();
+    outputStore[key]=txt;
+    var card=document.createElement('div');card.className='output-card';card.id='oc-'+key;
+    card.innerHTML='<div class="oc-label">'+SEC_LABELS[key]+'</div><button class="btn-pencil" onclick="toggleEdit(\''+key+'\')" title="Edit">&#9999;&#65039;</button><div class="oc-text" id="out-'+key+'">'+escHtml(txt)+'</div><textarea class="oc-edit-area" id="edit-'+key+'" oninput="syncEdit(\''+key+'\')">'+escAttr(txt)+'</textarea>';
+    secOut.appendChild(card);
   });
 
-  // Photos
-  var photoOut=document.getElementById('out-photos'); photoOut.innerHTML='';
-  siteImages.forEach(function(img,i){
-    var desc=img.desc.trim()||'N/A';
-    var card=document.createElement('div'); card.className='photo-preview-card';
-    card.innerHTML=
-      '<div class="photo-preview-title">📷 Photo '+(i+1)+': '+escHtml(img.title)+'</div>'+
-      '<img class="photo-preview-img" src="'+img.objectUrl+'" alt="'+escAttr(img.title)+'"/>'+
-      '<div class="photo-preview-desc">Description: '+escHtml(desc)+'</div>';
-    photoOut.appendChild(card);
-  });
+  var photoOut=document.getElementById('out-photos');photoOut.innerHTML='';
+  siteImages.forEach(function(img,i){var desc=img.desc.trim()||'N/A';var card=document.createElement('div');card.className='photo-preview-card';card.innerHTML='<div class="photo-preview-title">Photo '+(i+1)+': '+escHtml(img.title)+'</div><img class="photo-preview-img" src="'+img.objectUrl+'" alt="'+escAttr(img.title)+'"/><div class="photo-preview-desc">Description: '+escHtml(desc)+'</div>';photoOut.appendChild(card);});
 
-  // Sign-off
-  var dateDispShort=dateVal?new Date(dateVal).toLocaleDateString('en-IN'):'—';
-  document.getElementById('so-neptunus-name').textContent=verifiedUser.name;
-  document.getElementById('so-customer-name').textContent=document.getElementById('f-customer').value||'—';
-  document.getElementById('so-date').textContent=dateDispShort;
-  document.getElementById('so-date2').textContent=dateDispShort;
-
+  document.getElementById('so-nep-name').textContent=verifiedUser.name;
+  document.getElementById('so-cust-name').textContent=document.getElementById('f-customer').value||'--';
+  document.getElementById('so-nep-date').textContent=dateDisp;
+  document.getElementById('so-cust-date').textContent=dateDisp;
   document.getElementById('output-section').style.display='block';
 }
 
-// EDITABLE PREVIEW
 function toggleEdit(key){
-  var textEl=document.getElementById('out-'+key);
-  var editEl=document.getElementById('edit-'+key);
-  var saveEl=document.getElementById('save-'+key);
-  if(!textEl||!editEl)return;
-  var isEditing=editEl.style.display==='block';
-  if(isEditing){
-    // Close without saving
-    editEl.style.display='none'; saveEl.style.display='none';
-    textEl.style.display='block';
-  } else {
-    editEl.value=textEl.textContent||textEl.innerText||'';
-    editEl.style.display='block'; saveEl.style.display='inline-block';
-    textEl.style.display='none';
-    editEl.focus();
-  }
+  var card=document.getElementById('oc-'+key);if(!card)return;
+  var textEl=document.getElementById('out-'+key),editEl=document.getElementById('edit-'+key),pencil=card.querySelector('.btn-pencil');
+  var editing=editEl.style.display==='block';
+  if(editing){outputStore[key]=editEl.value;textEl.innerHTML=escHtml(editEl.value);editEl.style.display='none';textEl.style.display='block';pencil.innerHTML='&#9999;&#65039;';pencil.classList.remove('editing');toast('Changes saved.','ok');}
+  else{editEl.value=outputStore[key]||textEl.textContent;editEl.style.display='block';textEl.style.display='none';pencil.innerHTML='&#128190;';pencil.classList.add('editing');editEl.focus();}
 }
-function saveEdit(key){
-  var textEl=document.getElementById('out-'+key);
-  var editEl=document.getElementById('edit-'+key);
-  var saveEl=document.getElementById('save-'+key);
-  if(!textEl||!editEl)return;
-  var newVal=editEl.value.trim();
-  // Update both the display and the generatedDWR data
-  textEl.innerHTML=escHtml(newVal);
-  textEl.className='oc-text';
-  textEl.style.display='block';
-  editEl.style.display='none'; saveEl.style.display='none';
-  // Update generatedDWR if it's a section key
-  if(generatedDWR&&generatedDWR.sections&&generatedDWR.sections[key]){
-    generatedDWR.sections[key].polished_text=newVal;
-  }
-  // Update meta/meeting display text too
-  if(key==='meta'){document.getElementById('out-meta').textContent=newVal;}
-  if(key==='meeting'){document.getElementById('out-meeting').textContent=newVal;}
-  toast('Section updated!','ok');
-}
+function syncEdit(key){outputStore[key]=document.getElementById('edit-'+key).value;}
 
-// DOWNLOAD PDF
 function downloadPDF(){
   if(!generatedDWR){toast('No report generated yet.','err');return;}
-  var btn=document.getElementById('btn-pdf');
-  btn.disabled=true; btn.textContent='⏳ Generating PDF…';
-
+  var btn=document.getElementById('btn-pdf');btn.disabled=true;btn.textContent='Generating PDF...';
   setTimeout(function(){
     try{
       var jsPDFLib=window.jspdf;
       var doc=new jsPDFLib.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-      var pageW=doc.internal.pageSize.getWidth();
-      var pageH=doc.internal.pageSize.getHeight();
-      var margin=18, contentW=pageW-margin*2, y=margin;
-
+      var pageW=doc.internal.pageSize.getWidth(),pageH=doc.internal.pageSize.getHeight(),margin=18,contentW=pageW-margin*2,y=margin;
       function newPage(){doc.addPage();y=margin;}
-      function checkPage(needed){if(y+needed>pageH-margin-14)newPage();}
+      function checkPage(needed){if(y+needed>pageH-margin)newPage();}
 
-      // Header
-      doc.setFillColor(10,22,40); doc.rect(0,0,pageW,26,'F');
-      doc.setTextColor(245,166,35); doc.setFontSize(16); doc.setFont('helvetica','bold');
+      var dateVal=document.getElementById('f-date').value;
+      var dateDisp=dateVal?new Date(dateVal+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):'--';
+
+      doc.setFillColor(10,22,40);doc.rect(0,0,pageW,26,'F');
+      doc.setTextColor(245,166,35);doc.setFontSize(16);doc.setFont('helvetica','bold');
       doc.text('NEPTUNUS POWER PLANT SERVICES',pageW/2,11,{align:'center'});
-      doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(200,210,230);
+      doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(200,210,230);
       doc.text('Daily Working Report',pageW/2,19,{align:'center'});
       y=34;
 
-      // Get values
-      var dateVal=document.getElementById('f-date').value;
-      var dateDisp=dateVal?new Date(dateVal).toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):'-';
-      var customer=document.getElementById('f-customer').value||'—';
-      var engModel=document.getElementById('f-engine-model').value;
-      var engSerial=document.getElementById('f-engine-serial').value;
-      var engRef=document.getElementById('f-engine-ref').value;
+      var loc=document.getElementById('f-location').value,ves=document.getElementById('f-vessel').value,cust=document.getElementById('f-customer').value;
+      var em=document.getElementById('f-engine-model').value,es=document.getElementById('f-engine-serial').value,er=document.getElementById('f-engine-ref').value;
 
-      // Meta table
-      var metaBody=[
-        ['Engineer', verifiedUser.name],
-        ['Date', dateDisp],
-        ['Location', document.getElementById('f-location').value],
-        ['Vessel / Rig', document.getElementById('f-vessel').value],
-        ['Customer', customer]
-      ];
-      if(engModel) metaBody.push(['Engine Make & Model', engModel]);
-      if(engSerial) metaBody.push(['Engine Serial No', engSerial]);
-      if(engRef)   metaBody.push(['Engine Ref No', engRef]);
-      if(teamMembers.length>0) metaBody.push(['Team Members', teamMembers.map(function(n){return '• '+n;}).join('\n')]);
+      // Left table — Engineer, Date, Location, Vessel/Rig
+      var leftRows=[['Engineer',verifiedUser.name],['Date',dateDisp]];
+      leftRows.push(['Location', loc||'--']);
+      leftRows.push(['Vessel / Rig', ves||'--']);
+
+      // Right table — Customer, Engine details, Team Members
+      var rightRows=[['Customer', cust||'--']];
+      rightRows.push(['Engine Make & Model', em||'--']);
+      rightRows.push(['Engine Serial No.', es||'--']);
+      rightRows.push(['Engine Ref No.', er||'--']);
+      rightRows.push(['Team Members', teamMembers.length?teamMembers.map(function(n){return'- '+n;}).join('\n'):'--']);
+
+      // Draw both tables side by side
+      var halfContent=(contentW-4)/2; // 4mm gap between tables
 
       doc.autoTable({
-        startY:y, head:[], body:metaBody,
-        columnStyles:{0:{fontStyle:'bold',cellWidth:48,fillColor:[232,236,245]},1:{cellWidth:'auto'}},
-        margin:{left:margin,right:margin},
-        styles:{fontSize:9,cellPadding:3},
-        theme:'grid'
+        startY:y,head:[],body:leftRows,
+        columnStyles:{0:{fontStyle:'bold',cellWidth:28,fillColor:[232,236,245]},1:{cellWidth:halfContent-28}},
+        margin:{left:margin,right:pageW-margin-halfContent},
+        styles:{fontSize:8.5,cellPadding:3},theme:'grid',
+        tableWidth:halfContent
       });
-      y=doc.lastAutoTable.finalY+8;
+      var leftBottom=doc.lastAutoTable.finalY;
 
-      // Meeting details
+      doc.autoTable({
+        startY:y,head:[],body:rightRows,
+        columnStyles:{0:{fontStyle:'bold',cellWidth:32,fillColor:[232,236,245]},1:{cellWidth:halfContent-32}},
+        margin:{left:margin+halfContent+4,right:margin},
+        styles:{fontSize:8.5,cellPadding:3},theme:'grid',
+        tableWidth:halfContent
+      });
+      var rightBottom=doc.lastAutoTable.finalY;
+
+      y=Math.max(leftBottom,rightBottom)+8;
+
       checkPage(30);
-      doc.setFillColor(30,58,95); doc.rect(margin,y,contentW,8,'F');
-      doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-      doc.text('MEETING DETAILS',margin+3,y+5.5); y+=14;
-
-      var tbH=document.getElementById('tb-hour').value||'-';
-      var tbM=document.getElementById('tb-min').value||'00';
-      var tbAP=document.getElementById('tb-ampm').value;
-      var tbTime=tbH+':'+String(tbM).padStart(2,'0')+' '+tbAP;
-      var tbSt=document.getElementById('tb-status').textContent;
-      var smH=document.getElementById('sm-hour').value||'-';
-      var smM=document.getElementById('sm-min').value||'00';
-      var smAP=document.getElementById('sm-ampm').value;
-      var smTime=smH+':'+String(smM).padStart(2,'0')+' '+smAP;
-      var smSt=document.getElementById('sm-status').textContent;
-
-      doc.autoTable({
-        startY:y,
-        head:[['Meeting','Time','Attendance']],
-        body:[
-          ['Toolbox Meeting', tbTime, tbSt],
-          ['Safety Meeting',  smTime, smSt]
-        ],
-        margin:{left:margin,right:margin},
-        styles:{fontSize:9,cellPadding:3},
-        headStyles:{fillColor:[30,58,95],textColor:255,fontStyle:'bold'},
-        columnStyles:{0:{cellWidth:50},1:{cellWidth:28},2:{cellWidth:'auto'}},
-        theme:'grid'
-      });
+      doc.setFillColor(30,58,95);doc.rect(margin,y,contentW,8,'F');
+      doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text('MEETING DETAILS',margin+3,y+5.5);y+=14;
+      doc.autoTable({startY:y,head:[['Meeting','Time','Attendance']],body:[['Toolbox Meeting',getMeetingTime('tb'),getMeetingAttendanceText('tb')],['Safety Meeting',getMeetingTime('sm'),getMeetingAttendanceText('sm')]],columnStyles:{0:{cellWidth:50,fontStyle:'bold'},1:{cellWidth:35},2:{cellWidth:'auto'}},margin:{left:margin,right:margin},styles:{fontSize:9,cellPadding:4},headStyles:{fillColor:[30,58,95],textColor:255,fontStyle:'bold'},theme:'grid'});
       y=doc.lastAutoTable.finalY+8;
 
-      // 12 DWR sections
       SEC_ORDER.forEach(function(key){
         var label=SEC_LABELS[key];
-        var d=(generatedDWR.sections&&generatedDWR.sections[key])||{};
-        var txt=(d.polished_text||'• Nothing reported for this section.').trim();
+        var txt=(outputStore[key]||'- Nothing reported for this section.').trim();
         var lines=txt.split('\n').filter(function(l){return l.trim().length>0;});
-        checkPage(18);
-        doc.setFillColor(30,58,95); doc.rect(margin,y,contentW,8,'F');
-        doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-        doc.text(label.toUpperCase(),margin+3,y+5.5); y+=14;
-        doc.setTextColor(30,30,30); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+        var estHeight=14+lines.length*6+6;
+        checkPage(estHeight);
+        doc.setFillColor(30,58,95);doc.rect(margin,y,contentW,8,'F');
+        doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
+        doc.text(label.toUpperCase(),margin+3,y+5.5);y+=14;
+        doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(9);
         lines.forEach(function(line){
-          var l=line.trim(); if(!l)return;
-          var text=l.charAt(0)==='•'?l:'• '+l;
+          var l=line.trim();if(!l)return;
+          var text=l.charAt(0)==='-'||l.charAt(0)==='\u2022'?l:'- '+l;
           var wrapped=doc.splitTextToSize(text,contentW-6);
           checkPage(wrapped.length*5.5+2);
-          doc.text(wrapped[0],margin+4,y); y+=5.5;
+          doc.text(wrapped[0],margin+4,y);y+=5.5;
           for(var wi=1;wi<wrapped.length;wi++){doc.text(wrapped[wi],margin+7,y);y+=5.5;}
           y+=1;
         });
         y+=5;
       });
 
-      // Site photos
       if(siteImages.length>0){
         newPage();
-        doc.setFillColor(10,22,40); doc.rect(0,0,pageW,14,'F');
-        doc.setTextColor(245,166,35); doc.setFontSize(12); doc.setFont('helvetica','bold');
-        doc.text('SITE PHOTOGRAPHS',pageW/2,9,{align:'center'}); y=20;
-
-        var boxW=contentW, boxPad=4, titleH=8, descH=7, imgAreaH=100;
-        var boxH=titleH+imgAreaH+descH+boxPad*2;
-        var boxGap=6;
-
+        doc.setFillColor(10,22,40);doc.rect(0,0,pageW,14,'F');
+        doc.setTextColor(245,166,35);doc.setFontSize(12);doc.setFont('helvetica','bold');
+        doc.text('SITE PHOTOGRAPHS',pageW/2,9,{align:'center'});y=20;
+        var boxW=contentW,boxPad=4,titleH=8,descH=7,imgAreaH=100,boxH=titleH+imgAreaH+descH+boxPad*2,boxGap=6;
         siteImages.forEach(function(sImg,si){
           var desc=sImg.desc.trim()||'N/A';
-          if(si>0){
-            var spaceLeft=pageH-margin-14-y;
-            if(spaceLeft<boxH){newPage();y=margin;}
-            else{y+=boxGap;}
-          }
-          // Border
-          doc.setDrawColor(180,190,210); doc.setLineWidth(0.4);
-          doc.rect(margin,y,boxW,boxH);
-          // Title strip
-          doc.setFillColor(232,236,245); doc.rect(margin,y,boxW,titleH,'F');
-          doc.setTextColor(30,58,95); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-          var titleText='Photo '+(si+1)+': '+sImg.title;
-          doc.text(doc.splitTextToSize(titleText,boxW-boxPad*2)[0],margin+boxPad,y+titleH-2);
-          // Image
+          if(si>0){var spaceLeft=pageH-margin-14-y;if(spaceLeft<boxH){newPage();y=margin;}else{y+=boxGap;}}
+          doc.setDrawColor(180,190,210);doc.setLineWidth(0.4);doc.rect(margin,y,boxW,boxH);
+          doc.setFillColor(232,236,245);doc.rect(margin,y,boxW,titleH,'F');
+          doc.setTextColor(30,58,95);doc.setFont('helvetica','bold');doc.setFontSize(9);
+          doc.text(doc.splitTextToSize('Photo '+(si+1)+': '+sImg.title,boxW-boxPad*2)[0],margin+boxPad,y+titleH-2);
           var imgAreaY=y+titleH+boxPad;
-          if(sImg.base64){
-            try{
-              var tempImg=new Image();
-              tempImg.src='data:'+(sImg.file.type||'image/jpeg')+';base64,'+sImg.base64;
-              var natW=tempImg.naturalWidth||1920, natH=tempImg.naturalHeight||1080;
-              var ratio=natH/natW;
-              var availW=boxW-boxPad*2, availH=imgAreaH-boxPad;
-              var imgW=availW, imgH=imgW*ratio;
-              if(imgH>availH){imgH=availH;imgW=imgH/ratio;}
-              var imgX=margin+boxPad+(availW-imgW)/2;
-              var fmt=sImg.file.type&&sImg.file.type.includes('png')?'PNG':'JPEG';
-              doc.addImage('data:'+(sImg.file.type||'image/jpeg')+';base64,'+sImg.base64,fmt,imgX,imgAreaY,imgW,imgH,undefined,'FAST');
-            }catch(ie){
-              doc.setTextColor(180,0,0); doc.setFontSize(8);
-              doc.text('[Image could not be embedded]',margin+boxPad,imgAreaY+10);
-            }
-          }
-          // Description strip
-          doc.setFillColor(250,250,252); doc.rect(margin,y+boxH-descH,boxW,descH,'F');
-          doc.setDrawColor(180,190,210); doc.line(margin,y+boxH-descH,margin+boxW,y+boxH-descH);
-          doc.setTextColor(80,80,80); doc.setFont('helvetica','italic'); doc.setFontSize(8);
-          doc.text('Description: '+desc,margin+boxPad,y+boxH-descH+descH-2);
+          if(sImg.base64){try{var tempImg=new Image();tempImg.src='data:'+(sImg.file.type||'image/jpeg')+';base64,'+sImg.base64;var natW=tempImg.naturalWidth||1920,natH=tempImg.naturalHeight||1080,ratio=natH/natW;var availW=boxW-boxPad*2,availH=imgAreaH-boxPad;var imgW=availW,imgH=imgW*ratio;if(imgH>availH){imgH=availH;imgW=imgH/ratio;}var imgX=margin+boxPad+(availW-imgW)/2;var fmt=sImg.file.type&&sImg.file.type.includes('png')?'PNG':'JPEG';doc.addImage('data:'+(sImg.file.type||'image/jpeg')+';base64,'+sImg.base64,fmt,imgX,imgAreaY,imgW,imgH,undefined,'FAST');}catch(ie){doc.setTextColor(180,0,0);doc.setFontSize(8);doc.text('[Image error]',margin+boxPad,imgAreaY+10);}}
+          var descY=y+boxH-descH;doc.setFillColor(250,250,252);doc.rect(margin,descY,boxW,descH,'F');doc.setDrawColor(180,190,210);doc.line(margin,descY,margin+boxW,descY);doc.setTextColor(80,80,80);doc.setFont('helvetica','italic');doc.setFontSize(8);doc.text('Description: '+desc,margin+boxPad,descY+descH-2);
           y+=boxH;
         });
       }
 
-      // Sign-off
-      newPage();
-      doc.setFillColor(30,58,95); doc.rect(margin,y,contentW,8,'F');
-      doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
-      doc.text('SIGN-OFF',margin+3,y+5.5); y+=12;
-
-      var dateShort=dateVal?new Date(dateVal).toLocaleDateString('en-IN'):'—';
-      var colW=contentW/2;
-
-      doc.autoTable({
-        startY:y,
-        head:[['On Behalf of Neptunus','On Behalf of Customer']],
-        body:[
-          ['Name: '+verifiedUser.name, 'Name: '+customer],
-          ['Date: '+dateShort,         'Date: '+dateShort],
-          ['Signature:\n\n\n\n',       'Signature:\n\n\n\n']
-        ],
-        margin:{left:margin,right:margin},
-        styles:{fontSize:9,cellPadding:4,minCellHeight:8},
-        headStyles:{fillColor:[30,58,95],textColor:255,fontStyle:'bold',halign:'center'},
-        columnStyles:{0:{cellWidth:colW},1:{cellWidth:colW}},
-        theme:'grid'
+      checkPage(60);y+=6;
+      doc.setFillColor(30,58,95);doc.rect(margin,y,contentW,8,'F');
+      doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text('SIGN-OFF',margin+3,y+5.5);y+=12;
+      var halfW=(contentW-4)/2;
+      doc.setDrawColor(180,190,210);doc.setLineWidth(0.3);
+      doc.rect(margin,y,halfW,44);doc.rect(margin+halfW+4,y,halfW,44);
+      doc.setFillColor(232,236,245);doc.rect(margin,y,halfW,8,'F');doc.rect(margin+halfW+4,y,halfW,8,'F');
+      doc.setTextColor(30,58,95);doc.setFont('helvetica','bold');doc.setFontSize(8);
+      doc.text('On Behalf of Neptunus',margin+halfW/2,y+5.5,{align:'center'});
+      doc.text('On Behalf of Customer',margin+halfW+4+halfW/2,y+5.5,{align:'center'});
+      var soRows=[['Name',verifiedUser.name,document.getElementById('f-customer').value||'--'],['Date',dateDisp,dateDisp],['Signature','','']];
+      var rowH=9;
+      doc.setFont('helvetica','normal');doc.setFontSize(8);
+      soRows.forEach(function(row,ri){
+        var ry=y+8+ri*rowH;
+        doc.setTextColor(120,120,120);doc.setFont('helvetica','bold');doc.text(row[0],margin+2,ry+6);
+        doc.setFont('helvetica','normal');doc.setTextColor(40,40,40);
+        if(row[0]==='Signature'){doc.setDrawColor(180,180,180);doc.setLineWidth(0.3);doc.rect(margin+22,ry+1,halfW-24,rowH-2);doc.rect(margin+halfW+4+22,ry+1,halfW-24,rowH-2);}
+        else{doc.text(row[1],margin+22,ry+6);doc.text(row[2],margin+halfW+4+22,ry+6);}
+        if(ri<soRows.length-1){doc.setDrawColor(220,220,220);doc.line(margin,ry+rowH,margin+halfW,ry+rowH);doc.line(margin+halfW+4,ry+rowH,margin+halfW+4+halfW,ry+rowH);}
       });
-      y=doc.lastAutoTable.finalY+6;
 
-      // Footer on every page
       var totalPages=doc.internal.getNumberOfPages();
-      for(var pi=1;pi<=totalPages;pi++){
-        doc.setPage(pi);
-        doc.setFontSize(7); doc.setTextColor(160,160,160); doc.setFont('helvetica','normal');
-        doc.line(margin,pageH-12,pageW-margin,pageH-12);
-        doc.text('NPPS DWR  |  '+verifiedUser.name+'  |  '+dateShort,margin,pageH-8);
-        doc.text('Page '+pi+' of '+totalPages,pageW-margin,pageH-8,{align:'right'});
-      }
+      for(var pi=1;pi<=totalPages;pi++){doc.setPage(pi);doc.setFontSize(7);doc.setTextColor(160,160,160);doc.setFont('helvetica','normal');doc.line(margin,pageH-12,pageW-margin,pageH-12);doc.text('NPPS DWR  |  '+verifiedUser.name+'  |  '+dateDisp,margin,pageH-8);doc.text('Page '+pi+' of '+totalPages,pageW-margin,pageH-8,{align:'right'});}
 
       var safeName=verifiedUser.name.replace(/[^a-zA-Z0-9]/g,'_');
       var safeDate=dateVal||new Date().toISOString().split('T')[0];
       doc.save('NPPS_DWR_'+safeName+'_'+safeDate+'.pdf');
-
-      btn.disabled=false; btn.textContent='📄 Download PDF';
+      btn.disabled=false;btn.textContent='Download PDF';
       toast('PDF downloaded!','ok');
-
-    }catch(e){
-      btn.disabled=false; btn.textContent='📄 Download PDF';
-      toast('PDF error: '+e.message,'err'); console.error(e);
-    }
+    }catch(e){btn.disabled=false;btn.textContent='Download PDF';toast('PDF error: '+e.message,'err');console.error(e);}
   },100);
 }
 
-// UTILITIES
-function callWorker(data){
-  return fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-    .then(function(r){if(!r.ok)throw new Error('Server error '+r.status);return r.json();});
-}
+function callWorker(data){return fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){if(!r.ok)throw new Error('Server error '+r.status);return r.json();});}
 function readB64(file,cb){var reader=new FileReader();reader.onload=function(e){cb(e.target.result.split(',')[1]);};reader.readAsDataURL(file);}
 function resetApp(){location.reload();}
-function toast(msg,type){
-  var el=document.getElementById('toast'); el.textContent=msg; el.className='toast on '+(type||'');
-  clearTimeout(el._t); el._t=setTimeout(function(){el.className='toast';},5000);
-}
+function toast(msg,type){var el=document.getElementById('toast');el.textContent=msg;el.className='toast on '+(type||'');clearTimeout(el._t);el._t=setTimeout(function(){el.className='toast';},5000);}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');}
 function escAttr(s){return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 </script>
