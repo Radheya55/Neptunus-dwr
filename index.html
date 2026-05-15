@@ -210,6 +210,10 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 .di-date{font-size:0.72rem;color:var(--muted);}
 .btn-draft-open{background:#F47920;color:#fff;border:none;border-radius:7px;padding:0.45rem 0.85rem;font-size:0.8rem;font-weight:700;cursor:pointer;}
 .btn-draft-del{background:transparent;border:1.5px solid rgba(224,85,85,0.35);color:var(--danger);border-radius:7px;padding:0.45rem 0.65rem;font-size:0.8rem;font-weight:600;cursor:pointer;}
+.btn-draft-preview{background:#1B3A6B;color:#fff;border:none;border-radius:7px;padding:0.45rem 0.85rem;font-size:0.8rem;font-weight:700;cursor:pointer;}
+.btn-draft-preview:hover{background:#243f6e;}
+.draft-btn-wrap{display:flex;gap:0.4rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;}
+.draft-item{background:#fff;border:1.5px solid #d0dae8;border-radius:var(--r);padding:0.9rem;margin-bottom:0.7rem;display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;}
 /* DOWNLOAD */
 .btn-dl{width:100%;padding:0.88rem;border-radius:var(--r);border:none;font-size:0.95rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.4rem;background:#1B3A6B;color:#fff;margin-top:0.8rem;}
 .btn-dl:hover{filter:brightness(1.1);}
@@ -437,7 +441,7 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 
     <div class="card">
       <div class="card-title"><span class="step-num">5</span> Site Photos</div>
-      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.7rem;">Both title and description mandatory. Photos appear after Scope Done. Compressed to max 2MB automatically.</p>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.7rem;">Title is mandatory for each photo. Description is optional. Photos appear after Scope Done. Compressed to max 2MB automatically.</p>
       <div class="upload-zone" id="upload-photo-zone">
         <div class="uz-icon">&#128247;</div>
         <div class="uz-text">Tap to upload site photos</div>
@@ -994,7 +998,7 @@ function renderSiteImgs(){
     hdr.appendChild(ti);
     var img=document.createElement('img');img.src=e.objectUrl;img.alt='Photo '+(idx+1);
     var ftr=el('div','img-item-ftr');
-    var di=document.createElement('input');di.type='text';di.placeholder='Description (mandatory) *';di.value=e.desc;
+    var di=document.createElement('input');di.type='text';di.placeholder='Description (optional)';di.value=e.desc;
     di.addEventListener('input',(function(i,inp){return function(){siteImages[i].desc=inp.value;updateChecklist();};})(idx,di));
     var rm=el('button','btn-rm-img','Remove');
     rm.addEventListener('click',(function(i){return function(){removeSiteImg(i);};})(idx));
@@ -1009,7 +1013,7 @@ function updateChecklist(){
   var ok2=!!projectData;
   var ok3=!!(document.getElementById('f-start-date')&&document.getElementById('f-start-date').value);
   var ok4=recordings.some(function(r){return!!r.base64;})||!!audioFileBase64;
-  var ok5=siteImages.length===0||siteImages.every(function(img){return img.title.trim().length>0&&img.desc.trim().length>0;});
+  var ok5=siteImages.length===0||siteImages.every(function(img){return img.title.trim().length>0;});
   setChk('chk-id',ok1,'Identity verified');
   setChk('chk-proj',ok2,'Project code verified');
   setChk('chk-date',ok3,'Start date selected');
@@ -1152,11 +1156,15 @@ function loadDrafts(){
       var proj=el('div','di-proj',d.formData&&d.formData.projectCode?d.formData.projectCode:'No project');
       var dt=el('div','di-date','Saved: '+new Date(d.savedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}));
       info.appendChild(nm);info.appendChild(proj);info.appendChild(dt);
-      var openBtn=el('button','btn-draft-open','Open');
-      openBtn.addEventListener('click',(function(id){return function(){openDraft(id);};})(d.id));
-      var delBtn=el('button','btn-draft-del','Del');
+      var btnWrap=el('div','draft-btn-wrap');
+      var previewBtn=el('button','btn-draft-preview','Preview PDF');
+      previewBtn.addEventListener('click',(function(id){return function(){previewDraftPDF(id);};})(d.id));
+      var editBtn=el('button','btn-draft-open','Edit');
+      editBtn.addEventListener('click',(function(id){return function(){openDraft(id);};})(d.id));
+      var delBtn=el('button','btn-draft-del','Delete');
       delBtn.addEventListener('click',(function(id){return function(){deleteDraft(id);};})(d.id));
-      div.appendChild(info);div.appendChild(openBtn);div.appendChild(delBtn);list.appendChild(div);
+      btnWrap.appendChild(previewBtn);btnWrap.appendChild(editBtn);btnWrap.appendChild(delBtn);
+      div.appendChild(info);div.appendChild(btnWrap);list.appendChild(div);
     });
   }).catch(function(){
     var ep=el('p','','Failed to load drafts.');ep.style.cssText='color:var(--danger);text-align:center;';list.innerHTML='';list.appendChild(ep);
@@ -1188,6 +1196,193 @@ function openDraft(draftId){
     updateChecklist();toast('Draft loaded!','ok');
   }).catch(function(e){hideLoader();toast('Failed to load draft: '+e.message,'err');});
 }
+function generatePDFBlob(engineerNameOverride,callback){
+  try{
+    var doc=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var pW=doc.internal.pageSize.getWidth(),pH=doc.internal.pageSize.getHeight(),m=15,cW=pW-m*2,y=m;
+    function np(){doc.addPage();y=m;}
+    function chk(n){if(y+n>pH-m-12)np();}
+    var sv=document.getElementById('f-start-date').value;
+    var sd=fmtDate(sv);
+    var ev=document.getElementById('f-end-date').value;
+    var ed=fmtDateShort(ev);
+    var cust=document.getElementById('f-customer').value,ves=document.getElementById('f-vessel').value,loc=document.getElementById('f-location').value;
+    var pd=document.getElementById('f-proj-details').value,off=document.getElementById('f-offering').value;
+    var useName=engineerNameOverride||verifiedUser.name;
+    doc.setFillColor(27,58,107);doc.rect(0,0,pW,28,'F');
+    doc.setFillColor(244,121,32);doc.rect(0,28,pW,1.5,'F');
+    try{var logoEl=document.getElementById('hdr-logo-img');if(logoEl){var tc=document.createElement('canvas');tc.width=200;tc.height=80;var tc2=tc.getContext('2d');tc2.drawImage(logoEl,0,0,200,80);doc.addImage(tc.toDataURL('image/png'),'PNG',pW-52,3,46,20);}}catch(le){}
+    doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');
+    doc.text('Daily Working Report',m,12);
+    doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(190,205,225);
+    doc.text('Neptunus Power Plant Services Pvt. Ltd. | The Machine Reliability Expert',m,19);
+    doc.text('A-554/555, TTC Industrial Area, MIDC, Mahape, Navi Mumbai - 400 710, India',m,24);
+    y=36;
+    var lRows=[['Team Leader',useName],['Project Code',document.getElementById('f-proj-code').value||'--'],['Start Date',sd],['Est. End Date',ed]];
+    var rRows=[['Customer',cust||'--'],['Vessel / Rig',ves||'--'],['Location',loc||'--'],['Offering',off||'--']];
+    if(pd)rRows.push(['Project Details',pd]);
+    if(teamMembers.length)rRows.push(['Team Members',teamMembers.join(', ')]);
+    var hw=(cW-4)/2;
+    doc.autoTable({startY:y,head:[],body:lRows,columnStyles:{0:{fontStyle:'bold',cellWidth:28,fillColor:[232,236,245]},1:{cellWidth:hw-28}},margin:{left:m,right:pW-m-hw},styles:{fontSize:8,cellPadding:3},theme:'grid',tableWidth:hw});
+    var lb=doc.lastAutoTable.finalY;
+    doc.autoTable({startY:y,head:[],body:rRows,columnStyles:{0:{fontStyle:'bold',cellWidth:28,fillColor:[232,236,245]},1:{cellWidth:hw-28}},margin:{left:m+hw+4,right:m},styles:{fontSize:8,cellPadding:3},theme:'grid',tableWidth:hw});
+    y=Math.max(lb,doc.lastAutoTable.finalY)+5;
+    chk(28);
+    doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+    doc.text('Meeting Details',m+3,y+5);y+=10;
+    doc.autoTable({startY:y,head:[['Meeting','Time','Attendance']],body:[['Toolbox Meeting',getMeetingTime('tb'),getAttText('tb')],['Safety Meeting',getMeetingTime('sm'),getAttText('sm')]],columnStyles:{0:{cellWidth:45,fontStyle:'bold'},1:{cellWidth:28},2:{cellWidth:'auto'}},margin:{left:m,right:m},styles:{fontSize:8,cellPadding:3},headStyles:{fillColor:[27,58,107],textColor:[244,121,32],fontStyle:'bold'},theme:'grid'});
+    y=doc.lastAutoTable.finalY+5;
+    for(var ki=0;ki<SEC_ORDER.length;ki++){
+      var key=SEC_ORDER[ki],lbl=SEC_LABELS[key];
+      var txt=(outputStore[key]||'- Nothing reported for this section.').trim();
+      var lines=txt.split('\n').filter(function(l){return l.trim().length>0;});
+      chk(14+Math.min(lines.length,3)*5+5);
+      doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
+      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+      doc.text(lbl,m+3,y+5);y+=10;
+      doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+      lines.forEach(function(line){
+        var l=line.trim();if(!l)return;
+        var tx=l.charAt(0)==='-'||l.charCodeAt(0)===8226?l:'- '+l;
+        var wr=doc.splitTextToSize(tx,cW-6);chk(wr.length*5+2);
+        doc.text(wr[0],m+4,y);y+=5;
+        for(var wi=1;wi<wr.length;wi++){doc.text(wr[wi],m+7,y);y+=5;}y+=1;
+      });y+=3;
+      if(key==='scope_done'&&siteImages.length>0){
+        var bW=(cW-4)/2,bPad=3,tH=7,dH=6,iH=55,bH=tH+iH+dH+bPad*2;
+        for(var pi=0;pi<siteImages.length;pi+=2){
+          chk(bH+3);
+          [siteImages[pi],siteImages[pi+1]].forEach(function(sI,ci){
+            if(!sI)return;
+            var bx=m+(ci*(bW+4)),by=y,desc2=sI.desc||'N/A';
+            doc.setDrawColor(180,190,210);doc.setLineWidth(0.4);doc.rect(bx,by,bW,bH);
+            doc.setFillColor(232,236,245);doc.rect(bx,by,bW,tH,'F');
+            doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(7);
+            doc.text(doc.splitTextToSize('Photo '+(siteImages.indexOf(sI)+1)+': '+sI.title,bW-4)[0],bx+2,by+tH-2);
+            if(sI.base64){try{var ti2=new Image();ti2.src='data:'+(sI.file?sI.file.type:'image/jpeg')+';base64,'+sI.base64;var nW=ti2.naturalWidth||800,nH2=ti2.naturalHeight||600,rat=nH2/nW;var aW=bW-bPad*2,aH=iH-bPad;var iW2=aW,iH2=iW2*rat;if(iH2>aH){iH2=aH;iW2=iH2/rat;}var fmt=sI.file&&sI.file.type&&sI.file.type.includes('png')?'PNG':'JPEG';doc.addImage('data:'+(sI.file?sI.file.type:'image/jpeg')+';base64,'+sI.base64,fmt,bx+bPad+(aW-iW2)/2,by+tH+bPad,iW2,iH2,undefined,'FAST');}catch(ie){}}
+            doc.setFillColor(250,250,252);doc.rect(bx,by+bH-dH,bW,dH,'F');
+            doc.setDrawColor(180,190,210);doc.line(bx,by+bH-dH,bx+bW,by+bH-dH);
+            doc.setTextColor(80,80,80);doc.setFont('helvetica','italic');doc.setFontSize(6.5);
+            doc.text(doc.splitTextToSize(desc2,bW-4)[0],bx+2,by+bH-2);
+          });y+=bH+3;
+        }y+=2;
+      }
+    }
+    chk(52);y+=3;
+    doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+    doc.text('Sign-Off',m+3,y+5);y+=10;
+    var sh=(cW-4)/2;
+    doc.setDrawColor(180,190,210);doc.setLineWidth(0.3);doc.rect(m,y,sh,38);doc.rect(m+sh+4,y,sh,38);
+    doc.setFillColor(232,236,245);doc.rect(m,y,sh,7,'F');doc.rect(m+sh+4,y,sh,7,'F');
+    doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text('On Behalf of Neptunus',m+sh/2,y+5,{align:'center'});
+    doc.text('On Behalf of Customer',m+sh+4+sh/2,y+5,{align:'center'});
+    var soR=[['Name',useName,cust||'--'],['Date',sd,sd],['Signature','','']];
+    var rh=8;doc.setFont('helvetica','normal');doc.setFontSize(8);
+    soR.forEach(function(row,ri){
+      var ry=y+7+ri*rh;
+      doc.setTextColor(110,110,110);doc.setFont('helvetica','bold');doc.text(row[0],m+2,ry+5.5);
+      doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);
+      if(row[0]==='Signature'){doc.setDrawColor(170,170,170);doc.setLineWidth(0.3);doc.rect(m+20,ry+1,sh-22,rh-2);doc.rect(m+sh+4+20,ry+1,sh-22,rh-2);}
+      else{doc.text(String(row[1]).substring(0,34),m+20,ry+5.5);doc.text(String(row[2]).substring(0,34),m+sh+4+20,ry+5.5);}
+      if(ri<soR.length-1){doc.setDrawColor(215,215,215);doc.line(m,ry+rh,m+sh,ry+rh);doc.line(m+sh+4,ry+rh,m+sh+4+sh,ry+rh);}
+    });
+    y+=7+soR.length*rh+6;
+    chk(14);
+    doc.setDrawColor(244,121,32);doc.setLineWidth(0.5);doc.line(m,y,pW-m,y);y+=4;
+    doc.setTextColor(100,100,100);doc.setFont('helvetica','normal');doc.setFontSize(7);
+    doc.text('Neptunus Power Plant Services Pvt. Ltd.',pW/2,y,{align:'center'});y+=4;
+    doc.text('A-554/555, TTC Industrial Area, MIDC, Mahape, Navi Mumbai - 400 710, India',pW/2,y,{align:'center'});y+=4;
+    doc.text('The Machine Reliability Expert | www.neptunus-power.com',pW/2,y,{align:'center'});
+    var tp=doc.internal.getNumberOfPages();
+    for(var fp=1;fp<=tp;fp++){doc.setPage(fp);doc.setFontSize(6.5);doc.setTextColor(150,150,150);doc.setFont('helvetica','normal');doc.line(m,pH-10,pW-m,pH-10);doc.text('NPPS DWR  |  '+useName+'  |  '+sd,m,pH-6);doc.text('Page '+fp+' of '+tp,pW-m,pH-6,{align:'right'});}
+    callback(doc.output('blob'));
+  }catch(e){console.error(e);callback(null);}
+}
+
+function previewDraftPDF(draftId){
+  showLoader('Loading preview...');
+  callWorker({action:'get_draft',draftId:draftId}).then(function(r){
+    hideLoader();
+    if(!r.found){toast('Draft not found.','err');return;}
+    var d=r.draft;
+    // Temporarily set state for PDF generation
+    var savedUser=verifiedUser;
+    var savedDWR=generatedDWR;
+    var savedStore=JSON.parse(JSON.stringify(outputStore));
+    var savedImages=siteImages.slice();
+    var savedTeam=teamMembers.slice();
+    // Load draft data into state
+    generatedDWR={sections:d.sections};
+    var fd=d.formData||{};
+    // Set outputStore from sections
+    SEC_ORDER.forEach(function(key){
+      var sec=d.sections&&d.sections[key];
+      outputStore[key]=(sec&&sec.polished_text)||'- Nothing reported for this section.';
+    });
+    // Restore meta and meetings
+    var sv=fd.startDate||'';
+    var sd=sv?fmtDate(sv):'--';
+    var ev=fd.endDate||'';
+    var ed=ev?fmtDateShort(ev):'--';
+    var metaParts=['Team Leader: '+(d.engineerName||'--'),'Project Code: '+(fd.projectCode||'--'),'Start Date: '+sd,'Estimated End Date: '+ed];
+    if(fd.customer)metaParts.push('Customer: '+fd.customer);
+    if(fd.vessel)metaParts.push('Vessel / Rig: '+fd.vessel);
+    if(fd.location)metaParts.push('Location: '+fd.location);
+    if(fd.offering)metaParts.push('Offering: '+fd.offering);
+    if(fd.teamMembers&&fd.teamMembers.length)metaParts.push('Team Members: '+fd.teamMembers.join(', '));
+    outputStore['meta']=metaParts.join('\n');
+    outputStore['meetings']='Toolbox Meeting\n  Time: '+(fd.tbTime||'Not recorded')+'\n  Attendance: '+(fd.tbAtt||'--')+'\n\nSafety Meeting\n  Time: '+(fd.smTime||'Not recorded')+'\n  Attendance: '+(fd.smAtt||'--');
+    // Restore images
+    siteImages=[];
+    if(d.siteImages&&d.siteImages.length){
+      d.siteImages.forEach(function(img){
+        if(!img.base64)return;
+        var blob=b64ToBlob(img.base64,img.mime||'image/jpeg');
+        var url=URL.createObjectURL(blob);
+        siteImages.push({file:new File([blob],'photo.jpg',{type:img.mime||'image/jpeg'}),objectUrl:url,base64:img.base64,title:img.title||'',desc:img.desc||''});
+      });
+    }
+    teamMembers=fd.teamMembers||[];
+    // Temporarily set form field values for PDF
+    var tempFields={
+      'f-proj-code':fd.projectCode||'',
+      'f-customer':fd.customer||'',
+      'f-vessel':fd.vessel||'',
+      'f-proj-details':fd.projectDetails||'',
+      'f-offering':fd.offering||'',
+      'f-location':fd.location||'',
+      'f-start-date':fd.startDate||'',
+      'f-end-date':fd.endDate||''
+    };
+    var savedFieldValues={};
+    Object.keys(tempFields).forEach(function(id){
+      var el2=document.getElementById(id);
+      if(el2){savedFieldValues[id]=el2.value;el2.value=tempFields[id];}
+    });
+    // Override clockSt for meeting times
+    var savedClockSt=JSON.parse(JSON.stringify(clockSt));
+    // Generate PDF as blob and open in new tab
+    try{generatePDFBlob(d.engineerName||savedUser.name,function(blob){
+      // Restore everything
+      generatedDWR=savedDWR;outputStore=savedStore;siteImages=savedImages;teamMembers=savedTeam;clockSt=savedClockSt;
+      Object.keys(savedFieldValues).forEach(function(id){var el2=document.getElementById(id);if(el2)el2.value=savedFieldValues[id];});
+      if(blob){
+        var url=URL.createObjectURL(blob);
+        window.open(url,'_blank');
+        setTimeout(function(){URL.revokeObjectURL(url);},60000);
+        toast('PDF preview opened in new tab.','ok');
+      }else{toast('Could not generate preview.','err');}
+    });}catch(e){
+      generatedDWR=savedDWR;outputStore=savedStore;siteImages=savedImages;teamMembers=savedTeam;
+      Object.keys(savedFieldValues).forEach(function(id){var el2=document.getElementById(id);if(el2)el2.value=savedFieldValues[id];});
+      toast('Preview error: '+e.message,'err');
+    }
+  }).catch(function(e){hideLoader();toast('Failed: '+e.message,'err');});
+}
+
 function deleteDraft(id){
   callWorker({action:'delete_draft',draftId:id,empNo:verifiedUser.empNo})
     .then(function(){loadDrafts();toast('Draft deleted.','ok');})
@@ -1197,129 +1392,22 @@ function downloadPDF(){
   if(!generatedDWR){toast('No report generated yet.','err');return;}
   var btn=document.getElementById('btn-pdf');btn.disabled=true;btn.textContent='Generating PDF...';
   setTimeout(function(){
-    try{
-      var doc=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-      var pW=doc.internal.pageSize.getWidth(),pH=doc.internal.pageSize.getHeight(),m=15,cW=pW-m*2,y=m;
-      function np(){doc.addPage();y=m;}
-      function chk(n){if(y+n>pH-m-12)np();}
+    generatePDFBlob(verifiedUser.name,function(blob){
+      btn.disabled=false;btn.textContent='Download PDF';
+      if(!blob){toast('PDF error.','err');return;}
       var sv=document.getElementById('f-start-date').value;
-      var sd=fmtDate(sv);
-      var ev=document.getElementById('f-end-date').value;
-      var ed=fmtDateShort(ev);
-      var cust=document.getElementById('f-customer').value,ves=document.getElementById('f-vessel').value,loc=document.getElementById('f-location').value;
-      var pd=document.getElementById('f-proj-details').value,off=document.getElementById('f-offering').value;
-      doc.setFillColor(27,58,107);doc.rect(0,0,pW,28,'F');
-      doc.setFillColor(244,121,32);doc.rect(0,28,pW,1.5,'F');
-      try{
-        var logoEl=document.getElementById('hdr-logo-img');
-        if(logoEl){var tc=document.createElement('canvas');tc.width=200;tc.height=80;var tc2=tc.getContext('2d');tc2.drawImage(logoEl,0,0,200,80);doc.addImage(tc.toDataURL('image/png'),'PNG',pW-52,3,46,20);}
-      }catch(le){}
-      doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');
-      doc.text('Daily Working Report',m,12);
-      doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(190,205,225);
-      doc.text('Neptunus Power Plant Services Pvt. Ltd. | The Machine Reliability Expert',m,19);
-      doc.text('A-554/555, TTC Industrial Area, MIDC, Mahape, Navi Mumbai - 400 710, India',m,24);
-      y=36;
-      var lRows=[['Team Leader',verifiedUser.name],['Project Code',document.getElementById('f-proj-code').value||'--'],['Start Date',sd],['Est. End Date',ed]];
-      var rRows=[['Customer',cust||'--'],['Vessel / Rig',ves||'--'],['Location',loc||'--'],['Offering',off||'--']];
-      if(pd)rRows.push(['Project Details',pd]);
-      if(teamMembers.length)rRows.push(['Team Members',teamMembers.join(', ')]);
-      var hw=(cW-4)/2;
-      doc.autoTable({startY:y,head:[],body:lRows,columnStyles:{0:{fontStyle:'bold',cellWidth:28,fillColor:[232,236,245]},1:{cellWidth:hw-28}},margin:{left:m,right:pW-m-hw},styles:{fontSize:8,cellPadding:3},theme:'grid',tableWidth:hw});
-      var lb=doc.lastAutoTable.finalY;
-      doc.autoTable({startY:y,head:[],body:rRows,columnStyles:{0:{fontStyle:'bold',cellWidth:28,fillColor:[232,236,245]},1:{cellWidth:hw-28}},margin:{left:m+hw+4,right:m},styles:{fontSize:8,cellPadding:3},theme:'grid',tableWidth:hw});
-      y=Math.max(lb,doc.lastAutoTable.finalY)+5;
-      chk(28);
-      doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
-      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
-      doc.text('Meeting Details',m+3,y+5);y+=10;
-      doc.autoTable({startY:y,head:[['Meeting','Time','Attendance']],body:[['Toolbox Meeting',getMeetingTime('tb'),getAttText('tb')],['Safety Meeting',getMeetingTime('sm'),getAttText('sm')]],columnStyles:{0:{cellWidth:45,fontStyle:'bold'},1:{cellWidth:28},2:{cellWidth:'auto'}},margin:{left:m,right:m},styles:{fontSize:8,cellPadding:3},headStyles:{fillColor:[27,58,107],textColor:[244,121,32],fontStyle:'bold'},theme:'grid'});
-      y=doc.lastAutoTable.finalY+5;
-      for(var ki=0;ki<SEC_ORDER.length;ki++){
-        var key=SEC_ORDER[ki],lbl=SEC_LABELS[key];
-        var txt=(outputStore[key]||'- Nothing reported for this section.').trim();
-        var lines=txt.split('\n').filter(function(l){return l.trim().length>0;});
-        chk(14+Math.min(lines.length,3)*5+5);
-        doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
-        doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
-        doc.text(lbl,m+3,y+5);y+=10;
-        doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
-        lines.forEach(function(line){
-          var l=line.trim();if(!l)return;
-          var tx=l.charAt(0)==='-'||l.charCodeAt(0)===8226?l:'- '+l;
-          var wr=doc.splitTextToSize(tx,cW-6);chk(wr.length*5+2);
-          doc.text(wr[0],m+4,y);y+=5;
-          for(var wi=1;wi<wr.length;wi++){doc.text(wr[wi],m+7,y);y+=5;}y+=1;
-        });y+=3;
-        if(key==='scope_done'&&siteImages.length>0){
-          var bW=(cW-4)/2,bPad=3,tH=7,dH=6,iH=55,bH=tH+iH+dH+bPad*2;
-          for(var pi=0;pi<siteImages.length;pi+=2){
-            chk(bH+3);
-            [siteImages[pi],siteImages[pi+1]].forEach(function(sI,ci){
-              if(!sI)return;
-              var bx=m+(ci*(bW+4)),by=y,desc2=sI.desc||'N/A';
-              doc.setDrawColor(180,190,210);doc.setLineWidth(0.4);doc.rect(bx,by,bW,bH);
-              doc.setFillColor(232,236,245);doc.rect(bx,by,bW,tH,'F');
-              doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(7);
-              doc.text(doc.splitTextToSize('Photo '+(siteImages.indexOf(sI)+1)+': '+sI.title,bW-4)[0],bx+2,by+tH-2);
-              if(sI.base64){
-                try{
-                  var ti2=new Image();ti2.src='data:'+(sI.file?sI.file.type:'image/jpeg')+';base64,'+sI.base64;
-                  var nW=ti2.naturalWidth||800,nH2=ti2.naturalHeight||600,rat=nH2/nW;
-                  var aW=bW-bPad*2,aH=iH-bPad;var iW2=aW,iH2=iW2*rat;if(iH2>aH){iH2=aH;iW2=iH2/rat;}
-                  var fmt=sI.file&&sI.file.type&&sI.file.type.includes('png')?'PNG':'JPEG';
-                  doc.addImage('data:'+(sI.file?sI.file.type:'image/jpeg')+';base64,'+sI.base64,fmt,bx+bPad+(aW-iW2)/2,by+tH+bPad,iW2,iH2,undefined,'FAST');
-                }catch(ie){}
-              }
-              doc.setFillColor(250,250,252);doc.rect(bx,by+bH-dH,bW,dH,'F');
-              doc.setDrawColor(180,190,210);doc.line(bx,by+bH-dH,bx+bW,by+bH-dH);
-              doc.setTextColor(80,80,80);doc.setFont('helvetica','italic');doc.setFontSize(6.5);
-              doc.text(doc.splitTextToSize(desc2,bW-4)[0],bx+2,by+bH-2);
-            });y+=bH+3;
-          }y+=2;
-        }
-      }
-      chk(52);y+=3;
-      doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
-      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
-      doc.text('Sign-Off',m+3,y+5);y+=10;
-      var sh=(cW-4)/2;
-      doc.setDrawColor(180,190,210);doc.setLineWidth(0.3);doc.rect(m,y,sh,38);doc.rect(m+sh+4,y,sh,38);
-      doc.setFillColor(232,236,245);doc.rect(m,y,sh,7,'F');doc.rect(m+sh+4,y,sh,7,'F');
-      doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(8);
-      doc.text('On Behalf of Neptunus',m+sh/2,y+5,{align:'center'});
-      doc.text('On Behalf of Customer',m+sh+4+sh/2,y+5,{align:'center'});
-      var soR=[['Name',verifiedUser.name,document.getElementById('f-customer').value||'--'],['Date',sd,sd],['Signature','','']];
-      var rh=8;doc.setFont('helvetica','normal');doc.setFontSize(8);
-      soR.forEach(function(row,ri){
-        var ry=y+7+ri*rh;
-        doc.setTextColor(110,110,110);doc.setFont('helvetica','bold');doc.text(row[0],m+2,ry+5.5);
-        doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);
-        if(row[0]==='Signature'){doc.setDrawColor(170,170,170);doc.setLineWidth(0.3);doc.rect(m+20,ry+1,sh-22,rh-2);doc.rect(m+sh+4+20,ry+1,sh-22,rh-2);}
-        else{doc.text(String(row[1]).substring(0,34),m+20,ry+5.5);doc.text(String(row[2]).substring(0,34),m+sh+4+20,ry+5.5);}
-        if(ri<soR.length-1){doc.setDrawColor(215,215,215);doc.line(m,ry+rh,m+sh,ry+rh);doc.line(m+sh+4,ry+rh,m+sh+4+sh,ry+rh);}
-      });
-      y+=7+soR.length*rh+6;
-      chk(14);
-      doc.setDrawColor(244,121,32);doc.setLineWidth(0.5);doc.line(m,y,pW-m,y);y+=4;
-      doc.setTextColor(100,100,100);doc.setFont('helvetica','normal');doc.setFontSize(7);
-      doc.text('Neptunus Power Plant Services Pvt. Ltd.',pW/2,y,{align:'center'});y+=4;
-      doc.text('A-554/555, TTC Industrial Area, MIDC, Mahape, Navi Mumbai - 400 710, India',pW/2,y,{align:'center'});y+=4;
-      doc.text('The Machine Reliability Expert | www.neptunus-power.com',pW/2,y,{align:'center'});
-      var tp=doc.internal.getNumberOfPages();
-      for(var fp=1;fp<=tp;fp++){
-        doc.setPage(fp);doc.setFontSize(6.5);doc.setTextColor(150,150,150);doc.setFont('helvetica','normal');
-        doc.line(m,pH-10,pW-m,pH-10);
-        doc.text('NPPS DWR  |  '+verifiedUser.name+'  |  '+sd,m,pH-6);
-        doc.text('Page '+fp+' of '+tp,pW-m,pH-6,{align:'right'});
-      }
       var safeName=verifiedUser.name.replace(/[^a-zA-Z0-9]/g,'_');
       var safeCode=(document.getElementById('f-proj-code').value||'DWR').replace(/[^a-zA-Z0-9]/g,'_');
-      doc.save('NPPS_DWR_'+safeCode+'_'+safeName+'_'+(sv||new Date().toISOString().split('T')[0])+'.pdf');
-      btn.disabled=false;btn.textContent='Download PDF';toast('PDF downloaded!','ok');
-    }catch(e){btn.disabled=false;btn.textContent='Download PDF';toast('PDF error: '+e.message,'err');console.error(e);}
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='NPPS_DWR_'+safeCode+'_'+safeName+'_'+(sv||new Date().toISOString().split('T')[0])+'.pdf';
+      a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);},10000);
+      toast('PDF downloaded!','ok');
+    });
   },100);
 }
+
 function callWorker(data){return fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){if(!r.ok)throw new Error('Server error '+r.status);return r.json();});}
 function b64ToBlob(b64,mime){var bin=atob(b64);var bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return new Blob([bytes],{type:mime||'image/jpeg'});}
 function showLoader(msg){document.getElementById('loader-msg').textContent=msg||'Processing...';document.getElementById('loader').classList.add('on');}
