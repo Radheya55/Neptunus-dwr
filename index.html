@@ -1350,9 +1350,9 @@ function generatePDFBlob(engineerNameOverride,callback){
     doc.text('A-554/555, TTC Industrial Area, MIDC, Mahape, Navi Mumbai - 400 710, India',m,24);
     y=36;
     var lRows=[['Team Leader',useName],['Project Code',document.getElementById('f-proj-code').value||'--'],['Start Date',sd],['Est. End Date',ed]];
+    if(teamMembers.length)lRows.push(['Team Members',teamMembers.join(', ')]);
     var rRows=[['Customer',cust||'--'],['Vessel / Rig',ves||'--'],['Location',loc||'--'],['Offering',off||'--']];
     if(pd)rRows.push(['Project Details',pd]);
-    if(teamMembers.length)rRows.push(['Team Members',teamMembers.join(', ')]);
     var hw=(cW-4)/2;
     doc.autoTable({startY:y,head:[],body:lRows,columnStyles:{0:{fontStyle:'bold',cellWidth:28,fillColor:[232,236,245]},1:{cellWidth:hw-28}},margin:{left:m,right:pW-m-hw},styles:{fontSize:8,cellPadding:3},theme:'grid',tableWidth:hw});
     var lb=doc.lastAutoTable.finalY;
@@ -1371,7 +1371,7 @@ function generatePDFBlob(engineerNameOverride,callback){
       chk(14+Math.min(lines.length,3)*5+5);
       doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
       doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
-      doc.text(lbl,m+3,y+5);y+=10;
+      doc.text(lbl,m+3,y+5);y+=13;
       doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
       lines.forEach(function(line){
         var l=line.trim();if(!l)return;
@@ -1400,28 +1400,53 @@ function generatePDFBlob(engineerNameOverride,callback){
         }y+=2;
       }
     }
-    chk(52);y+=3;
+    // Sign-off: header bar + symmetric two-column table
+    var soTotalH=7+3*10+4; // header(7) + 3 rows * rowH(10) + sig box extra
+    chk(soTotalH+16);y+=3;
     doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
     doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
     doc.text('Sign-Off',m+3,y+5);y+=10;
     var sh=(cW-4)/2;
-    doc.setDrawColor(180,190,210);doc.setLineWidth(0.3);doc.rect(m,y,sh,38);doc.rect(m+sh+4,y,sh,38);
+    var rh=10;var sigH=14;
+    var soBoxH=rh*2+sigH; // Name row + Date row + Signature row
+    // Draw outer rectangles for both sides
+    doc.setDrawColor(180,190,210);doc.setLineWidth(0.3);
+    doc.rect(m,y,sh,soBoxH+7);doc.rect(m+sh+4,y,sh,soBoxH+7);
+    // Header rows
     doc.setFillColor(232,236,245);doc.rect(m,y,sh,7,'F');doc.rect(m+sh+4,y,sh,7,'F');
     doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(8);
     doc.text('On Behalf of Neptunus',m+sh/2,y+5,{align:'center'});
     doc.text('On Behalf of Customer',m+sh+4+sh/2,y+5,{align:'center'});
-    var soR=[['Name',useName,cust||'--'],['Date',sd,sd],['Signature','','']];
-    var rh=8;doc.setFont('helvetica','normal');doc.setFontSize(8);
-    soR.forEach(function(row,ri){
-      var ry=y+7+ri*rh;
-      doc.setTextColor(110,110,110);doc.setFont('helvetica','bold');doc.text(row[0],m+2,ry+5.5);
-      doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);
-      if(row[0]==='Signature'){doc.setDrawColor(170,170,170);doc.setLineWidth(0.3);doc.rect(m+20,ry+1,sh-22,rh-2);doc.rect(m+sh+4+20,ry+1,sh-22,rh-2);}
-      else{doc.text(String(row[1]).substring(0,34),m+20,ry+5.5);doc.text(String(row[2]).substring(0,34),m+sh+4+20,ry+5.5);}
-      if(ri<soR.length-1){doc.setDrawColor(215,215,215);doc.line(m,ry+rh,m+sh,ry+rh);doc.line(m+sh+4,ry+rh,m+sh+4+sh,ry+rh);}
-    });
-    y+=7+soR.length*rh+6;
-    chk(14);
+    y+=7;
+    // Name row
+    doc.setDrawColor(215,215,215);doc.setLineWidth(0.2);
+    doc.setFillColor(240,244,248);doc.rect(m,y,22,rh,'F');doc.rect(m+sh+4,y,22,rh,'F');
+    doc.setTextColor(100,100,100);doc.setFont('helvetica','bold');doc.setFontSize(7.5);
+    doc.text('Name',m+2,y+6.5);doc.text('Name',m+sh+4+2,y+6.5);
+    doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);doc.setFontSize(8);
+    doc.text(String(useName).substring(0,28),m+24,y+6.5);
+    doc.text(String(cust||'--').substring(0,28),m+sh+4+24,y+6.5);
+    doc.line(m,y+rh,m+sh,y+rh);doc.line(m+sh+4,y+rh,m+sh+4+sh,y+rh);
+    y+=rh;
+    // Date row
+    doc.setFillColor(240,244,248);doc.rect(m,y,22,rh,'F');doc.rect(m+sh+4,y,22,rh,'F');
+    doc.setTextColor(100,100,100);doc.setFont('helvetica','bold');doc.setFontSize(7.5);
+    doc.text('Date',m+2,y+6.5);doc.text('Date',m+sh+4+2,y+6.5);
+    doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);doc.setFontSize(8);
+    doc.text(String(sd).substring(0,28),m+24,y+6.5);
+    doc.text(String(sd).substring(0,28),m+sh+4+24,y+6.5);
+    doc.line(m,y+rh,m+sh,y+rh);doc.line(m+sh+4,y+rh,m+sh+4+sh,y+rh);
+    y+=rh;
+    // Signature row
+    doc.setFillColor(240,244,248);doc.rect(m,y,22,sigH,'F');doc.rect(m+sh+4,y,22,sigH,'F');
+    doc.setTextColor(100,100,100);doc.setFont('helvetica','bold');doc.setFontSize(7.5);
+    doc.text('Signature',m+2,y+8);doc.text('Signature',m+sh+4+2,y+8);
+    doc.setDrawColor(170,170,170);doc.setLineWidth(0.3);
+    doc.rect(m+24,y+2,sh-26,sigH-4);doc.rect(m+sh+4+24,y+2,sh-26,sigH-4);
+    y+=sigH;
+    // Orange footer line — always on same page, properly spaced
+    y+=8;
+    if(y>pH-m-10){y=m;doc.addPage();}
     doc.setDrawColor(244,121,32);doc.setLineWidth(0.5);doc.line(m,y,pW-m,y);y+=4;
     doc.setTextColor(100,100,100);doc.setFont('helvetica','normal');doc.setFontSize(7);
     doc.text('Neptunus Power Plant Services Pvt. Ltd.',pW/2,y,{align:'center'});y+=4;
