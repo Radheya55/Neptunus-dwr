@@ -244,6 +244,14 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.err{border-color:var(--danger);}
 .toast.ok{border-color:var(--teal);}
+/* SIGN-OFF EDITABLE FIELDS */
+.so-date-wrap{display:flex;align-items:center;gap:0.4rem;}
+.so-date-input{background:transparent;border:none;color:#1B3A6B;font-size:0.82rem;font-family:inherit;cursor:pointer;flex:1;min-width:0;padding:0;}
+.so-date-input:focus{outline:none;}
+.so-date-btn{background:none;border:none;cursor:pointer;font-size:1rem;padding:0;line-height:1;color:#F47920;flex-shrink:0;}
+.so-cust-name-input{background:transparent;border:none;color:#1B3A6B;font-size:0.82rem;font-family:inherit;width:100%;padding:0;}
+.so-cust-name-input:focus{outline:none;border-bottom:1.5px solid #F47920;}
+.so-cust-name-input.so-error{color:var(--danger);font-weight:700;}
 /* LOADER */
 .loader{display:none;position:fixed;inset:0;background:rgba(27,58,107,0.82);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
 .loader.on{display:flex;}
@@ -552,8 +560,30 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
       <table class="so-table">
         <thead><tr><th colspan="2">On Behalf of Neptunus</th><th colspan="2">On Behalf of Customer</th></tr></thead>
         <tbody>
-          <tr><td class="sl">Name</td><td class="sv" id="so-nep-name">-</td><td class="sl">Name</td><td class="sv" id="so-cust-name">-</td></tr>
-          <tr><td class="sl">Date</td><td class="sv" id="so-nep-date">-</td><td class="sl">Date</td><td class="sv" id="so-cust-date">-</td></tr>
+          <tr>
+            <td class="sl">Name</td>
+            <td class="sv" id="so-nep-name">-</td>
+            <td class="sl">Name</td>
+            <td class="sv">
+              <input type="text" class="so-cust-name-input" id="so-cust-name-input" placeholder="&#x26A0; Update Name here" autocomplete="off"/>
+            </td>
+          </tr>
+          <tr>
+            <td class="sl">Date of Report</td>
+            <td class="sv">
+              <div class="so-date-wrap">
+                <input type="date" class="so-date-input" id="so-nep-date-input"/>
+                <button class="so-date-btn" onclick="var e=document.getElementById('so-nep-date-input');if(e.showPicker)e.showPicker();" title="Pick date">&#128197;</button>
+              </div>
+            </td>
+            <td class="sl">Date of Report</td>
+            <td class="sv">
+              <div class="so-date-wrap">
+                <input type="date" class="so-date-input" id="so-cust-date-input"/>
+                <button class="so-date-btn" onclick="var e=document.getElementById('so-cust-date-input');if(e.showPicker)e.showPicker();" title="Pick date">&#128197;</button>
+              </div>
+            </td>
+          </tr>
           <tr><td class="sl">Signature</td><td class="sv"><div class="sig-box"><span>Sign here</span></div></td><td class="sl">Signature</td><td class="sv"><div class="sig-box"><span>Sign here</span></div></td></tr>
         </tbody>
       </table>
@@ -647,6 +677,8 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('inp-site-imgs').addEventListener('change',function(){addSiteImages(this);});
   document.getElementById('pen-meta').addEventListener('click',function(){toggleEdit('meta');});
   document.getElementById('pen-meetings').addEventListener('click',function(){toggleEdit('meetings');});
+  // Clear error styling when user types in customer sign-off name
+  (function(){var _cni=document.getElementById('so-cust-name-input');if(_cni){_cni.addEventListener('input',function(){this.classList.remove('so-error');this.placeholder='⚠ Update Name here';});}})();
   document.addEventListener('click',function(e){
     if(!e.target.closest('.clock-wrap')){
       document.querySelectorAll('.clock-popup.open').forEach(function(p){p.classList.remove('open');});
@@ -822,6 +854,14 @@ function initForm(){
   document.getElementById('btn-convert').classList.remove('active');
   var bf=document.getElementById('btn-finalise');
   bf.classList.remove('active');bf.textContent='Finalise Draft';bf.removeAttribute('style');
+  // Reset sign-off fields for new form
+  var _rci=document.getElementById('so-cust-name-input');
+  if(_rci){_rci.value='';_rci.classList.remove('so-error');_rci.placeholder='⚠ Update Name here';}
+  var _rnd=document.getElementById('so-nep-date-input');
+  var _rcd=document.getElementById('so-cust-date-input');
+  var _rtd=new Date().toISOString().split('T')[0];
+  if(_rnd)_rnd.value=_rtd;
+  if(_rcd)_rcd.value=_rtd;
   renderTeamList();refreshAttendance();addRecBlock();updateChecklist();
 }
 
@@ -1239,9 +1279,12 @@ function renderOutput(data){
     outputStore[key]=txt;rest.appendChild(makeSecCard(key,txt));
   }
   document.getElementById('so-nep-name').textContent=verifiedUser.name;
-  document.getElementById('so-cust-name').textContent=document.getElementById('f-customer').value||'--';
-  document.getElementById('so-nep-date').textContent=sd;
-  document.getElementById('so-cust-date').textContent=sd;
+  // Initialise sign-off date inputs to start date (only if user hasn't changed them)
+  var _svd=document.getElementById('f-start-date').value||new Date().toISOString().split('T')[0];
+  var _nepDI=document.getElementById('so-nep-date-input');
+  var _cstDI=document.getElementById('so-cust-date-input');
+  if(_nepDI&&!_nepDI.value)_nepDI.value=_svd;
+  if(_cstDI&&!_cstDI.value)_cstDI.value=_svd;
   document.getElementById('output-section').style.display='block';
 }
 function makeSecCard(key,txt){
@@ -1340,6 +1383,13 @@ function generatePDFBlob(engineerNameOverride,callback){
     var cust=document.getElementById('f-customer').value,ves=document.getElementById('f-vessel').value,loc=document.getElementById('f-location').value;
     var pd=document.getElementById('f-proj-details').value,off=document.getElementById('f-offering').value;
     var useName=engineerNameOverride||verifiedUser.name;
+    // Read editable sign-off fields
+    var _soND=document.getElementById('so-nep-date-input');
+    var _soCD=document.getElementById('so-cust-date-input');
+    var _soCN=document.getElementById('so-cust-name-input');
+    var _soNepDate=_soND&&_soND.value?fmtDate(_soND.value):sd;
+    var _soCustDate=_soCD&&_soCD.value?fmtDate(_soCD.value):sd;
+    var _soCustName=_soCN&&_soCN.value.trim()?_soCN.value.trim():'--';
     doc.setFillColor(27,58,107);doc.rect(0,0,pW,28,'F');
     doc.setFillColor(244,121,32);doc.rect(0,28,pW,1.5,'F');
     try{var logoEl=document.getElementById('hdr-logo-img');if(logoEl){var tc=document.createElement('canvas');tc.width=200;tc.height=80;var tc2=tc.getContext('2d');tc2.drawImage(logoEl,0,0,200,80);doc.addImage(tc.toDataURL('image/png'),'PNG',pW-52,3,46,20);}}catch(le){}
@@ -1425,16 +1475,16 @@ function generatePDFBlob(engineerNameOverride,callback){
     doc.text('Name',m+2,y+6.5);doc.text('Name',m+sh+4+2,y+6.5);
     doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);doc.setFontSize(8);
     doc.text(String(useName).substring(0,28),m+24,y+6.5);
-    doc.text(String(cust||'--').substring(0,28),m+sh+4+24,y+6.5);
+    doc.text(String(_soCustName).substring(0,28),m+sh+4+24,y+6.5);
     doc.line(m,y+rh,m+sh,y+rh);doc.line(m+sh+4,y+rh,m+sh+4+sh,y+rh);
     y+=rh;
     // Date row
     doc.setFillColor(240,244,248);doc.rect(m,y,22,rh,'F');doc.rect(m+sh+4,y,22,rh,'F');
     doc.setTextColor(100,100,100);doc.setFont('helvetica','bold');doc.setFontSize(7.5);
-    doc.text('Date',m+2,y+6.5);doc.text('Date',m+sh+4+2,y+6.5);
+    doc.text('Date of Report',m+2,y+6.5);doc.text('Date of Report',m+sh+4+2,y+6.5);
     doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);doc.setFontSize(8);
-    doc.text(String(sd).substring(0,28),m+24,y+6.5);
-    doc.text(String(sd).substring(0,28),m+sh+4+24,y+6.5);
+    doc.text(String(_soNepDate).substring(0,28),m+24,y+6.5);
+    doc.text(String(_soCustDate).substring(0,28),m+sh+4+24,y+6.5);
     doc.line(m,y+rh,m+sh,y+rh);doc.line(m+sh+4,y+rh,m+sh+4+sh,y+rh);
     y+=rh;
     // Signature row
@@ -1521,6 +1571,14 @@ function deleteDraft(id){
 }
 function downloadPDF(){
   if(!generatedDWR){toast('No report generated yet.','err');return;}
+  // Must have customer sign-off name before downloading
+  var _cnv=document.getElementById('so-cust-name-input');
+  if(_cnv&&!_cnv.value.trim()){
+    _cnv.classList.add('so-error');
+    toast('Please enter the customer name in the Sign-Off section.','err');
+    _cnv.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
   var btn=document.getElementById('btn-pdf');btn.disabled=true;btn.textContent='Generating PDF...';
   setTimeout(function(){
     generatePDFBlob(verifiedUser.name,function(blob){
