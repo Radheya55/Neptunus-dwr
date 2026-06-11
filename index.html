@@ -264,6 +264,10 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 .dash-loading{text-align:center;padding:1.5rem;color:var(--muted);font-size:0.85rem;}
 .dash-refresh{width:100%;background:transparent;border:1.5px solid #d0dae8;color:var(--muted);border-radius:8px;padding:0.5rem;font-size:0.78rem;font-weight:600;cursor:pointer;margin-top:0.7rem;transition:all 0.2s;}
 .dash-refresh:hover{border-color:#1B3A6B;color:#1B3A6B;}
+.btn-dash-detailed{width:100%;background:#F47920;color:#fff;border:none;border-radius:var(--r);padding:0.75rem;font-size:0.88rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.4rem;}
+.btn-dash-detailed:hover{background:#d96a10;}
+.btn-dash-detailed:disabled{opacity:0.5;cursor:not-allowed;}
+.dash-refresh:hover{border-color:#1B3A6B;color:#1B3A6B;}
 /* TOAST */
 .toast{position:fixed;bottom:1.3rem;left:50%;transform:translateX(-50%) translateY(20px);background:#1B3A6B;border:2px solid #F47920;border-radius:8px;padding:0.65rem 1.1rem;font-size:0.82rem;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:300;opacity:0;transition:all 0.3s;pointer-events:none;max-width:300px;text-align:center;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -364,6 +368,9 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
     </div>
     <div class="dash-body" id="dash-body">
       <div class="dash-loading">Loading stats&hellip;</div>
+    </div>
+    <div style="padding:0 1rem 1rem;">
+      <button class="btn-dash-detailed" id="btn-dash-detailed">&#128196; Download Detailed Report</button>
     </div>
   </div>
 </div>
@@ -718,6 +725,7 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('btn-new-dwr').addEventListener('click',function(){showScreen('screen-home');loadDraftCount();});
   document.getElementById('btn-dashboard').addEventListener('click',openDashboard);
   document.getElementById('btn-dash-close').addEventListener('click',closeDashboard);
+  document.getElementById('btn-dash-detailed').addEventListener('click',downloadDetailedReport);
   document.getElementById('dash-overlay').addEventListener('click',function(e){if(e.target===this)closeDashboard();});
   document.getElementById('tb-clock-done').addEventListener('click',function(){closeClock('tb');});
   document.getElementById('sm-clock-done').addEventListener('click',function(){closeClock('sm');});
@@ -1662,7 +1670,14 @@ function downloadPDF(){
       toast('PDF downloaded!','ok');
       // Track this download (fire and forget)
       var _pc=(document.getElementById('f-proj-code').value||'UNKNOWN').trim().toUpperCase();
-      callWorker({action:'track_download',projectCode:_pc,engineerName:verifiedUser?verifiedUser.name:'Unknown',engineerEmpNo:verifiedUser?verifiedUser.empNo:''}).catch(function(){});
+      callWorker({
+        action:'track_download',
+        projectCode:_pc,
+        engineerName:verifiedUser?verifiedUser.name:'Unknown',
+        engineerEmpNo:verifiedUser?verifiedUser.empNo:'',
+        customerName:(document.getElementById('f-customer')?document.getElementById('f-customer').value.trim():'') || (document.getElementById('so-cust-name-input')?document.getElementById('so-cust-name-input').value.trim():''),
+        startDate:document.getElementById('f-start-date')?document.getElementById('f-start-date').value:''
+      }).catch(function(){});
     });
   },100);
 }
@@ -1682,20 +1697,11 @@ function loadDashStats(){
     if(!r||r.error){body.innerHTML='<div class="dash-loading">Could not load stats.</div>';return;}
     var total=r.total||0;
     var last24=r.last24||0;
-    var byProject=r.byProject||[];
     var html2='';
     html2+='<div class="dash-stat-row">';
-    html2+='<div class="dash-stat"><div class="dash-stat-num">'+total+'</div><div class="dash-stat-lbl">Total PDFs Downloaded</div></div>';
+    html2+='<div class="dash-stat"><div class="dash-stat-num">'+total+'</div><div class="dash-stat-lbl">Total PDFs Downloaded Till Date</div></div>';
     html2+='<div class="dash-stat orange"><div class="dash-stat-num">'+last24+'</div><div class="dash-stat-lbl">Last 24 Hours</div></div>';
     html2+='</div>';
-    html2+='<div class="dash-section-title">Breakdown by Project Code</div>';
-    if(byProject.length===0){
-      html2+='<div style="font-size:0.82rem;color:var(--muted);text-align:center;padding:0.8rem 0;">No downloads recorded yet.</div>';
-    } else {
-      byProject.forEach(function(p){
-        html2+='<div class="dash-proj-row"><span class="dash-proj-code">'+p.projectCode+'</span><span class="dash-proj-count">'+p.count+'</span></div>';
-      });
-    }
     html2+='<button class="dash-refresh" id="btn-dash-refresh">&#8635; Refresh</button>';
     body.innerHTML=html2;
     document.getElementById('btn-dash-refresh').addEventListener('click',loadDashStats);
@@ -1703,6 +1709,112 @@ function loadDashStats(){
     body.innerHTML='<div class="dash-loading">Failed to load. Check connection.</div>';
   });
 }
+function downloadDetailedReport(){
+  var btn=document.getElementById('btn-dash-detailed');
+  if(btn){btn.disabled=true;btn.textContent='Fetching data...';}
+  callWorker({action:'get_detailed_stats'}).then(function(r){
+    if(btn){btn.disabled=false;btn.innerHTML='&#128196; Download Detailed Report';}
+    if(!r||r.error){toast('Could not fetch report data.','err');return;}
+    generateDetailedPDF(r);
+  }).catch(function(){
+    if(btn){btn.disabled=false;btn.innerHTML='&#128196; Download Detailed Report';}
+    toast('Failed to fetch report.','err');
+  });
+}
+
+function generateDetailedPDF(data){
+  try{
+    var doc=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var pW=doc.internal.pageSize.getWidth(),pH=doc.internal.pageSize.getHeight(),m=15,cW=pW-m*2,y=m;
+    var now=new Date();
+    var tsDate=now.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    var tsTime=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    var timestamp=tsDate+' at '+tsTime;
+    var total=data.total||0;
+    var byProject=data.byProject||[];
+    var byPerson=data.byPerson||[];
+
+    // Header bar
+    doc.setFillColor(27,58,107);doc.rect(0,0,pW,28,'F');
+    doc.setFillColor(244,121,32);doc.rect(0,28,pW,1.5,'F');
+    try{var logoEl=document.getElementById('hdr-logo-img');if(logoEl){var tc=document.createElement('canvas');tc.width=200;tc.height=80;var tc2=tc.getContext('2d');tc2.drawImage(logoEl,0,0,200,80);doc.addImage(tc.toDataURL('image/png'),'PNG',pW-52,3,46,20);}}catch(le){}
+    doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');
+    doc.text('DWR Usage Report',m,12);
+    doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(190,205,225);
+    doc.text('Neptunus Power Plant Services Pvt. Ltd. | The Machine Reliability Expert',m,19);
+    doc.text('Report generated on: '+timestamp,m,24);
+    y=36;
+
+    // Intro text
+    doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(10);
+    var introLine1='Hello! This tool was used for creating '+total+' Daily Work Report'+(total===1?'':''s')+'.';
+    var introLine2=total+' PDF'+(total===1?' was':' were')+' downloaded. Please find below the details.';
+    doc.text(introLine1,m,y);y+=7;
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(50,50,50);
+    doc.text(introLine2,m,y);y+=10;
+
+    // TABLE 1: Project breakdown
+    doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+    doc.text('Breakdown by Project',m+3,y+5);y+=10;
+
+    var projRows=byProject.map(function(p){
+      return [p.projectCode||'--', p.teamLeader||'--', p.customerName||'--', p.startDate||'--', String(p.count)];
+    });
+    if(projRows.length===0)projRows=[['No data yet','','','','']];
+
+    doc.autoTable({
+      startY:y,
+      head:[['Project Code','Team Leader','Customer Name','Start Date','No. of DWRs']],
+      body:projRows,
+      columnStyles:{0:{cellWidth:28,fontStyle:'bold'},1:{cellWidth:35},2:{cellWidth:40},3:{cellWidth:28},4:{cellWidth:'auto',halign:'center'}},
+      margin:{left:m,right:m},
+      styles:{fontSize:7.5,cellPadding:3},
+      headStyles:{fillColor:[27,58,107],textColor:[244,121,32],fontStyle:'bold'},
+      theme:'grid'
+    });
+    y=doc.lastAutoTable.finalY+10;
+
+    // TABLE 2: Person breakdown
+    if(y>pH-60){doc.addPage();y=m;}
+    doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+    doc.text('Breakdown by Engineer',m+3,y+5);y+=10;
+
+    var personRows=byPerson.map(function(p){
+      return [p.name||'--', String(p.count)];
+    });
+    if(personRows.length===0)personRows=[['No data yet','']];
+
+    doc.autoTable({
+      startY:y,
+      head:[['Name of Person','DWRs Downloaded']],
+      body:personRows,
+      columnStyles:{0:{cellWidth:'auto',fontStyle:'bold'},1:{cellWidth:35,halign:'center'}},
+      margin:{left:m,right:m},
+      styles:{fontSize:7.5,cellPadding:3},
+      headStyles:{fillColor:[27,58,107],textColor:[244,121,32],fontStyle:'bold'},
+      theme:'grid'
+    });
+    y=doc.lastAutoTable.finalY+8;
+
+    // Footer on all pages
+    var tp=doc.internal.getNumberOfPages();
+    for(var fp=1;fp<=tp;fp++){
+      doc.setPage(fp);doc.setFontSize(6.5);doc.setTextColor(150,150,150);doc.setFont('helvetica','normal');
+      doc.line(m,pH-10,pW-m,pH-10);
+      doc.text('NPPS DWR Usage Report  |  Generated: '+timestamp,m,pH-6);
+      doc.text('Page '+fp+' of '+tp,pW-m,pH-6,{align:'right'});
+    }
+
+    var fname='NPPS_DWR_Usage_Report_'+now.toISOString().split('T')[0]+'.pdf';
+    var blob=doc.output('blob');
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},10000);
+    toast('Detailed report downloaded!','ok');
+  }catch(e){toast('PDF generation error: '+e.message,'err');console.error(e);}
+}
+
 function callWorker(data){return fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){if(!r.ok)throw new Error('Server error '+r.status);return r.json();});}
 function b64ToBlob(b64,mime){var bin=atob(b64);var bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return new Blob([bytes],{type:mime||'image/jpeg'});}
 function showLoader(msg){document.getElementById('loader-msg').textContent=msg||'Processing...';document.getElementById('loader').classList.add('on');}
