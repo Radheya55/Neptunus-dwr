@@ -1747,7 +1747,7 @@ function generateDetailedPDF(data){
 
     // Intro text
     doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(10);
-    var introLine1='Hello! This tool was used for creating '+total+' Daily Work Report'+(total===1?'':''s')+'.';
+    var introLine1='Hello! This tool was used for creating '+total+' Daily Work Report'+(total===1?'':'s')+'.';
     var introLine2=total+' PDF'+(total===1?' was':' were')+' downloaded. Please find below the details.';
     doc.text(introLine1,m,y);y+=7;
     doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(50,50,50);
