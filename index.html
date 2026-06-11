@@ -239,6 +239,31 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 .btn-base-menu-sub{font-size:0.72rem;opacity:0.8;margin-top:0.2rem;font-weight:400;}
 .btn-new{width:100%;background:transparent;border:2px solid #1B3A6B;color:#1B3A6B;border-radius:var(--r);padding:0.7rem;font-size:0.88rem;font-weight:600;text-transform:uppercase;cursor:pointer;margin-top:0.8rem;transition:all 0.2s;}
 .btn-new:hover{background:#f0f4f8;}
+/* DASHBOARD (Radheya only) */
+.btn-dashboard{width:100%;background:transparent;border:1.5px solid rgba(27,58,107,0.3);color:var(--muted);border-radius:var(--r);padding:0.65rem;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:0.5rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}
+.btn-dashboard:hover{border-color:#1B3A6B;color:#1B3A6B;background:#f0f4f8;}
+.dash-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.72);z-index:800;align-items:center;justify-content:center;padding:1rem;}
+.dash-overlay.open{display:flex;}
+.dash-modal{background:#fff;border-radius:var(--r);width:100%;max-width:420px;max-height:85vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.3);}
+.dash-modal-hdr{background:#1B3A6B;border-radius:var(--r) var(--r) 0 0;padding:1rem 1.1rem;display:flex;align-items:center;justify-content:space-between;}
+.dash-modal-title{color:#fff;font-size:0.95rem;font-weight:700;}
+.dash-modal-sub{color:rgba(255,255,255,0.55);font-size:0.7rem;margin-top:0.15rem;}
+.btn-dash-close{background:transparent;border:none;color:rgba(255,255,255,0.7);font-size:1.3rem;cursor:pointer;padding:0;line-height:1;}
+.btn-dash-close:hover{color:#fff;}
+.dash-body{padding:1rem;}
+.dash-stat-row{display:flex;gap:0.7rem;margin-bottom:0.9rem;}
+.dash-stat{flex:1;background:#f0f4f8;border-radius:8px;padding:0.8rem 0.7rem;text-align:center;}
+.dash-stat-num{font-size:1.8rem;font-weight:800;color:#1B3A6B;line-height:1;}
+.dash-stat-lbl{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-top:0.25rem;font-weight:600;}
+.dash-stat.orange .dash-stat-num{color:#F47920;}
+.dash-section-title{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:#F47920;font-weight:700;margin-bottom:0.5rem;margin-top:0.2rem;}
+.dash-proj-row{display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #e8f0fb;font-size:0.82rem;}
+.dash-proj-row:last-child{border-bottom:none;}
+.dash-proj-code{font-weight:700;color:#1B3A6B;}
+.dash-proj-count{background:#1B3A6B;color:#fff;border-radius:20px;padding:0.1rem 0.55rem;font-size:0.75rem;font-weight:700;}
+.dash-loading{text-align:center;padding:1.5rem;color:var(--muted);font-size:0.85rem;}
+.dash-refresh{width:100%;background:transparent;border:1.5px solid #d0dae8;color:var(--muted);border-radius:8px;padding:0.5rem;font-size:0.78rem;font-weight:600;cursor:pointer;margin-top:0.7rem;transition:all 0.2s;}
+.dash-refresh:hover{border-color:#1B3A6B;color:#1B3A6B;}
 /* TOAST */
 .toast{position:fixed;bottom:1.3rem;left:50%;transform:translateX(-50%) translateY(20px);background:#1B3A6B;border:2px solid #F47920;border-radius:8px;padding:0.65rem 1.1rem;font-size:0.82rem;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:300;opacity:0;transition:all 0.3s;pointer-events:none;max-width:300px;text-align:center;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -320,8 +345,27 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
     <button class="btn-home-drafts" id="btn-view-drafts">
       My Drafts &nbsp;<span class="draft-badge" id="draft-count">...</span>
     </button>
+    <div id="dashboard-btn-wrap" style="display:none;">
+      <button class="btn-dashboard" id="btn-dashboard">&#128202; Usage Dashboard</button>
+    </div>
   </div>
 </div>
+</div>
+
+<!-- DASHBOARD MODAL -->
+<div class="dash-overlay" id="dash-overlay">
+  <div class="dash-modal">
+    <div class="dash-modal-hdr">
+      <div>
+        <div class="dash-modal-title">&#128202; DWR Usage Dashboard</div>
+        <div class="dash-modal-sub">PDF Downloads &mdash; All Time</div>
+      </div>
+      <button class="btn-dash-close" id="btn-dash-close">&#10005;</button>
+    </div>
+    <div class="dash-body" id="dash-body">
+      <div class="dash-loading">Loading stats&hellip;</div>
+    </div>
+  </div>
 </div>
 
 <div id="screen-base-menu" style="display:none;">
@@ -672,6 +716,9 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('btn-convert').addEventListener('click',convertToDWR);
   document.getElementById('btn-pdf').addEventListener('click',downloadPDF);
   document.getElementById('btn-new-dwr').addEventListener('click',function(){showScreen('screen-home');loadDraftCount();});
+  document.getElementById('btn-dashboard').addEventListener('click',openDashboard);
+  document.getElementById('btn-dash-close').addEventListener('click',closeDashboard);
+  document.getElementById('dash-overlay').addEventListener('click',function(e){if(e.target===this)closeDashboard();});
   document.getElementById('tb-clock-done').addEventListener('click',function(){closeClock('tb');});
   document.getElementById('sm-clock-done').addEventListener('click',function(){closeClock('sm');});
   document.getElementById('tb-display').addEventListener('click',function(){toggleClock('tb');});
@@ -733,7 +780,14 @@ function proceedAfterVerify(){
   if(!opt||!opt.value||opt.value!==empNo){toast('Employee number does not match.','err');return;}
   verifiedUser={name:opt.textContent,email:opt.getAttribute('data-email'),empNo:empNo};
   if(verifyMode==='base'||verifyMode==='base-menu'){showScreen('screen-base-menu');}
-  else{document.getElementById('home-name').textContent=verifiedUser.name;loadDraftCount();showScreen('screen-home');}
+  else{
+    document.getElementById('home-name').textContent=verifiedUser.name;
+    loadDraftCount();
+    // Show dashboard button only for Radheya Supnekar (empNo 660)
+    var _dbw=document.getElementById('dashboard-btn-wrap');
+    if(_dbw)_dbw.style.display=(empNo==='660')?'block':'none';
+    showScreen('screen-home');
+  }
 }
 function loadDraftCount(){
   callWorker({action:'get_drafts',empNo:verifiedUser.empNo})
@@ -1606,10 +1660,49 @@ function downloadPDF(){
       a.click();
       setTimeout(function(){URL.revokeObjectURL(a.href);},10000);
       toast('PDF downloaded!','ok');
+      // Track this download (fire and forget)
+      var _pc=(document.getElementById('f-proj-code').value||'UNKNOWN').trim().toUpperCase();
+      callWorker({action:'track_download',projectCode:_pc,engineerName:verifiedUser?verifiedUser.name:'Unknown',engineerEmpNo:verifiedUser?verifiedUser.empNo:''}).catch(function(){});
     });
   },100);
 }
 
+function openDashboard(){
+  var overlay=document.getElementById('dash-overlay');
+  overlay.classList.add('open');
+  loadDashStats();
+}
+function closeDashboard(){
+  document.getElementById('dash-overlay').classList.remove('open');
+}
+function loadDashStats(){
+  var body=document.getElementById('dash-body');
+  body.innerHTML='<div class="dash-loading">Loading stats&hellip;</div>';
+  callWorker({action:'get_download_stats'}).then(function(r){
+    if(!r||r.error){body.innerHTML='<div class="dash-loading">Could not load stats.</div>';return;}
+    var total=r.total||0;
+    var last24=r.last24||0;
+    var byProject=r.byProject||[];
+    var html2='';
+    html2+='<div class="dash-stat-row">';
+    html2+='<div class="dash-stat"><div class="dash-stat-num">'+total+'</div><div class="dash-stat-lbl">Total PDFs Downloaded</div></div>';
+    html2+='<div class="dash-stat orange"><div class="dash-stat-num">'+last24+'</div><div class="dash-stat-lbl">Last 24 Hours</div></div>';
+    html2+='</div>';
+    html2+='<div class="dash-section-title">Breakdown by Project Code</div>';
+    if(byProject.length===0){
+      html2+='<div style="font-size:0.82rem;color:var(--muted);text-align:center;padding:0.8rem 0;">No downloads recorded yet.</div>';
+    } else {
+      byProject.forEach(function(p){
+        html2+='<div class="dash-proj-row"><span class="dash-proj-code">'+p.projectCode+'</span><span class="dash-proj-count">'+p.count+'</span></div>';
+      });
+    }
+    html2+='<button class="dash-refresh" id="btn-dash-refresh">&#8635; Refresh</button>';
+    body.innerHTML=html2;
+    document.getElementById('btn-dash-refresh').addEventListener('click',loadDashStats);
+  }).catch(function(){
+    body.innerHTML='<div class="dash-loading">Failed to load. Check connection.</div>';
+  });
+}
 function callWorker(data){return fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){if(!r.ok)throw new Error('Server error '+r.status);return r.json();});}
 function b64ToBlob(b64,mime){var bin=atob(b64);var bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return new Blob([bytes],{type:mime||'image/jpeg'});}
 function showLoader(msg){document.getElementById('loader-msg').textContent=msg||'Processing...';document.getElementById('loader').classList.add('on');}
