@@ -683,6 +683,9 @@ var saveTimer=null;           // debounce handle for light autosave
 var isSyncing=false;          // guard against overlapping saves
 var IDB=null;                 // IndexedDB handle for local (offline) recovery
 var LOCAL_KEY='npps_dwr_working'; // localStorage key for light working state
+var appendMode=false;         // true when reopened draft already has a report (append, don't replace)
+var priorAudios=[];           // audio already baked into the existing report (kept for re-download, NOT re-sent)
+var priorAudioFile=null;      // uploaded audio already baked in (kept for re-download)
 var recordings=[];
 var audioFileBase64=null,audioFileMime=null;
 var siteImages=[],generatedDWR=null,finaliseOk=false,cdInterval=null,outputStore={};
@@ -1130,6 +1133,7 @@ function initForm(){
   projectData=null;teamMembers=[];siteImages=[];generatedDWR=null;finaliseOk=false;
   recordings=[];audioFileBase64=null;audioFileMime=null;outputStore={};
   currentDraftId=null;currentDraftType=null;loadedHasContent=false;setSavePill('saved');
+  appendMode=false;priorAudios=[];priorAudioFile=null;
   document.getElementById('form-body').classList.remove('locked');
   document.getElementById('identity-display').textContent=verifiedUser.name+' | '+verifiedUser.email;
   document.getElementById('f-start-date').value=new Date().toISOString().split('T')[0];
@@ -1511,19 +1515,63 @@ function startCd(sec){
   },1000);
 }
 function stopCd(){clearInterval(cdInterval);document.getElementById('cd-wrap').classList.remove('show');}
+function mergeAdditions(additions){
+  // Append new bullets per section into the existing report (never replace).
+  if(!additions)return;
+  if(!generatedDWR)generatedDWR={sections:{}};
+  if(!generatedDWR.sections)generatedDWR.sections={};
+  SEC_ORDER.forEach(function(key){
+    var add=(additions[key]||'').trim();
+    if(!add)return; // nothing new for this section
+    // Current text: prefer the live edited store, else the generated section
+    var curr=(outputStore[key]!==undefined?outputStore[key]:((generatedDWR.sections[key]&&generatedDWR.sections[key].polished_text)||'')).trim();
+    var isEmpty=(!curr)||curr.indexOf('Nothing reported')!==-1||curr==='- Nothing reported for this section.';
+    var merged=isEmpty?add:(curr+'\n'+add);
+    outputStore[key]=merged;
+    generatedDWR.sections[key]={polished_text:merged};
+  });
+}
 function convertToDWR(){
   if(!finaliseOk){toast('Please finalise the draft first.','err');return;}
   var audios=recordings.filter(function(r){return!!r.base64;}).map(function(r){return{data:r.base64,mimeType:r.mime};});
-  // If there's no new audio but we already have generated sections (reopened
-  // draft/download), skip re-processing and just re-render the existing report.
-  if(audios.length===0&&!audioFileBase64&&generatedDWR&&generatedDWR.sections&&Object.keys(generatedDWR.sections).length>0){
+  var hasNewAudio=audios.length>0||!!audioFileBase64;
+  var hasExisting=appendMode&&generatedDWR&&generatedDWR.sections&&Object.keys(generatedDWR.sections).length>0;
+
+  // CASE 1 — reopened report, NO new audio: just re-render (inline edits already captured).
+  if(!hasNewAudio&&generatedDWR&&generatedDWR.sections&&Object.keys(generatedDWR.sections).length>0){
     renderOutput(generatedDWR);
     autoSaveDraft(generatedDWR);
     document.getElementById('report-ready').classList.add('show');
-    document.getElementById('report-ready').scrollIntoView({behavior:'smooth',block:'center'});
+    scrollToPreview();
     toast('Report ready! Review below then download PDF.','ok');
     return;
   }
+
+  // CASE 2 — reopened report WITH new audio: APPEND new points into existing sections.
+  if(hasNewAudio&&hasExisting){
+    startCd(55);document.getElementById('btn-convert').disabled=true;
+    var apayload={action:'append_dwr',audios:audios,existingSections:generatedDWR.sections};
+    if(audioFileBase64){apayload.audioFile=audioFileBase64;apayload.audioFileMime=audioFileMime;}
+    callWorker(apayload).then(function(result){
+      stopCd();document.getElementById('btn-convert').disabled=false;
+      mergeAdditions(result.additions||{});
+      // The just-processed new audio is now baked in -> move it to prior, clear active blocks
+      audios.forEach(function(a){priorAudios.push({data:a.data,mime:a.mimeType||a.mime});});
+      if(audioFileBase64){priorAudioFile={data:audioFileBase64,mime:audioFileMime||'audio/mpeg'};audioFileBase64=null;audioFileMime=null;clearAudioFileUI();}
+      recordings=[];document.getElementById('recordings-list').innerHTML='';addRecBlock();
+      renderOutput(generatedDWR);autoSaveDraft(generatedDWR);
+      document.getElementById('report-ready').classList.add('show');
+      scrollToPreview();
+      toast('New points added to your report. Review below.','ok');
+    }).catch(function(err){
+      stopCd();document.getElementById('btn-convert').disabled=false;
+      document.getElementById('btn-convert').classList.add('active');
+      toast('Error: '+(err.message||'Please try again.'),'err');
+    });
+    return;
+  }
+
+  // CASE 3 — brand-new DWR: generate from scratch (original behaviour).
   startCd(55);document.getElementById('btn-convert').disabled=true;
   var payload={action:'process_dwr',audios:audios};
   if(audioFileBase64){payload.audioFile=audioFileBase64;payload.audioFileMime=audioFileMime;}
@@ -1538,6 +1586,16 @@ function convertToDWR(){
     toast('Error: '+(err.message||'Please try again.'),'err');
   });
 }
+function scrollToPreview(){
+  var rr=document.getElementById('report-ready');
+  var out=document.getElementById('output-section');
+  var target=out&&out.style.display!=='none'?out:rr;
+  if(target)setTimeout(function(){target.scrollIntoView({behavior:'smooth',block:'start'});},250);
+}
+function clearAudioFileUI(){
+  var inp=document.getElementById('inp-audio-file');if(inp)inp.value='';
+  var pv=document.getElementById('audio-file-preview');if(pv)pv.style.display='none';
+}
 function autoSaveDraft(result){
   if(!verifiedUser)return;
   var fd={projectCode:document.getElementById('f-proj-code').value,customer:document.getElementById('f-customer').value,vessel:document.getElementById('f-vessel').value,projectDetails:document.getElementById('f-proj-details').value,offering:document.getElementById('f-offering').value,location:document.getElementById('f-location').value,startDate:document.getElementById('f-start-date').value,endDate:document.getElementById('f-end-date').value,teamMembers:teamMembers.slice(),tbTime:getMeetingTime('tb'),tbAtt:getAttText('tb'),smTime:getMeetingTime('sm'),smAtt:getAttText('sm')};
@@ -1547,9 +1605,18 @@ function autoSaveDraft(result){
   callWorker({action:'save_draft',empNo:verifiedUser.empNo,engineerName:verifiedUser.name,
     draftId:currentDraftId||undefined,type:currentDraftType||'in_progress',
     formData:fd,sections:result.sections||{},siteImages:imgs,
-    audios:collectAudios(),audioFile:collectAudioFile(),meta:meta})
+    audios:allSavedAudios(),audioFile:savedAudioFile(),meta:meta})
     .then(function(r){ if(r&&r.draftId){currentDraftId=r.draftId;if(r.type)currentDraftType=r.type;} setSavePill('saved'); localSaveFull(); })
     .catch(function(){ setSavePill('local'); });
+}
+// Combine already-baked-in audio with any current finished recordings
+function allSavedAudios(){
+  var out=priorAudios.slice();
+  collectAudios().forEach(function(a){out.push({data:a.data,mime:a.mime});});
+  return out;
+}
+function savedAudioFile(){
+  return collectAudioFile()||priorAudioFile||null;
 }
 function fmtDate(val){return val?new Date(val+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):'--';}
 function fmtDateShort(val){return val?new Date(val+'T00:00:00').toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'}):'--';}
@@ -1661,9 +1728,11 @@ function openDraft(draftId){
   showLoader('Loading draft...');
   callWorker({action:'get_draft',draftId:draftId}).then(function(r){
     hideLoader();if(!r.found){toast('Draft not found.','err');return;}
-    var d=r.draft;generatedDWR={sections:d.sections};initForm();
+    var d=r.draft;initForm();
     currentDraftId=d.id;currentDraftType=d.type||(d.downloadedAt?'downloaded':'in_progress');
-    loadedHasContent=!!(d.sections&&Object.keys(d.sections).length);
+    var hasContent=!!(d.sections&&Object.keys(d.sections).length);
+    loadedHasContent=hasContent;
+    generatedDWR={sections:d.sections||{}};
     var fd=d.formData||{};
     if(fd.projectCode){document.getElementById('f-proj-code').value=fd.projectCode;projectData={projectCode:fd.projectCode};}
     if(fd.customer)document.getElementById('f-customer').value=fd.customer;
@@ -1675,17 +1744,8 @@ function openDraft(draftId){
     if(fd.endDate)document.getElementById('f-end-date').value=fd.endDate;
     if(fd.teamMembers&&fd.teamMembers.length){teamMembers=fd.teamMembers.slice();renderTeamList();refreshAttendance();}
     // Restore meeting clock state
-    if(d.meta){ ['tb','sm'].forEach(function(p){ if(d.meta[p]){clockSt[p].h=d.meta[p].h;clockSt[p].m=d.meta[p].m;clockSt[p].ap=d.meta[p].ap; if(d.meta[p].h!==null)updateTimeDisplay(p); var amE=document.getElementById(p+'-'+(d.meta[p].ap||'AM'));} }); }
-    // Restore finished recordings
-    if(d.audios&&d.audios.length){
-      recordings=[];document.getElementById('recordings-list').innerHTML='';
-      d.audios.forEach(function(a){ addRestoredRecording(a.data,a.mime); });
-    }
-    // Restore uploaded audio file
-    if(d.audioFile&&d.audioFile.data){
-      audioFileBase64=d.audioFile.data;audioFileMime=d.audioFile.mime||'audio/mpeg';
-      var pl=document.getElementById('audio-file-player');if(pl){pl.src='data:'+audioFileMime+';base64,'+audioFileBase64;document.getElementById('audio-file-preview').style.display='block';}
-    }
+    if(d.meta){ ['tb','sm'].forEach(function(p){ if(d.meta[p]){clockSt[p].h=d.meta[p].h;clockSt[p].m=d.meta[p].m;clockSt[p].ap=d.meta[p].ap; if(d.meta[p].h!==null)updateTimeDisplay(p);} }); }
+    // Restore images (always — they're part of the report)
     if(d.siteImages&&d.siteImages.length){
       d.siteImages.forEach(function(img){
         if(!img.base64)return;
@@ -1694,9 +1754,39 @@ function openDraft(draftId){
         siteImages.push({file:new File([blob],'photo.jpg',{type:img.mime||'image/jpeg'}),objectUrl:url,base64:img.base64,title:img.title||'',desc:img.desc||''});
       });renderSiteImgs();
     }
-    showScreen('screen-form');
-    if(generatedDWR&&generatedDWR.sections&&Object.keys(generatedDWR.sections).length){renderOutput(generatedDWR);finaliseOk=true;document.getElementById('report-ready').classList.add('show');}
-    updateChecklist();setSavePill('saved');toast('Draft loaded!','ok');
+
+    if(hasContent){
+      // ── APPEND MODE: the report already exists ──
+      // Old audio is ALREADY baked into the sections. Keep it for re-download,
+      // but do NOT load it as active blocks (so it is never reprocessed).
+      appendMode=true;
+      priorAudios=(d.audios||[]).map(function(a){return{data:a.data,mime:a.mime};});
+      priorAudioFile=(d.audioFile&&d.audioFile.data)?{data:d.audioFile.data,mime:d.audioFile.mime||'audio/mpeg'}:null;
+      // Fresh empty recording block ready for NEW points to append
+      recordings=[];document.getElementById('recordings-list').innerHTML='';addRecBlock();
+      finaliseOk=true;
+      showScreen('screen-form');
+      renderOutput(generatedDWR);
+      document.getElementById('report-ready').classList.add('show');
+      document.getElementById('btn-convert').classList.add('show','active');
+      // Land straight on the editable Preview (not the pre-DWR steps)
+      scrollToPreview();
+      updateChecklist();setSavePill('saved');
+      toast('Opened your report. Edit below, or append a recording/photo, then re-download.','ok');
+    }else{
+      // ── CONTINUE MODE: an early in-progress draft with no report yet ──
+      appendMode=false;priorAudios=[];priorAudioFile=null;
+      if(d.audios&&d.audios.length){
+        recordings=[];document.getElementById('recordings-list').innerHTML='';
+        d.audios.forEach(function(a){ addRestoredRecording(a.data,a.mime); });
+      }
+      if(d.audioFile&&d.audioFile.data){
+        audioFileBase64=d.audioFile.data;audioFileMime=d.audioFile.mime||'audio/mpeg';
+        var pl=document.getElementById('audio-file-player');if(pl){pl.src='data:'+audioFileMime+';base64,'+audioFileBase64;document.getElementById('audio-file-preview').style.display='block';}
+      }
+      showScreen('screen-form');
+      updateChecklist();setSavePill('saved');toast('Draft loaded!','ok');
+    }
   }).catch(function(e){hideLoader();toast('Failed to load draft: '+e.message,'err');});
 }
 function generatePDFBlob(engineerNameOverride,callback){
