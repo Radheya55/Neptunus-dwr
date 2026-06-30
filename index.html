@@ -252,6 +252,24 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 /* DASHBOARD (Radheya only) */
 .btn-dashboard{width:100%;background:transparent;border:1.5px solid rgba(27,58,107,0.3);color:var(--muted);border-radius:var(--r);padding:0.65rem;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:0.5rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}
 .btn-dashboard:hover{border-color:#1B3A6B;color:#1B3A6B;background:#f0f4f8;}
+/* ── HOD VIEW ── */
+.btn-hod{width:100%;background:#1B3A6B;color:#fff;border:none;border-radius:var(--r);padding:0.9rem;font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:0.7rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.btn-hod:hover{background:#243f6e;}
+.hod-proj-card{background:#fff;border:1.5px solid #d0dae8;border-radius:var(--r);padding:1rem 1.1rem;margin-bottom:0.7rem;border-left:5px solid #F47920;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 2px 6px rgba(27,58,107,0.06);transition:all 0.2s;}
+.hod-proj-card:hover{border-color:#F47920;box-shadow:0 4px 12px rgba(244,121,32,0.15);}
+.hod-proj-left{display:flex;flex-direction:column;gap:0.15rem;}
+.hod-proj-code{font-size:1.05rem;font-weight:800;color:#1B3A6B;}
+.hod-proj-cust{font-size:0.78rem;color:var(--muted);}
+.hod-proj-count{background:#1B3A6B;color:#fff;border-radius:20px;padding:0.3rem 0.8rem;font-size:0.85rem;font-weight:700;white-space:nowrap;}
+.hod-dwr-item{background:#fff;border:1.5px solid #d0dae8;border-radius:var(--r);padding:0.8rem 1rem;margin-bottom:0.6rem;border-left:4px solid var(--teal);display:flex;align-items:center;justify-content:space-between;gap:0.6rem;}
+.hod-dwr-day{background:#F47920;color:#fff;border-radius:6px;padding:0.2rem 0.5rem;font-size:0.7rem;font-weight:800;white-space:nowrap;}
+.hod-dwr-info{flex:1;}
+.hod-dwr-date{font-size:0.86rem;font-weight:700;color:#1B3A6B;}
+.hod-dwr-eng{font-size:0.74rem;color:var(--muted);}
+.btn-hod-summary{width:100%;background:linear-gradient(135deg,#F47920,#d96a10);color:#fff;border:none;border-radius:var(--r);padding:0.9rem;font-size:0.95rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.btn-hod-summary:hover{filter:brightness(1.07);}
+.btn-hod-summary:disabled{opacity:0.55;cursor:not-allowed;}
+.hod-empty{text-align:center;color:var(--muted);font-size:0.85rem;padding:2rem 1rem;}
 .dash-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.72);z-index:800;align-items:center;justify-content:center;padding:1rem;}
 .dash-overlay.open{display:flex;}
 .dash-modal{background:#fff;border-radius:var(--r);width:100%;max-width:420px;max-height:85vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.3);}
@@ -362,6 +380,7 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
     <div id="dashboard-btn-wrap" style="display:none;">
       <button class="btn-dashboard" id="btn-dashboard">&#128202; Usage Dashboard</button>
     </div>
+    <button class="btn-hod" id="btn-hod">&#128193; HOD View</button>
   </div>
 </div>
 </div>
@@ -454,6 +473,28 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
     <h2 style="color:#1B3A6B;font-size:1.05rem;">My Drafts</h2>
   </div>
   <div id="drafts-list"></div>
+</div>
+</div>
+
+<div id="screen-hod-projects" style="display:none;">
+<div class="wrap">
+  <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;">
+    <button class="btn-secondary" id="btn-hod-proj-back" style="width:auto;padding:0.45rem 0.9rem;margin-top:0;">Back</button>
+    <h2 style="color:#1B3A6B;font-size:1.05rem;">HOD View &mdash; Projects</h2>
+  </div>
+  <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.9rem;">All projects with submitted (downloaded) DWRs. Latest activity on top. Tap a project to view its reports.</p>
+  <div id="hod-projects-list"></div>
+</div>
+</div>
+
+<div id="screen-hod-dwrs" style="display:none;">
+<div class="wrap">
+  <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;">
+    <button class="btn-secondary" id="btn-hod-dwrs-back" style="width:auto;padding:0.45rem 0.9rem;margin-top:0;">Back</button>
+    <h2 style="color:#1B3A6B;font-size:1.05rem;" id="hod-dwrs-title">Project</h2>
+  </div>
+  <button class="btn-hod-summary" id="btn-hod-summary">&#128196; Download Day-wise Summary PDF</button>
+  <div id="hod-dwrs-list"></div>
 </div>
 </div>
 
@@ -710,7 +751,7 @@ var SEC_LABELS={
 
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
 function showScreen(id){
-  ['screen-land','screen-verify','screen-home','screen-base-menu','screen-base','screen-base-history','screen-drafts','screen-form'].forEach(function(s){
+  ['screen-land','screen-verify','screen-home','screen-base-menu','screen-base','screen-base-history','screen-drafts','screen-hod-projects','screen-hod-dwrs','screen-form'].forEach(function(s){
     var e=document.getElementById(s);if(e)e.style.display='none';
   });
   var t=document.getElementById(id);
@@ -747,6 +788,10 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('btn-pdf').addEventListener('click',downloadPDF);
   document.getElementById('btn-new-dwr').addEventListener('click',function(){showScreen('screen-home');loadDraftCount();});
   document.getElementById('btn-dashboard').addEventListener('click',openDashboard);
+  document.getElementById('btn-hod').addEventListener('click',openHODView);
+  document.getElementById('btn-hod-proj-back').addEventListener('click',function(){showScreen('screen-home');});
+  document.getElementById('btn-hod-dwrs-back').addEventListener('click',function(){showScreen('screen-hod-projects');});
+  document.getElementById('btn-hod-summary').addEventListener('click',function(){downloadHODSummary();});
   document.getElementById('btn-dash-close').addEventListener('click',closeDashboard);
   document.getElementById('btn-dash-detailed').addEventListener('click',downloadDetailedReport);
   document.getElementById('dash-overlay').addEventListener('click',function(e){if(e.target===this)closeDashboard();});
@@ -2029,6 +2074,9 @@ function downloadPDF(){
         customerName:(document.getElementById('f-customer')?document.getElementById('f-customer').value.trim():'') || (document.getElementById('so-cust-name-input')?document.getElementById('so-cust-name-input').value.trim():''),
         startDate:document.getElementById('f-start-date')?document.getElementById('f-start-date').value:''
       }).catch(function(){});
+      // File a permanent, project-grouped copy for the HOD view (fire-and-forget;
+      // wrapped so it can NEVER affect the download or any existing behaviour).
+      try{ hodFileProjectCopy(_pc); }catch(_hodErr){}
     });
   },100);
 }
@@ -2166,6 +2214,253 @@ function generateDetailedPDF(data){
   }catch(e){toast('PDF generation error: '+e.message,'err');console.error(e);}
 }
 
+// ══════════════════════════════════════════════════════════════
+// HOD VIEW (additive). Visible to all; only employee number 666 passes.
+// Read-only consolidated project view + day-wise summary PDF.
+// ══════════════════════════════════════════════════════════════
+function openHODView(){
+  // Gate: only the person whose verified employee number is 666 (Ashish Sharma).
+  if(!verifiedUser||verifiedUser.empNo!=='666'){
+    toast('This section is restricted.','err');
+    return;
+  }
+  loadHODProjects();
+  showScreen('screen-hod-projects');
+}
+function loadHODProjects(){
+  var list=document.getElementById('hod-projects-list');
+  list.innerHTML='';
+  var lp=el('p','hod-empty','Loading projects…');list.appendChild(lp);
+  callWorker({action:'hod_projects'}).then(function(r){
+    list.innerHTML='';
+    if(!r.projects||r.projects.length===0){
+      list.appendChild(el('p','hod-empty','No submitted DWRs yet. Once a DWR PDF is downloaded, its project will appear here.'));
+      return;
+    }
+    r.projects.forEach(function(p){
+      var card=el('div','hod-proj-card');
+      var left=el('div','hod-proj-left');
+      left.appendChild(el('div','hod-proj-code',p.projectCode));
+      var sub=p.customerName||p.vessel||'';
+      if(sub)left.appendChild(el('div','hod-proj-cust',sub));
+      var count=el('div','hod-proj-count',p.count+' DWR'+(p.count===1?'':'s'));
+      card.appendChild(left);card.appendChild(count);
+      card.addEventListener('click',(function(pc){return function(){openHODProject(pc);};})(p.projectCode));
+      list.appendChild(card);
+    });
+  }).catch(function(){
+    list.innerHTML='';list.appendChild(el('p','hod-empty','Could not load projects. Check connection and try again.'));
+  });
+}
+var hodCurrentProject=null;
+function openHODProject(pc){
+  hodCurrentProject=pc;
+  document.getElementById('hod-dwrs-title').textContent=pc;
+  var list=document.getElementById('hod-dwrs-list');
+  list.innerHTML='';
+  list.appendChild(el('p','hod-empty','Loading reports…'));
+  showScreen('screen-hod-dwrs');
+  callWorker({action:'hod_project_dwrs',projectCode:pc}).then(function(r){
+    list.innerHTML='';
+    if(!r.dwrs||r.dwrs.length===0){
+      list.appendChild(el('p','hod-empty','No reports found for this project.'));
+      return;
+    }
+    r.dwrs.forEach(function(d,idx){
+      var item=el('div','hod-dwr-item');
+      item.appendChild(el('div','hod-dwr-day','Day '+(idx+1)));
+      var info=el('div','hod-dwr-info');
+      var dateStr=hodFmtDate(d.startDate||d.downloadedAt);
+      info.appendChild(el('div','hod-dwr-date',dateStr));
+      var eng=d.engineerName?('By '+d.engineerName):'';
+      var imgs=d.imageCount?(' · '+d.imageCount+' photo'+(d.imageCount===1?'':'s')):'';
+      info.appendChild(el('div','hod-dwr-eng',eng+imgs));
+      item.appendChild(info);
+      list.appendChild(item);
+    });
+  }).catch(function(){
+    list.innerHTML='';list.appendChild(el('p','hod-empty','Could not load reports.'));
+  });
+}
+function hodFmtDate(val){
+  if(!val)return '--';
+  var d;
+  // startDate is YYYY-MM-DD; downloadedAt is ISO
+  if(/^\d{4}-\d{2}-\d{2}$/.test(val))d=new Date(val+'T00:00:00');
+  else d=new Date(val);
+  if(isNaN(d.getTime()))return val;
+  return d.toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+}
+function downloadHODSummary(){
+  if(!hodCurrentProject){toast('No project selected.','err');return;}
+  var btn=document.getElementById('btn-hod-summary');
+  btn.disabled=true;btn.textContent='Preparing summary…';
+  callWorker({action:'hod_project_summary',projectCode:hodCurrentProject,withImages:true}).then(function(r){
+    btn.disabled=false;btn.innerHTML='&#128196; Download Day-wise Summary PDF';
+    if(!r||r.error){toast('Could not fetch summary data.','err');return;}
+    if(!r.days||r.days.length===0){toast('No reports to summarise.','err');return;}
+    generateHODSummaryPDF(r);
+  }).catch(function(){
+    btn.disabled=false;btn.innerHTML='&#128196; Download Day-wise Summary PDF';
+    toast('Failed to fetch summary.','err');
+  });
+}
+function generateHODSummaryPDF(data){
+  try{
+    var doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    var pW=doc.internal.pageSize.getWidth(),pH=doc.internal.pageSize.getHeight(),m=12,cW=pW-m*2,y=m;
+    var now=new Date();
+    var timestamp=now.toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'})+' at '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    var pc=data.projectCode||'--';
+    var base=data.baseData||{};
+    var days=data.days||[];
+
+    // Header bar
+    doc.setFillColor(27,58,107);doc.rect(0,0,pW,26,'F');
+    doc.setFillColor(244,121,32);doc.rect(0,26,pW,1.5,'F');
+    try{var logoEl=document.getElementById('hdr-logo-img');if(logoEl){var tc=document.createElement('canvas');tc.width=200;tc.height=80;var tc2=tc.getContext('2d');tc2.drawImage(logoEl,0,0,200,80);doc.addImage(tc.toDataURL('image/png'),'PNG',pW-52,3,46,19);}}catch(le){}
+    doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');
+    doc.text('Project DWR Summary',m,12);
+    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(190,205,225);
+    doc.text('Neptunus Power Plant Services Pvt. Ltd. | The Machine Reliability Expert',m,18);
+    doc.text('Generated: '+timestamp,m,23);
+    y=33;
+
+    // Base data block (once)
+    doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
+    doc.text('Project: '+pc,m+3,y+5);y+=10;
+    var baseRows=[];
+    function addBase(label,val){ if(val&&String(val).trim())baseRows.push([label,String(val)]); }
+    addBase('Customer',base.customer);
+    addBase('Vessel / Rig',base.vessel);
+    addBase('Project Details',base.projectDetails);
+    addBase('Offering',base.offering);
+    addBase('Location',base.location);
+    if(base.teamMembers&&base.teamMembers.length)addBase('Team Members',base.teamMembers.join(', '));
+    addBase('Total DWRs',String(days.length));
+    if(baseRows.length){
+      doc.autoTable({startY:y,head:[],body:baseRows,columnStyles:{0:{fontStyle:'bold',cellWidth:42,fillColor:[232,236,245]},1:{cellWidth:cW-42}},margin:{left:m,right:m},styles:{fontSize:8,cellPadding:2.5},theme:'grid'});
+      y=doc.lastAutoTable.finalY+6;
+    }
+
+    // Day-wise table: rows = days, columns = Day/Date + 12 buckets (short headers)
+    var shortHdr={scope_done:'Scope Done',scope_not_done:'Scope Not Done',additional_tasks:'Addl Tasks',critical_issues:'Critical Issues',lost_time:'Lost Time',spares_consumables:'Spares',customer_manpower:'Cust Manpower',accidents_safety:'Safety',tools_issues:'Tool Issues',customer_property:'Cust Property',plan_tomorrow:'Plan Next',additional_notes:'Notes/HSE'};
+    var head=[['Day / Date'].concat(SEC_ORDER.map(function(k){return shortHdr[k];}))];
+    function cleanCell(txt){
+      if(!txt)return '';
+      var t=String(txt).trim();
+      if(t.indexOf('Nothing reported')!==-1)return '';
+      return t;
+    }
+    var bodyRows=days.map(function(d,idx){
+      var dateStr='Day '+(idx+1)+'\n'+hodShortDate(d.startDate||d.downloadedAt);
+      var row=[dateStr];
+      SEC_ORDER.forEach(function(k){
+        var sec=d.sections&&d.sections[k];
+        row.push(cleanCell(sec&&sec.polished_text));
+      });
+      return row;
+    });
+    // Column widths: first column fixed, rest share remaining space
+    var firstW=22;var restW=(cW-firstW)/SEC_ORDER.length;
+    var colStyles={0:{cellWidth:firstW,fontStyle:'bold',fillColor:[232,236,245],valign:'top'}};
+    for(var ci=1;ci<=SEC_ORDER.length;ci++)colStyles[ci]={cellWidth:restW,valign:'top'};
+    doc.autoTable({
+      startY:y,
+      head:head,
+      body:bodyRows,
+      margin:{left:m,right:m},
+      styles:{fontSize:5.5,cellPadding:1.5,overflow:'linebreak',lineWidth:0.1,lineColor:[200,210,225]},
+      headStyles:{fillColor:[27,58,107],textColor:[244,121,32],fontStyle:'bold',fontSize:5.5,halign:'center'},
+      columnStyles:colStyles,
+      theme:'grid',
+      didDrawPage:function(){ /* header repeats automatically */ }
+    });
+    y=doc.lastAutoTable.finalY+8;
+
+    // Images grouped by Day-Date (best effort; below the table)
+    var anyImages=days.some(function(d){return d.images&&d.images.length;});
+    if(anyImages){
+      if(y>pH-40){doc.addPage();y=m;}
+      doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
+      doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text('Site Photos by Day',m+3,y+5);y+=11;
+      days.forEach(function(d,idx){
+        if(!d.images||!d.images.length)return;
+        if(y>pH-15){doc.addPage();y=m;}
+        doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+        doc.text('Day '+(idx+1)+' — '+hodShortDate(d.startDate||d.downloadedAt),m,y);y+=5;
+        var iW=55,iH=42,gap=5,x=m;
+        d.images.forEach(function(img){
+          if(!img.base64)return;
+          if(x+iW>pW-m){x=m;y+=iH+11;}
+          if(y+iH>pH-12){doc.addPage();y=m;x=m;}
+          try{
+            var fmt=(img.mime&&img.mime.indexOf('png')!==-1)?'PNG':'JPEG';
+            doc.setDrawColor(180,190,210);doc.rect(x,y,iW,iH);
+            doc.addImage('data:'+(img.mime||'image/jpeg')+';base64,'+img.base64,fmt,x+1,y+1,iW-2,iH-9,undefined,'FAST');
+            doc.setFontSize(6);doc.setTextColor(60,60,60);doc.setFont('helvetica','normal');
+            doc.text(doc.splitTextToSize(img.title||'',iW-2)[0]||'',x+1,y+iH-3);
+          }catch(ie){}
+          x+=iW+gap;
+        });
+        y+=iH+11;x=m;
+      });
+    }
+
+    // Footer on all pages
+    var tp=doc.internal.getNumberOfPages();
+    for(var fp=1;fp<=tp;fp++){
+      doc.setPage(fp);doc.setFontSize(6.5);doc.setTextColor(150,150,150);doc.setFont('helvetica','normal');
+      doc.line(m,pH-9,pW-m,pH-9);
+      doc.text('NPPS Project Summary  |  '+pc+'  |  Generated: '+timestamp,m,pH-5);
+      doc.text('Page '+fp+' of '+tp,pW-m,pH-5,{align:'right'});
+    }
+
+    var fname='NPPS_Project_Summary_'+pc.replace(/[^a-zA-Z0-9]/g,'_')+'_'+now.toISOString().split('T')[0]+'.pdf';
+    var blob=doc.output('blob');
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},10000);
+    toast('Summary PDF downloaded!','ok');
+  }catch(e){toast('PDF generation error: '+e.message,'err');console.error(e);}
+}
+function hodShortDate(val){
+  if(!val)return '--';
+  var d;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(val))d=new Date(val+'T00:00:00');
+  else d=new Date(val);
+  if(isNaN(d.getTime()))return String(val);
+  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+// Collect the just-downloaded report and file it under its project (fire-and-forget).
+function hodFileProjectCopy(pc){
+  if(!pc)pc='UNKNOWN';
+  function v(id){var e=document.getElementById(id);return e?e.value.trim():'';}
+  // Build sections from the current edited outputStore (falls back to generatedDWR)
+  var sections={};
+  SEC_ORDER.forEach(function(k){
+    var txt=(outputStore[k]!==undefined?outputStore[k]:((generatedDWR&&generatedDWR.sections&&generatedDWR.sections[k]&&generatedDWR.sections[k].polished_text)||''));
+    sections[k]={polished_text:txt};
+  });
+  var images=siteImages.map(function(img){return{base64:img.base64,mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};});
+  var baseData={
+    customer:v('f-customer'),vessel:v('f-vessel'),projectDetails:v('f-proj-details'),
+    offering:v('f-offering'),location:v('f-location'),teamMembers:teamMembers.slice(),
+    tbTime:getMeetingTime('tb'),tbAtt:getAttText('tb'),smTime:getMeetingTime('sm'),smAtt:getAttText('sm')
+  };
+  callWorker({
+    action:'file_project_dwr',
+    projectCode:pc,
+    draftId:currentDraftId||('dl_'+(verifiedUser?verifiedUser.empNo:'x')+'_'+Date.now()),
+    engineerName:verifiedUser?verifiedUser.name:'',
+    empNo:verifiedUser?verifiedUser.empNo:'',
+    startDate:v('f-start-date'),
+    baseData:baseData,
+    sections:sections,
+    images:images
+  }).catch(function(){});
+}
 function callWorker(data){return fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){if(!r.ok)throw new Error('Server error '+r.status);return r.json();});}
 function b64ToBlob(b64,mime){var bin=atob(b64);var bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return new Blob([bytes],{type:mime||'image/jpeg'});}
 function showLoader(msg){document.getElementById('loader-msg').textContent=msg||'Processing...';document.getElementById('loader').classList.add('on');}
