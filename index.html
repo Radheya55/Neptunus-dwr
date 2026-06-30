@@ -2270,7 +2270,7 @@ function openHODProject(pc){
       var item=el('div','hod-dwr-item');
       item.appendChild(el('div','hod-dwr-day','Day '+(idx+1)));
       var info=el('div','hod-dwr-info');
-      var dateStr=hodFmtDate(d.startDate||d.downloadedAt);
+      var dateStr=hodFmtDate(d.reportDate||d.startDate||d.downloadedAt);
       info.appendChild(el('div','hod-dwr-date',dateStr));
       var eng=d.engineerName?('By '+d.engineerName):'';
       var imgs=d.imageCount?(' · '+d.imageCount+' photo'+(d.imageCount===1?'':'s')):'';
@@ -2354,7 +2354,7 @@ function generateHODSummaryPDF(data){
       return t;
     }
     var bodyRows=days.map(function(d,idx){
-      var dateStr='Day '+(idx+1)+'\n'+hodShortDate(d.startDate||d.downloadedAt);
+      var dateStr='Day '+(idx+1)+'\n'+hodShortDate(d.reportDate||d.startDate||d.downloadedAt);
       var row=[dateStr];
       SEC_ORDER.forEach(function(k){
         var sec=d.sections&&d.sections[k];
@@ -2390,7 +2390,7 @@ function generateHODSummaryPDF(data){
         if(!d.images||!d.images.length)return;
         if(y>pH-15){doc.addPage();y=m;}
         doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
-        doc.text('Day '+(idx+1)+' — '+hodShortDate(d.startDate||d.downloadedAt),m,y);y+=5;
+        doc.text('Day '+(idx+1)+' — '+hodShortDate(d.reportDate||d.startDate||d.downloadedAt),m,y);y+=5;
         var iW=55,iH=42,gap=5,x=m;
         d.images.forEach(function(img){
           if(!img.base64)return;
@@ -2444,6 +2444,10 @@ function hodFileProjectCopy(pc){
     sections[k]={polished_text:txt};
   });
   var images=siteImages.map(function(img){return{base64:img.base64,mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};});
+  // Date of Report = Neptunus sign-off date; fall back to customer sign-off date, then start date.
+  var _nepD=document.getElementById('so-nep-date-input');
+  var _cstD=document.getElementById('so-cust-date-input');
+  var reportDate=(_nepD&&_nepD.value)?_nepD.value:((_cstD&&_cstD.value)?_cstD.value:v('f-start-date'));
   var baseData={
     customer:v('f-customer'),vessel:v('f-vessel'),projectDetails:v('f-proj-details'),
     offering:v('f-offering'),location:v('f-location'),teamMembers:teamMembers.slice(),
@@ -2456,6 +2460,7 @@ function hodFileProjectCopy(pc){
     engineerName:verifiedUser?verifiedUser.name:'',
     empNo:verifiedUser?verifiedUser.empNo:'',
     startDate:v('f-start-date'),
+    reportDate:reportDate,
     baseData:baseData,
     sections:sections,
     images:images
