@@ -2126,21 +2126,45 @@ function buildPDFDoc(engineerNameOverride,callback){
         for(var wi=1;wi<wr.length;wi++){doc.text(wr[wi],m+7,y);y+=5;}y+=1;
       });y+=3;
       if(key==='scope_done'&&siteImages.length>0){
-        var bW=(cW-4)/2,bPad=3,tH=7,dH=6,iH=55,bH=tH+iH+dH+bPad*2;
+        // Two-up photo grid. Caption height now grows to fit the full description
+        // instead of clipping to one line. Both photos in a row share the taller
+        // caption area so they stay aligned; the row's real height is measured
+        // before drawing so a long caption pushes the whole box to the next page
+        // rather than being sliced by the page edge. Short captions are unchanged.
+        var bW=(cW-4)/2,bPad=3,tH=7,iH=55;
+        var dH1=6;                   // original single-line strip height (unchanged look)
+        var descLH=3.2;              // mm per extra wrapped line at 6.5pt
         for(var pi=0;pi<siteImages.length;pi+=2){
+          var pair=[siteImages[pi],siteImages[pi+1]];
+          // 1) Wrap each caption to the box width and find the tallest of the pair.
+          var wraps=pair.map(function(sI){
+            if(!sI)return [];
+            doc.setFont('helvetica','italic');doc.setFontSize(6.5);
+            return doc.splitTextToSize(sI.desc||'N/A',bW-4);
+          });
+          var maxLines=1;
+          wraps.forEach(function(w){ if(w.length>maxLines)maxLines=w.length; });
+          // One line -> identical to the original 6mm strip. Extra lines add height.
+          var dH=dH1+(maxLines-1)*descLH; // caption strip height for this row
+          var bH=tH+iH+dH+bPad*2;         // full box height for this row
+          // 2) Reserve the real height; a tall row moves to the next page intact.
           chk(bH+3);
-          [siteImages[pi],siteImages[pi+1]].forEach(function(sI,ci){
+          pair.forEach(function(sI,ci){
             if(!sI)return;
-            var bx=m+(ci*(bW+4)),by=y,desc2=sI.desc||'N/A';
+            var bx=m+(ci*(bW+4)),by=y;
             doc.setDrawColor(180,190,210);doc.setLineWidth(0.4);doc.rect(bx,by,bW,bH);
             doc.setFillColor(232,236,245);doc.rect(bx,by,bW,tH,'F');
             doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(7);
             doc.text(doc.splitTextToSize('Photo '+(siteImages.indexOf(sI)+1)+': '+sI.title,bW-4)[0],bx+2,by+tH-2);
             if(sI.base64){try{var ti2=new Image();ti2.src='data:'+imgMime(sI)+';base64,'+sI.base64;var nW=ti2.naturalWidth||800,nH2=ti2.naturalHeight||600,rat=nH2/nW;var aW=bW-bPad*2,aH=iH-bPad;var iW2=aW,iH2=iW2*rat;if(iH2>aH){iH2=aH;iW2=iH2/rat;}var fmt=imgMime(sI).indexOf('png')!==-1?'PNG':'JPEG';doc.addImage('data:'+imgMime(sI)+';base64,'+sI.base64,fmt,bx+bPad+(aW-iW2)/2,by+tH+bPad,iW2,iH2,undefined,'FAST');}catch(ie){}}
+            // Caption strip, sized to this row, with EVERY line printed.
             doc.setFillColor(250,250,252);doc.rect(bx,by+bH-dH,bW,dH,'F');
             doc.setDrawColor(180,190,210);doc.line(bx,by+bH-dH,bx+bW,by+bH-dH);
             doc.setTextColor(80,80,80);doc.setFont('helvetica','italic');doc.setFontSize(6.5);
-            doc.text(doc.splitTextToSize(desc2,bW-4)[0],bx+2,by+bH-2);
+            var lines=wraps[ci];
+            // First line sits exactly where the original did (by+bH-2); extra lines follow.
+            var ty=by+bH-dH+4;
+            for(var li=0;li<lines.length;li++){ doc.text(lines[li],bx+2,ty); ty+=descLH; }
           });y+=bH+3;
         }y+=2;
       }
