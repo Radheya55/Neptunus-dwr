@@ -1878,7 +1878,9 @@ function generatePDFBlob(engineerNameOverride,callback){
     doc.text('Neptunus Power Plant Services Pvt. Ltd. | The Machine Reliability Expert',m,19);
     doc.text('A-554/555, TTC Industrial Area, MIDC, Mahape, Navi Mumbai - 400 710, India',m,24);
     y=36;
-    var lRows=[['Team Leader',useName],['Project Code',document.getElementById('f-proj-code').value||'--'],['Start Date',sd],['Est. End Date',ed]];
+    var rdv=document.getElementById('f-report-date').value;
+    var rdd=rdv?fmtDate(rdv):'--';
+    var lRows=[['Team Leader',useName],['Project Code',document.getElementById('f-proj-code').value||'--'],['Start Date',sd],['Est. End Date',ed],['Date of Report',rdd]];
     if(teamMembers.length)lRows.push(['Team Members',teamMembers.join(', ')]);
     var rRows=[['Customer',cust||'--'],['Vessel / Rig',ves||'--'],['Location',loc||'--'],['Offering',off||'--']];
     if(pd)rRows.push(['Project Details',pd]);
@@ -2069,8 +2071,14 @@ function downloadPDF(){
       var a=document.createElement('a');
       a.href=URL.createObjectURL(blob);
       var reportDateVal=document.getElementById('f-report-date').value||sv||new Date().toISOString().split('T')[0];
-      var safeReportDate=reportDateVal.replace(/-/g,'');
-      a.download='NPPS_DWR_'+safeCode+'_'+safeReportDate+'_'+safeName+'.pdf';
+      var _rDateObj=reportDateVal?new Date(reportDateVal+'T00:00:00'):new Date();
+      var _months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      var _rDay=String(_rDateObj.getDate()).padStart(2,'0');
+      var _rMon=_months[_rDateObj.getMonth()];
+      var _rYr=_rDateObj.getFullYear();
+      var safeReportDate=_rDay+'_'+_rMon+'_'+_rYr;
+      var safePersonName=verifiedUser.name.replace(/[^a-zA-Z0-9 ]/g,' ').trim();
+      a.download='NPPS_DWR_'+safeCode+'_'+safeReportDate+'_'+safePersonName+'.pdf';
       a.click();
       setTimeout(function(){URL.revokeObjectURL(a.href);},10000);
       toast('PDF downloaded!','ok');
