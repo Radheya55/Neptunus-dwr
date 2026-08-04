@@ -261,6 +261,14 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 .hod-proj-code{font-size:1.05rem;font-weight:800;color:#1B3A6B;}
 .hod-proj-cust{font-size:0.78rem;color:var(--muted);}
 .hod-proj-count{background:#1B3A6B;color:#fff;border-radius:20px;padding:0.3rem 0.8rem;font-size:0.85rem;font-weight:700;white-space:nowrap;}
+/* ── HOD Project Hold (additive) ── */
+.hod-proj-right{display:flex;flex-direction:column;align-items:flex-end;gap:0.35rem;flex-shrink:0;}
+.hod-proj-card.on-hold{border-left-color:var(--teal);}
+.hod-hold-badge{background:rgba(0,184,169,0.12);color:var(--teal);border:1px solid rgba(0,184,169,0.45);border-radius:20px;padding:0.18rem 0.6rem;font-size:0.64rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
+.hod-proj-expiry{font-size:0.64rem;color:var(--danger);font-weight:700;white-space:nowrap;}
+.btn-hod-hold{background:#F47920;color:#fff;border:none;border-radius:7px;padding:0.35rem 0.7rem;font-size:0.72rem;font-weight:800;cursor:pointer;white-space:nowrap;}
+.btn-hod-hold:hover{background:#d96a10;}
+.btn-hod-hold:disabled{opacity:0.55;cursor:not-allowed;}
 .hod-dwr-item{background:#fff;border:1.5px solid #d0dae8;border-radius:var(--r);padding:0.8rem 1rem;margin-bottom:0.6rem;border-left:4px solid var(--teal);display:flex;align-items:center;justify-content:space-between;gap:0.6rem;}
 .hod-dwr-day{background:#F47920;color:#fff;border-radius:6px;padding:0.2rem 0.5rem;font-size:0.7rem;font-weight:800;white-space:nowrap;}
 .hod-dwr-info{flex:1;}
@@ -2263,18 +2271,55 @@ function loadHODProjects(){
       return;
     }
     r.projects.forEach(function(p){
-      var card=el('div','hod-proj-card');
+      var card=el('div','hod-proj-card'+(p.onHold?' on-hold':''));
       var left=el('div','hod-proj-left');
       left.appendChild(el('div','hod-proj-code',p.projectCode));
       var sub=p.customerName||p.vessel||'';
       if(sub)left.appendChild(el('div','hod-proj-cust',sub));
-      var count=el('div','hod-proj-count',p.count+' DWR'+(p.count===1?'':'s'));
-      card.appendChild(left);card.appendChild(count);
+      // Right column: DWR count, plus Hold controls when relevant (additive)
+      var right=el('div','hod-proj-right');
+      right.appendChild(el('div','hod-proj-count',p.count+' DWR'+(p.count===1?'':'s')));
+      if(p.onHold){
+        right.appendChild(el('div','hod-hold-badge','On Hold'));
+      }else{
+        var dl=hodDaysLeft(p.expiresAt);
+        if(dl!==null&&dl<=3){
+          right.appendChild(el('div','hod-proj-expiry',dl<=0?'Deletes today':('Deletes in '+dl+' day'+(dl===1?'':'s'))));
+          var hb=el('button','btn-hod-hold','Put on Hold');
+          hb.addEventListener('click',(function(pc,btn){return function(ev){ev.stopPropagation();holdHODProject(pc,btn);};})(p.projectCode,hb));
+          right.appendChild(hb);
+        }
+      }
+      card.appendChild(left);card.appendChild(right);
       card.addEventListener('click',(function(pc){return function(){openHODProject(pc);};})(p.projectCode));
       list.appendChild(card);
     });
   }).catch(function(){
     list.innerHTML='';list.appendChild(el('p','hod-empty','Could not load projects. Check connection and try again.'));
+  });
+}
+// Whole days remaining before a project auto-deletes from the HOD view.
+// Returns null when the server did not supply a usable expiry.
+function hodDaysLeft(expiresAt){
+  if(!expiresAt)return null;
+  var exp=Date.parse(expiresAt);
+  if(isNaN(exp))return null;
+  return Math.ceil((exp-Date.now())/86400000);
+}
+// Extend a near-expiry project's life. Server sets the new expiry (250 days).
+function holdHODProject(pc,btn){
+  if(btn){btn.disabled=true;btn.textContent='Holding\u2026';}
+  callWorker({action:'hold_project',projectCode:pc,heldBy:verifiedUser?verifiedUser.name:''}).then(function(r){
+    if(r&&r.success){
+      toast('Project '+pc+' put on hold.','ok');
+      loadHODProjects();
+    }else{
+      if(btn){btn.disabled=false;btn.textContent='Put on Hold';}
+      toast('Could not put on hold'+(r&&r.error?': '+r.error:'.'),'err');
+    }
+  }).catch(function(){
+    if(btn){btn.disabled=false;btn.textContent='Put on Hold';}
+    toast('Could not put on hold. Check connection and try again.','err');
   });
 }
 var hodCurrentProject=null;
