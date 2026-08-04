@@ -218,6 +218,8 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 .di-name{font-size:0.88rem;font-weight:700;color:#1B3A6B;}
 .di-proj{font-size:0.75rem;color:#F47920;font-weight:600;}
 .di-date{font-size:0.72rem;color:var(--muted);}
+.di-expiry{font-size:0.72rem;color:var(--muted);font-weight:600;}
+.di-expiry.soon{color:var(--danger);font-weight:700;}
 .btn-draft-open{background:#F47920;color:#fff;border:none;border-radius:7px;padding:0.45rem 0.85rem;font-size:0.8rem;font-weight:700;cursor:pointer;}
 .btn-draft-del{background:transparent;border:1.5px solid rgba(224,85,85,0.35);color:var(--danger);border-radius:7px;padding:0.45rem 0.65rem;font-size:0.8rem;font-weight:600;cursor:pointer;}
 .btn-draft-preview{background:#1B3A6B;color:#fff;border:none;border-radius:7px;padding:0.45rem 0.85rem;font-size:0.8rem;font-weight:700;cursor:pointer;}
@@ -265,7 +267,10 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 .hod-proj-right{display:flex;flex-direction:column;align-items:flex-end;gap:0.35rem;flex-shrink:0;}
 .hod-proj-card.on-hold{border-left-color:var(--teal);}
 .hod-hold-badge{background:rgba(0,184,169,0.12);color:var(--teal);border:1px solid rgba(0,184,169,0.45);border-radius:20px;padding:0.18rem 0.6rem;font-size:0.64rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
-.hod-proj-expiry{font-size:0.64rem;color:var(--danger);font-weight:700;white-space:nowrap;}
+.hod-proj-meta{font-size:0.7rem;color:var(--muted);}
+.hod-proj-expiry{font-size:0.7rem;color:var(--muted);font-weight:600;}
+.hod-proj-expiry.soon{color:var(--danger);font-weight:700;}
+.hod-proj-expiry.held{color:var(--teal);font-weight:700;}
 .btn-hod-hold{background:#F47920;color:#fff;border:none;border-radius:7px;padding:0.35rem 0.7rem;font-size:0.72rem;font-weight:800;cursor:pointer;white-space:nowrap;}
 .btn-hod-hold:hover{background:#d96a10;}
 .btn-hod-hold:disabled{opacity:0.55;cursor:not-allowed;}
@@ -1776,7 +1781,15 @@ function loadDrafts(){
       var stampLabel=dtype==='downloaded'?'Downloaded: ':'Saved: ';
       var dt=el('div','di-date',stampLabel+new Date(stamp).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}));
       var tag=el('span','di-tag '+(dtype==='downloaded'?'done':'inprog'),dtype==='downloaded'?'Downloaded':'In progress');
-      info.appendChild(nm);info.appendChild(proj);info.appendChild(dt);info.appendChild(tag);
+      info.appendChild(nm);info.appendChild(proj);info.appendChild(dt);
+      // When this draft will be auto-deleted (30 days from creation)
+      var dExp=draftExpiryIso(d),dDays=hodDaysLeft(dExp);
+      if(dExp){
+        var expTxt='Auto-deletes: '+hodShortDate(dExp);
+        if(dDays!==null)expTxt+=(dDays<=0?' (today)':' (in '+dDays+' day'+(dDays===1?'':'s')+')');
+        info.appendChild(el('div','di-expiry'+((dDays!==null&&dDays<=3)?' soon':''),expTxt));
+      }
+      info.appendChild(tag);
       var btnWrap=el('div','draft-btn-wrap');
       var previewBtn=el('button','btn-draft-preview','Preview PDF');
       previewBtn.addEventListener('click',(function(id){return function(){previewDraftPDF(id);};})(d.id));
@@ -1790,6 +1803,15 @@ function loadDrafts(){
   }).catch(function(){
     var ep=el('p','','Failed to load drafts.');ep.style.cssText='color:var(--danger);text-align:center;';list.innerHTML='';list.appendChild(ep);
   });
+}
+// A draft is auto-deleted 30 days after it was CREATED. The server sends
+// expiresAt; fall back to createdAt/savedAt + 30 days for older records.
+function draftExpiryIso(d){
+  if(!d)return '';
+  if(d.expiresAt)return d.expiresAt;
+  var base=Date.parse(d.createdAt||d.savedAt||'');
+  if(isNaN(base))return '';
+  return new Date(base+30*86400000).toISOString();
 }
 function openDraft(draftId){
   showLoader('Loading draft...');
@@ -2276,19 +2298,27 @@ function loadHODProjects(){
       left.appendChild(el('div','hod-proj-code',p.projectCode));
       var sub=p.customerName||p.vessel||'';
       if(sub)left.appendChild(el('div','hod-proj-cust',sub));
+      var dl=hodDaysLeft(p.expiresAt);
+      // Always show WHEN the last DWR was added...
+      if(p.lastAt)left.appendChild(el('div','hod-proj-meta','Last DWR added: '+hodShortDate(p.lastAt)));
+      // ...and, from that, WHEN this project auto-deletes.
+      if(p.expiresAt){
+        var days=(dl===null)?'':(dl<=0?' (today)':' (in '+dl+' day'+(dl===1?'':'s')+')');
+        if(p.onHold){
+          left.appendChild(el('div','hod-proj-expiry held','On hold \u2014 auto-deletes: '+hodShortDate(p.expiresAt)+days));
+        }else{
+          left.appendChild(el('div','hod-proj-expiry'+((dl!==null&&dl<=3)?' soon':''),'Auto-deletes: '+hodShortDate(p.expiresAt)+days));
+        }
+      }
       // Right column: DWR count, plus Hold controls when relevant (additive)
       var right=el('div','hod-proj-right');
       right.appendChild(el('div','hod-proj-count',p.count+' DWR'+(p.count===1?'':'s')));
       if(p.onHold){
         right.appendChild(el('div','hod-hold-badge','On Hold'));
-      }else{
-        var dl=hodDaysLeft(p.expiresAt);
-        if(dl!==null&&dl<=3){
-          right.appendChild(el('div','hod-proj-expiry',dl<=0?'Deletes today':('Deletes in '+dl+' day'+(dl===1?'':'s'))));
-          var hb=el('button','btn-hod-hold','Put on Hold');
-          hb.addEventListener('click',(function(pc,btn){return function(ev){ev.stopPropagation();holdHODProject(pc,btn);};})(p.projectCode,hb));
-          right.appendChild(hb);
-        }
+      }else if(dl!==null&&dl<=3){
+        var hb=el('button','btn-hod-hold','Put on Hold');
+        hb.addEventListener('click',(function(pc,btn){return function(ev){ev.stopPropagation();holdHODProject(pc,btn);};})(p.projectCode,hb));
+        right.appendChild(hb);
       }
       card.appendChild(left);card.appendChild(right);
       card.addEventListener('click',(function(pc){return function(){openHODProject(pc);};})(p.projectCode));
