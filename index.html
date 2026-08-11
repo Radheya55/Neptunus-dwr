@@ -2391,18 +2391,117 @@ function hodFmtDate(val){
   if(isNaN(d.getTime()))return val;
   return d.toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
 }
+// ── HOD summary image policy ───────────────────────────────────────────────
+// Photos are carried only for the most recent N days that actually have any.
+// Text/activity data is ALWAYS included for every day, however long the project.
+var HOD_IMG_DAYS = 12;    // how many photo-bearing days to include
+var HOD_IMG_MAXW = 700;   // downscale width before embedding (drawn at 55mm)
+var HOD_IMG_Q    = 0.72;  // JPEG quality for the embedded copy
+var HOD_IMG_LANES= 4;     // parallel downloads
+
 function downloadHODSummary(){
   if(!hodCurrentProject){toast('No project selected.','err');return;}
   var btn=document.getElementById('btn-hod-summary');
+  var reset=function(){btn.disabled=false;btn.innerHTML='&#128196; Download Day-wise Summary PDF';};
   btn.disabled=true;btn.textContent='Preparing summary…';
-  callWorker({action:'hod_project_summary',projectCode:hodCurrentProject,withImages:true}).then(function(r){
-    btn.disabled=false;btn.innerHTML='&#128196; Download Day-wise Summary PDF';
-    if(!r||r.error){toast('Could not fetch summary data.','err');return;}
-    if(!r.days||r.days.length===0){toast('No reports to summarise.','err');return;}
-    generateHODSummaryPDF(r);
+  // client:'v2' makes the Worker return image REFERENCES instead of base64.
+  // The response drops from hundreds of MB to a few hundred KB, so big
+  // projects no longer exhaust the Worker's memory. The browser fetches the
+  // photos itself, where there is no such ceiling.
+  callWorker({action:'hod_project_summary',projectCode:hodCurrentProject,withImages:true,client:'v2'}).then(function(r){
+    if(!r||r.error){reset();toast('Could not fetch summary data.','err');return;}
+    if(!r.days||r.days.length===0){reset();toast('No reports to summarise.','err');return;}
+    var days=r.days;
+    // Keep photos for the last HOD_IMG_DAYS days that have images (chronological
+    // order is preserved, so Day 1 stays Day 1 — only older photos are dropped).
+    var withImgs=[];
+    days.forEach(function(d,i){ if(d.images&&d.images.length) withImgs.push(i); });
+    var keep={};
+    withImgs.slice(-HOD_IMG_DAYS).forEach(function(i){ keep[i]=true; });
+    days.forEach(function(d,i){ if(!keep[i]) d.images=[]; });
+    hodLoadImages(days,btn).then(function(){
+      reset();generateHODSummaryPDF(r);
+    }).catch(function(){
+      reset();generateHODSummaryPDF(r);
+    });
   }).catch(function(){
-    btn.disabled=false;btn.innerHTML='&#128196; Download Day-wise Summary PDF';
-    toast('Failed to fetch summary.','err');
+    // Last resort: never leave the HOD with nothing. Retry without photos so
+    // the full text summary still downloads.
+    btn.textContent='Retrying without photos…';
+    callWorker({action:'hod_project_summary',projectCode:hodCurrentProject,withImages:false,client:'v2'}).then(function(r2){
+      reset();
+      if(!r2||r2.error||!r2.days||!r2.days.length){toast('Failed to fetch summary.','err');return;}
+      generateHODSummaryPDF(r2);
+      toast('Photos unavailable — text summary downloaded.','err');
+    }).catch(function(){
+      reset();toast('Failed to fetch summary.','err');
+    });
+  });
+}
+// Download every retained photo and shrink it, a few at a time, with progress.
+function hodLoadImages(days,btn){
+  var tasks=[];
+  days.forEach(function(d){ (d.images||[]).forEach(function(img){ tasks.push(img); }); });
+  var total=tasks.length,done=0,i=0;
+  if(!total) return Promise.resolve();
+  btn.textContent='Loading photos 0/'+total+'…';
+  function next(){
+    if(i>=tasks.length) return Promise.resolve();
+    var img=tasks[i++];
+    return hodFetchImage(img).catch(function(){}).then(function(){
+      done++;btn.textContent='Loading photos '+done+'/'+total+'…';
+      return next();
+    });
+  }
+  var lanes=[];
+  for(var L=0;L<HOD_IMG_LANES;L++) lanes.push(next());
+  return Promise.all(lanes);
+}
+// Fetch one photo through the Worker's /media proxy (guaranteed CORS headers),
+// falling back to the public R2 URL. A photo that fails is simply skipped.
+function hodFetchImage(img){
+  if(!img) return Promise.resolve();
+  // A pre-migration record may arrive with bytes already inline — shrink those
+  // too, otherwise one old photo can outweigh a hundred new ones.
+  if(img.base64){
+    try{
+      var blob0=b64ToBlob(img.base64,img.mime||'image/jpeg');
+      return hodShrinkBlob(blob0).then(function(b64){
+        if(b64){img.base64=b64;img.mime='image/jpeg';}
+      }).catch(function(){});
+    }catch(e){ return Promise.resolve(); }
+  }
+  var src=img.key?(WU+'/media?key='+encodeURIComponent(img.key)):(img.url||'');
+  if(!src) return Promise.resolve();
+  return fetch(src).then(function(res){
+    if(!res.ok) throw new Error('media '+res.status);
+    return res.blob();
+  }).then(function(blob){
+    return hodShrinkBlob(blob);
+  }).then(function(b64){
+    if(b64){ img.base64=b64; img.mime='image/jpeg'; }
+  });
+}
+// Downscale to HOD_IMG_MAXW and re-encode as JPEG. Photos print at 55x42mm,
+// so this is visually identical but a fraction of the bytes.
+function hodShrinkBlob(blob){
+  return new Promise(function(resolve){
+    var url=URL.createObjectURL(blob);
+    var im=new Image();
+    im.onload=function(){
+      try{
+        var w=im.naturalWidth||im.width,h=im.naturalHeight||im.height;
+        var sc=(w>HOD_IMG_MAXW)?(HOD_IMG_MAXW/w):1;
+        var cw=Math.max(1,Math.round(w*sc)),ch=Math.max(1,Math.round(h*sc));
+        var c=document.createElement('canvas');c.width=cw;c.height=ch;
+        var cx=c.getContext('2d');cx.fillStyle='#FFFFFF';cx.fillRect(0,0,cw,ch);
+        cx.drawImage(im,0,0,cw,ch);
+        var out=c.toDataURL('image/jpeg',HOD_IMG_Q).split(',')[1]||'';
+        URL.revokeObjectURL(url);resolve(out);
+      }catch(e){ URL.revokeObjectURL(url);resolve(''); }
+    };
+    im.onerror=function(){ URL.revokeObjectURL(url);resolve(''); };
+    im.src=url;
   });
 }
 function generateHODSummaryPDF(data){
