@@ -309,6 +309,31 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 .btn-dash-detailed:hover{background:#d96a10;}
 .btn-dash-detailed:disabled{opacity:0.5;cursor:not-allowed;}
 .dash-refresh:hover{border-color:#1B3A6B;color:#1B3A6B;}
+/* CRITICAL ISSUES CONFIRMATION (shown before download when that section has content) */
+.ci-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.78);z-index:900;align-items:center;justify-content:center;padding:1rem;}
+.ci-overlay.open{display:flex;}
+.ci-modal{background:#fff;border-radius:var(--r);width:100%;max-width:440px;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,0.35);overflow:hidden;}
+.ci-hdr{background:#e05555;padding:0.9rem 1.1rem;}
+.ci-hdr-title{color:#fff;font-size:0.98rem;font-weight:800;display:flex;align-items:center;gap:0.45rem;}
+.ci-hdr-sub{color:rgba(255,255,255,0.88);font-size:0.72rem;margin-top:0.2rem;line-height:1.45;}
+.ci-body{padding:1rem 1.1rem;overflow-y:auto;}
+.ci-lead{font-size:0.78rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem;}
+.ci-list{background:#fff6f6;border:1.5px solid rgba(224,85,85,0.4);border-left:4px solid var(--danger);border-radius:8px;padding:0.75rem 0.9rem;}
+.ci-line{font-size:0.86rem;color:#2c3e50;line-height:1.7;margin-bottom:0.35rem;}
+.ci-line:last-child{margin-bottom:0;}
+.ci-ask{font-size:0.9rem;color:#1B3A6B;font-weight:700;margin-top:0.9rem;text-align:center;line-height:1.5;}
+.ci-note{font-size:0.72rem;color:var(--muted);margin-top:0.35rem;text-align:center;line-height:1.5;}
+.ci-btns{display:flex;gap:0.6rem;padding:0.9rem 1.1rem 1.1rem;border-top:1px solid #e8f0fb;}
+.btn-ci-no{flex:1;background:#fff;border:2px solid var(--danger);color:var(--danger);border-radius:var(--r);padding:0.75rem 0.5rem;font-size:0.86rem;font-weight:800;cursor:pointer;line-height:1.3;}
+.btn-ci-no:hover{background:#fff2f2;}
+.btn-ci-yes{flex:1;background:var(--teal);border:2px solid var(--teal);color:#fff;border-radius:var(--r);padding:0.75rem 0.5rem;font-size:0.86rem;font-weight:800;cursor:pointer;line-height:1.3;}
+.btn-ci-yes:hover{filter:brightness(1.07);}
+/* Editable photo title / description in the preview */
+.photo-card-edit{width:100%;background:#fff;border:1.5px solid #d0dae8;border-radius:6px;color:#1B3A6B;padding:0.45rem 0.65rem;font-size:0.86rem;font-family:inherit;}
+.photo-card-edit:focus{outline:none;border-color:#F47920;}
+.photo-card-edit.desc{font-size:0.8rem;color:#4a5b6d;}
+.photo-card-lbl{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:700;margin-bottom:0.2rem;}
+.photo-card-fields{padding:0.6rem 0.9rem 0.8rem;display:flex;flex-direction:column;gap:0.5rem;}
 /* TOAST */
 .toast{position:fixed;bottom:1.3rem;left:50%;transform:translateX(-50%) translateY(20px);background:#1B3A6B;border:2px solid #F47920;border-radius:8px;padding:0.65rem 1.1rem;font-size:0.82rem;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:300;opacity:0;transition:all 0.3s;pointer-events:none;max-width:300px;text-align:center;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -349,6 +374,26 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 </header>
 <div class="loader" id="loader"><div class="spin"></div><div class="loader-msg" id="loader-msg">Processing...</div></div>
 <div class="toast" id="toast"></div>
+
+<!-- CRITICAL ISSUES CONFIRMATION: appears on download only when that section has content -->
+<div class="ci-overlay" id="ci-overlay">
+  <div class="ci-modal">
+    <div class="ci-hdr">
+      <div class="ci-hdr-title">&#9888;&#65039; Confirm Critical Issues</div>
+      <div class="ci-hdr-sub">This report will be sent to the customer. Please read the points below before downloading.</div>
+    </div>
+    <div class="ci-body">
+      <div class="ci-lead">The following critical issues are reported</div>
+      <div class="ci-list" id="ci-list"></div>
+      <div class="ci-ask">Do you confirm this?</div>
+      <div class="ci-note">If you did not report these, tap No and correct the section.</div>
+    </div>
+    <div class="ci-btns">
+      <button class="btn-ci-no" id="btn-ci-no">No, let me edit</button>
+      <button class="btn-ci-yes" id="btn-ci-yes">Yes, confirm</button>
+    </div>
+  </div>
+</div>
 
 <div id="screen-land">
   <div class="wrap" style="text-align:center;padding-top:2rem;">
@@ -404,7 +449,7 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
     <div class="dash-modal-hdr">
       <div>
         <div class="dash-modal-title">&#128202; DWR Usage Dashboard</div>
-        <div class="dash-modal-sub">PDF Downloads &mdash; All Time</div>
+        <div class="dash-modal-sub">PDF Downloads - All Time</div>
       </div>
       <button class="btn-dash-close" id="btn-dash-close">&#10005;</button>
     </div>
@@ -493,7 +538,7 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 <div class="wrap">
   <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;">
     <button class="btn-secondary" id="btn-hod-proj-back" style="width:auto;padding:0.45rem 0.9rem;margin-top:0;">Back</button>
-    <h2 style="color:#1B3A6B;font-size:1.05rem;">HOD View &mdash; Projects</h2>
+    <h2 style="color:#1B3A6B;font-size:1.05rem;">HOD View - Projects</h2>
   </div>
   <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.9rem;">All projects with submitted (downloaded) DWRs. Latest activity on top. Tap a project to view its reports.</p>
   <div id="hod-projects-list"></div>
@@ -898,7 +943,7 @@ function checkForInterruptedWork(){
         showScreen('screen-form');
         tryLocalRecovery().then(function(ok){ if(ok){toast('Recovered your unsaved progress.','ok');} });
       }else{
-        // They chose to start fresh — clear the stale local copy so it won't ask again
+        // They chose to start fresh - clear the stale local copy so it won't ask again
         idbClear();
       }
     });
@@ -1033,7 +1078,7 @@ function setSavePill(state){
   p.className='save-pill'+(state==='saving'?' saving':state==='local'?' local':'');
   p.textContent=state==='saving'?'Saving…':state==='local'?'Saved on device':'Saved \u2713';
 }
-// Collect the light working state (no audio) — used for server sync + local mirror
+// Collect the light working state (no audio) - used for server sync + local mirror
 function collectLightState(){
   function v(id){var e=document.getElementById(id);return e?e.value:'';}
   return {
@@ -1046,7 +1091,7 @@ function collectLightState(){
       tbTime:getMeetingTime('tb'),tbAtt:getAttText('tb'),smTime:getMeetingTime('sm'),smAtt:getAttText('sm')
     },
     sections:(generatedDWR&&generatedDWR.sections)?sectionsFromStore():(generatedDWR?generatedDWR.sections:{}),
-    siteImages:siteImages.map(function(img){return{base64:img.base64,mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};}),
+    siteImages:siteImages.map(function(img){return{base64:img.base64,key:img.key||'',url:img.url||'',mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};}),
     meta:{tb:{h:clockSt.tb.h,m:clockSt.tb.m,ap:clockSt.tb.ap},sm:{h:clockSt.sm.h,m:clockSt.sm.m,ap:clockSt.sm.ap}}
   };
 }
@@ -1060,7 +1105,7 @@ function sectionsFromStore(){
   }
   return out;
 }
-// Collect audio payloads (heavy) — only finished recordings + uploaded file
+// Collect audio payloads (heavy) - only finished recordings + uploaded file
 function collectAudios(){
   return recordings.filter(function(r){return!!r.base64;}).map(function(r){return{data:r.base64,mime:r.mime};});
 }
@@ -1105,7 +1150,7 @@ function doLightSync(includeAudio,cb){
     if(cb)cb(false);
   });
 }
-// Force a full sync (audio included) — used before convert/download
+// Force a full sync (audio included) - used before convert/download
 function fullSync(cb){
   localSaveFull();
   if(!verifiedUser){if(cb)cb();return;}
@@ -1163,7 +1208,7 @@ function tryLocalRecovery(){
     }
     // Restore images
     if(st.siteImages&&st.siteImages.length){
-      st.siteImages.forEach(function(img){ if(!img.base64)return; var blob=b64ToBlob(img.base64,img.mime||'image/jpeg');var url=URL.createObjectURL(blob);siteImages.push({file:new File([blob],'photo.jpg',{type:img.mime||'image/jpeg'}),objectUrl:url,base64:img.base64,title:img.title||'',desc:img.desc||''}); });
+      st.siteImages.forEach(function(img){ if(!img.base64)return; var blob=b64ToBlob(img.base64,img.mime||'image/jpeg');var url=URL.createObjectURL(blob);siteImages.push({file:new File([blob],'photo.jpg',{type:img.mime||'image/jpeg'}),objectUrl:url,base64:img.base64,key:img.key||'',url:img.url||'',title:img.title||'',desc:img.desc||''}); });
       renderSiteImgs();
     }
     // Restore generated sections (so they can finalise without re-recording)
@@ -1527,12 +1572,14 @@ function renderSiteImgs(){
     var div=el('div','img-item');
     var hdr=el('div','img-item-hdr');
     var ti=document.createElement('input');ti.type='text';ti.placeholder='Title (mandatory) *';ti.value=e.title;
-    ti.addEventListener('input',(function(i,inp){return function(){siteImages[i].title=inp.value;updateChecklist();scheduleLightSync();};})(idx,ti));
+    ti.id='simg-title-'+idx;
+    ti.addEventListener('input',(function(i,inp){return function(){setImageMeta(i,'title',inp.value);};})(idx,ti));
     hdr.appendChild(ti);
     var img=document.createElement('img');img.src=e.objectUrl;img.alt='Photo '+(idx+1);
     var ftr=el('div','img-item-ftr');
     var di=document.createElement('input');di.type='text';di.placeholder='Description (optional)';di.value=e.desc;
-    di.addEventListener('input',(function(i,inp){return function(){siteImages[i].desc=inp.value;updateChecklist();scheduleLightSync();};})(idx,di));
+    di.id='simg-desc-'+idx;
+    di.addEventListener('input',(function(i,inp){return function(){setImageMeta(i,'desc',inp.value);};})(idx,di));
     var rm=el('button','btn-rm-img','Remove');
     rm.addEventListener('click',(function(i){return function(){removeSiteImg(i);};})(idx));
     ftr.appendChild(di);ftr.appendChild(rm);
@@ -1608,7 +1655,7 @@ function convertToDWR(){
   var hasNewAudio=audios.length>0||!!audioFileBase64;
   var hasExisting=appendMode&&generatedDWR&&generatedDWR.sections&&Object.keys(generatedDWR.sections).length>0;
 
-  // CASE 1 — reopened report, NO new audio: just re-render (inline edits already captured).
+  // CASE 1 - reopened report, NO new audio: just re-render (inline edits already captured).
   if(!hasNewAudio&&generatedDWR&&generatedDWR.sections&&Object.keys(generatedDWR.sections).length>0){
     renderOutput(generatedDWR);
     autoSaveDraft(generatedDWR);
@@ -1618,7 +1665,7 @@ function convertToDWR(){
     return;
   }
 
-  // CASE 2 — reopened report WITH new audio: APPEND new points into existing sections.
+  // CASE 2 - reopened report WITH new audio: APPEND new points into existing sections.
   if(hasNewAudio&&hasExisting){
     startCd(55);document.getElementById('btn-convert').disabled=true;
     var apayload={action:'append_dwr',audios:audios,existingSections:generatedDWR.sections};
@@ -1642,7 +1689,7 @@ function convertToDWR(){
     return;
   }
 
-  // CASE 3 — brand-new DWR: generate from scratch (original behaviour).
+  // CASE 3 - brand-new DWR: generate from scratch (original behaviour).
   startCd(55);document.getElementById('btn-convert').disabled=true;
   var payload={action:'process_dwr',audios:audios};
   if(audioFileBase64){payload.audioFile=audioFileBase64;payload.audioFileMime=audioFileMime;}
@@ -1670,7 +1717,7 @@ function clearAudioFileUI(){
 function autoSaveDraft(result){
   if(!verifiedUser)return;
   var fd={projectCode:document.getElementById('f-proj-code').value,customer:document.getElementById('f-customer').value,vessel:document.getElementById('f-vessel').value,projectDetails:document.getElementById('f-proj-details').value,offering:document.getElementById('f-offering').value,location:document.getElementById('f-location').value,startDate:document.getElementById('f-start-date').value,endDate:document.getElementById('f-end-date').value,reportDate:document.getElementById('f-report-date').value,teamMembers:teamMembers.slice(),tbTime:getMeetingTime('tb'),tbAtt:getAttText('tb'),smTime:getMeetingTime('sm'),smAtt:getAttText('sm')};
-  var imgs=siteImages.map(function(img){return{base64:img.base64,mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};});
+  var imgs=siteImages.map(function(img){return{base64:img.base64,key:img.key||'',url:img.url||'',mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};});
   var meta={tb:{h:clockSt.tb.h,m:clockSt.tb.m,ap:clockSt.tb.ap},sm:{h:clockSt.sm.h,m:clockSt.sm.m,ap:clockSt.sm.ap}};
   setSavePill('saving');
   callWorker({action:'save_draft',empNo:verifiedUser.empNo,engineerName:verifiedUser.name,
@@ -1714,10 +1761,21 @@ function renderOutput(data){
   var photoDiv=document.getElementById('out-photos-inline');photoDiv.innerHTML='';
   siteImages.forEach(function(img,i){
     var card=el('div','photo-card');
-    var title=el('div','photo-card-title','Photo '+(i+1)+': '+img.title);
+    var title=el('div','photo-card-title','Photo '+(i+1));
     var pic=document.createElement('img');pic.className='photo-card-img';pic.src=img.objectUrl;pic.alt=img.title;
-    var desc=el('div','photo-card-desc','Description: '+(img.desc||'N/A'));
-    card.appendChild(title);card.appendChild(pic);card.appendChild(desc);photoDiv.appendChild(card);
+    // Title and description are editable right here, the same as any other
+    // section, so a reopened report can be corrected without going back up.
+    var fields=el('div','photo-card-fields');
+    var tl=el('div','photo-card-lbl','Title (mandatory)');
+    var ti=document.createElement('input');ti.type='text';ti.className='photo-card-edit';
+    ti.id='pimg-title-'+i;ti.placeholder='Title (mandatory) *';ti.value=img.title||'';
+    ti.addEventListener('input',(function(idx,inp){return function(){setImageMeta(idx,'title',inp.value);};})(i,ti));
+    var dl2=el('div','photo-card-lbl','Description (optional)');
+    var di=document.createElement('input');di.type='text';di.className='photo-card-edit desc';
+    di.id='pimg-desc-'+i;di.placeholder='Description (optional)';di.value=img.desc||'';
+    di.addEventListener('input',(function(idx,inp){return function(){setImageMeta(idx,'desc',inp.value);};})(i,di));
+    fields.appendChild(tl);fields.appendChild(ti);fields.appendChild(dl2);fields.appendChild(di);
+    card.appendChild(title);card.appendChild(pic);card.appendChild(fields);photoDiv.appendChild(card);
   });
   var rest=document.getElementById('out-rest-sections');rest.innerHTML='';
   for(var ki=1;ki<SEC_ORDER.length;ki++){
@@ -1734,6 +1792,40 @@ function renderOutput(data){
   if(_nepDI)_nepDI.value=_rdv;
   if(_cstDI)_cstDI.value=_rdv;
   document.getElementById('output-section').style.display='block';
+}
+// Single place where a photo's title/description changes, whether the edit was
+// made in Step 5 or in the Preview. Keeps both inputs in step, saves the draft,
+// and (for an already-downloaded report) corrects the HOD's copy too.
+function setImageMeta(idx,field,val){
+  if(!siteImages[idx])return;
+  siteImages[idx][field]=val;
+  // Mirror into the other input without re-rendering (which would steal focus)
+  var other=document.getElementById((field==='title'?'pimg-title-':'pimg-desc-')+idx);
+  var form =document.getElementById((field==='title'?'simg-title-':'simg-desc-')+idx);
+  if(other&&other.value!==val)other.value=val;
+  if(form&&form.value!==val)form.value=val;
+  updateChecklist();
+  scheduleLightSync();
+  scheduleHodImageSync();
+}
+// Push corrected photo titles/descriptions to the HOD's filed copy. Only makes
+// sense once the report has actually been downloaded (that is when the HOD copy
+// is created). Debounced so typing does not fire a request per keystroke.
+var hodImgTimer=null;
+function scheduleHodImageSync(){
+  if(currentDraftType!=='downloaded')return;   // no HOD copy exists yet
+  if(!currentDraftId)return;
+  clearTimeout(hodImgTimer);
+  hodImgTimer=setTimeout(function(){
+    var pc=(document.getElementById('f-proj-code')?document.getElementById('f-proj-code').value.trim().toUpperCase():'');
+    if(!pc)return;
+    callWorker({
+      action:'update_dwr_images',
+      projectCode:pc,
+      draftId:currentDraftId,
+      images:siteImages.map(function(img){return{key:img.key||'',url:img.url||'',title:img.title||'',desc:img.desc||''};})
+    }).catch(function(){});
+  },1500);
 }
 function makeSecCard(key,txt){
   var card=el('div','out-card');card.id='oc-'+key;
@@ -1835,13 +1927,13 @@ function openDraft(draftId){
     if(fd.teamMembers&&fd.teamMembers.length){teamMembers=fd.teamMembers.slice();renderTeamList();refreshAttendance();}
     // Restore meeting clock state
     if(d.meta){ ['tb','sm'].forEach(function(p){ if(d.meta[p]){clockSt[p].h=d.meta[p].h;clockSt[p].m=d.meta[p].m;clockSt[p].ap=d.meta[p].ap; if(d.meta[p].h!==null)updateTimeDisplay(p);} }); }
-    // Restore images (always — they're part of the report)
+    // Restore images (always - they're part of the report)
     if(d.siteImages&&d.siteImages.length){
       d.siteImages.forEach(function(img){
         if(!img.base64)return;
         var blob=b64ToBlob(img.base64,img.mime||'image/jpeg');
         var url=URL.createObjectURL(blob);
-        siteImages.push({file:new File([blob],'photo.jpg',{type:img.mime||'image/jpeg'}),objectUrl:url,base64:img.base64,title:img.title||'',desc:img.desc||''});
+        siteImages.push({file:new File([blob],'photo.jpg',{type:img.mime||'image/jpeg'}),objectUrl:url,base64:img.base64,key:img.key||'',url:img.url||'',title:img.title||'',desc:img.desc||''});
       });renderSiteImgs();
     }
 
@@ -2005,7 +2097,7 @@ function generatePDFBlob(engineerNameOverride,callback){
     doc.setDrawColor(170,170,170);doc.setLineWidth(0.3);
     doc.rect(m+24,y+2,sh-26,sigH-4);doc.rect(m+sh+4+24,y+2,sh-26,sigH-4);
     y+=sigH;
-    // Orange footer line — always on same page, properly spaced
+    // Orange footer line - always on same page, properly spaced
     y+=8;
     if(y>pH-m-10){y=m;doc.addPage();}
     doc.setDrawColor(244,121,32);doc.setLineWidth(0.5);doc.line(m,y,pW-m,y);y+=4;
@@ -2054,7 +2146,7 @@ function previewDraftPDF(draftId){
         if(!img.base64)return;
         var blob=b64ToBlob(img.base64,img.mime||'image/jpeg');
         var url=URL.createObjectURL(blob);
-        siteImages.push({file:new File([blob],'photo.jpg',{type:img.mime||'image/jpeg'}),objectUrl:url,base64:img.base64,title:img.title||'',desc:img.desc||''});
+        siteImages.push({file:new File([blob],'photo.jpg',{type:img.mime||'image/jpeg'}),objectUrl:url,base64:img.base64,key:img.key||'',url:img.url||'',title:img.title||'',desc:img.desc||''});
       });
     }
     teamMembers=fd.teamMembers||[];
@@ -2080,6 +2172,45 @@ function deleteDraft(id){
     .then(function(){loadDrafts();toast('Draft deleted.','ok');})
     .catch(function(){toast('Delete failed.','err');});
 }
+// Lines of genuinely reported critical issues, ignoring the "Nothing reported"
+// placeholder and blank lines. An empty array means nothing was reported.
+function criticalIssuesLines(){
+  var raw=(outputStore['critical_issues']!==undefined)
+    ? outputStore['critical_issues']
+    : ((generatedDWR&&generatedDWR.sections&&generatedDWR.sections['critical_issues']&&generatedDWR.sections['critical_issues'].polished_text)||'');
+  if(!raw)return [];
+  return String(raw).split('\n').filter(function(line){
+    var t=line.replace(/^[\s\u2022*\-]+/,'').trim();   // strip bullet marker
+    if(!t)return false;
+    if(t.toLowerCase().indexOf('nothing reported')!==-1)return false;
+    return true;
+  }).map(function(line){return line.trim();});
+}
+// Show the confirmation. Yes -> proceed with download. No -> open that section
+// for editing; the engineer must press Download again afterwards.
+function showCriticalGate(lines,onYes){
+  var ov=document.getElementById('ci-overlay');
+  var list=document.getElementById('ci-list');
+  list.innerHTML='';
+  lines.forEach(function(line){
+    var t=line.replace(/^[\s\u2022*\-]+/,'').trim();
+    list.appendChild(el('div','ci-line','\u2022 '+t));
+  });
+  var yes=document.getElementById('btn-ci-yes');
+  var no=document.getElementById('btn-ci-no');
+  function close(){ov.classList.remove('open');yes.onclick=null;no.onclick=null;}
+  yes.onclick=function(){close();onYes();};
+  no.onclick=function(){
+    close();
+    // Take them straight to the section, already open for editing.
+    var card=document.getElementById('oc-critical_issues');
+    var ed=document.getElementById('edit-critical_issues');
+    if(ed&&ed.style.display!=='block')toggleEdit('critical_issues');
+    if(card)setTimeout(function(){card.scrollIntoView({behavior:'smooth',block:'center'});},120);
+    toast('Edit the critical issues, then press Download PDF again.','err');
+  };
+  ov.classList.add('open');
+}
 function downloadPDF(){
   if(!generatedDWR){toast('No report generated yet.','err');return;}
   // Must have customer sign-off name before downloading
@@ -2090,6 +2221,13 @@ function downloadPDF(){
     _cnv.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
+  // If anything is reported under Critical Issues, confirm it first. This runs
+  // on every download, including a re-download of a report already sent.
+  var ciLines=criticalIssuesLines();
+  if(ciLines.length){ showCriticalGate(ciLines,doDownloadPDF); return; }
+  doDownloadPDF();
+}
+function doDownloadPDF(){
   var btn=document.getElementById('btn-pdf');btn.disabled=true;btn.textContent='Generating PDF...';
   setTimeout(function(){
     generatePDFBlob(verifiedUser.name,function(blob){
@@ -2305,7 +2443,7 @@ function loadHODProjects(){
       if(p.expiresAt){
         var days=(dl===null)?'':(dl<=0?' (today)':' (in '+dl+' day'+(dl===1?'':'s')+')');
         if(p.onHold){
-          left.appendChild(el('div','hod-proj-expiry held','On hold \u2014 auto-deletes: '+hodShortDate(p.expiresAt)+days));
+          left.appendChild(el('div','hod-proj-expiry held','On hold - auto-deletes: '+hodShortDate(p.expiresAt)+days));
         }else{
           left.appendChild(el('div','hod-proj-expiry'+((dl!==null&&dl<=3)?' soon':''),'Auto-deletes: '+hodShortDate(p.expiresAt)+days));
         }
@@ -2413,7 +2551,7 @@ function downloadHODSummary(){
     if(!r.days||r.days.length===0){reset();toast('No reports to summarise.','err');return;}
     var days=r.days;
     // Keep photos for the last HOD_IMG_DAYS days that have images (chronological
-    // order is preserved, so Day 1 stays Day 1 — only older photos are dropped).
+    // order is preserved, so Day 1 stays Day 1 - only older photos are dropped).
     var withImgs=[];
     days.forEach(function(d,i){ if(d.images&&d.images.length) withImgs.push(i); });
     var keep={};
@@ -2432,7 +2570,7 @@ function downloadHODSummary(){
       reset();
       if(!r2||r2.error||!r2.days||!r2.days.length){toast('Failed to fetch summary.','err');return;}
       generateHODSummaryPDF(r2);
-      toast('Photos unavailable — text summary downloaded.','err');
+      toast('Photos unavailable - text summary downloaded.','err');
     }).catch(function(){
       reset();toast('Failed to fetch summary.','err');
     });
@@ -2461,7 +2599,7 @@ function hodLoadImages(days,btn){
 // falling back to the public R2 URL. A photo that fails is simply skipped.
 function hodFetchImage(img){
   if(!img) return Promise.resolve();
-  // A pre-migration record may arrive with bytes already inline — shrink those
+  // A pre-migration record may arrive with bytes already inline - shrink those
   // too, otherwise one old photo can outweigh a hundred new ones.
   if(img.base64){
     try{
@@ -2589,7 +2727,7 @@ function generateHODSummaryPDF(data){
         if(!d.images||!d.images.length)return;
         if(y>pH-15){doc.addPage();y=m;}
         doc.setTextColor(27,58,107);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
-        doc.text('Day '+(idx+1)+' — '+hodShortDate(d.reportDate||d.startDate||d.downloadedAt),m,y);y+=5;
+        doc.text('Day '+(idx+1)+' - '+hodShortDate(d.reportDate||d.startDate||d.downloadedAt),m,y);y+=5;
         var iW=55,iH=42,gap=5,x=m;
         d.images.forEach(function(img){
           if(!img.base64)return;
@@ -2642,7 +2780,7 @@ function hodFileProjectCopy(pc){
     var txt=(outputStore[k]!==undefined?outputStore[k]:((generatedDWR&&generatedDWR.sections&&generatedDWR.sections[k]&&generatedDWR.sections[k].polished_text)||''));
     sections[k]={polished_text:txt};
   });
-  var images=siteImages.map(function(img){return{base64:img.base64,mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};});
+  var images=siteImages.map(function(img){return{base64:img.base64,key:img.key||'',url:img.url||'',mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};});
   // Date of Report = Neptunus sign-off date; fall back to customer sign-off date, then start date.
   var _nepD=document.getElementById('so-nep-date-input');
   var _cstD=document.getElementById('so-cust-date-input');
