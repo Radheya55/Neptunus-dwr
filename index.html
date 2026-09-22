@@ -334,6 +334,17 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
 .photo-card-edit.desc{font-size:0.8rem;color:#4a5b6d;}
 .photo-card-lbl{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:700;margin-bottom:0.2rem;}
 .photo-card-fields{padding:0.6rem 0.9rem 0.8rem;display:flex;flex-direction:column;gap:0.5rem;}
+/* TOOLS USED table (preview) */
+.tools-grid{display:flex;flex-direction:column;gap:0.4rem;margin-top:0.2rem;}
+.tools-head,.tools-row{display:grid;grid-template-columns:1fr 84px 34px;gap:0.4rem;align-items:center;}
+.tools-head{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:700;}
+.tools-row input{width:100%;background:#fff;border:1.5px solid #d0dae8;border-radius:6px;color:#1B3A6B;padding:0.45rem 0.55rem;font-size:0.86rem;font-family:inherit;}
+.tools-row input:focus{outline:none;border-color:#F47920;}
+.tools-row input[type=number]{text-align:center;}
+.btn-tool-rm{background:transparent;border:1.5px solid rgba(224,85,85,0.4);color:var(--danger);border-radius:6px;height:34px;font-size:0.8rem;font-weight:700;cursor:pointer;}
+.btn-tool-add{width:100%;background:transparent;border:2px dashed #d0dae8;color:var(--muted);border-radius:8px;padding:0.55rem;font-size:0.82rem;font-weight:600;cursor:pointer;margin-top:0.2rem;}
+.btn-tool-add:hover{border-color:#F47920;color:#F47920;}
+.tools-view{margin-top:0.2rem;}
 /* TOAST */
 .toast{position:fixed;bottom:1.3rem;left:50%;transform:translateX(-50%) translateY(20px);background:#1B3A6B;border:2px solid #F47920;border-radius:8px;padding:0.65rem 1.1rem;font-size:0.82rem;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:300;opacity:0;transition:all 0.3s;pointer-events:none;max-width:300px;text-align:center;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -793,7 +804,7 @@ var siteImages=[],generatedDWR=null,finaliseOk=false,cdInterval=null,outputStore
 var projectData=null,verifyMode='dwr';
 var clockSt={tb:{h:null,m:null,ap:'AM'},sm:{h:null,m:null,ap:'AM'}};
 var NUM_BARS=26;
-var SEC_ORDER=['scope_done','scope_not_done','additional_tasks','critical_issues','lost_time','spares_consumables','customer_manpower','accidents_safety','tools_issues','customer_property','plan_tomorrow','additional_notes'];
+var SEC_ORDER=['scope_done','scope_not_done','additional_tasks','critical_issues','lost_time','spares_consumables','tools_used','customer_manpower','accidents_safety','tools_issues','customer_property','plan_tomorrow','additional_notes'];
 var SEC_LABELS={
   scope_done:'Scope of Work Completed Today',
   scope_not_done:'Scope Planned but Not Completed',
@@ -801,6 +812,7 @@ var SEC_LABELS={
   critical_issues:'Critical Issues / Observations',
   lost_time:'Lost / Idle / Rework Time',
   spares_consumables:'Spares & Consumables Used / Required',
+  tools_used:'Tools Used',
   customer_manpower:'Customer Manpower & Resources Used',
   accidents_safety:'Accidents, Injuries, Near Misses or Safety Violations',
   tools_issues:'Lost, Damaged or Malfunctioning Tools',
@@ -1099,6 +1111,7 @@ function collectLightState(){
 function sectionsFromStore(){
   var out={};
   SEC_ORDER.forEach(function(k){ if(outputStore[k]!==undefined) out[k]={polished_text:outputStore[k]}; });
+  if(outputStore['tools_used']!==undefined){var _ti=cleanToolItems(toolsStore);out.tools_used={items:_ti,polished_text:toolsText(_ti)};}
   // keep any sections that exist on generatedDWR but weren't in the store
   if(generatedDWR&&generatedDWR.sections){
     Object.keys(generatedDWR.sections).forEach(function(k){ if(out[k]===undefined) out[k]=generatedDWR.sections[k]; });
@@ -1639,6 +1652,7 @@ function mergeAdditions(additions){
   if(!generatedDWR)generatedDWR={sections:{}};
   if(!generatedDWR.sections)generatedDWR.sections={};
   SEC_ORDER.forEach(function(key){
+    if(key==='tools_used')return; // handled below as table rows
     var add=(additions[key]||'').trim();
     if(!add)return; // nothing new for this section
     // Current text: prefer the live edited store, else the generated section
@@ -1648,6 +1662,13 @@ function mergeAdditions(additions){
     outputStore[key]=merged;
     generatedDWR.sections[key]={polished_text:merged};
   });
+  var addT=normTools(additions.tools_used);
+  if(addT.length){
+    var have={};
+    toolsStore.forEach(function(t){if(t&&t.name)have[String(t.name).trim().toLowerCase()]=true;});
+    addT.forEach(function(t){var k=t.name.toLowerCase();if(!have[k]){toolsStore.push({name:t.name,units:t.units});have[k]=true;}});
+    syncTools();
+  }
 }
 function convertToDWR(){
   if(!finaliseOk){toast('Please finalise the draft first.','err');return;}
@@ -1780,6 +1801,13 @@ function renderOutput(data){
   var rest=document.getElementById('out-rest-sections');rest.innerHTML='';
   for(var ki=1;ki<SEC_ORDER.length;ki++){
     var key=SEC_ORDER[ki];
+    if(key==='tools_used'){
+      toolsStore=normTools(data.sections&&data.sections.tools_used);
+      toolsEditing=false;
+      outputStore['tools_used']=toolsText(toolsStore);
+      rest.appendChild(makeToolsCard());
+      continue;
+    }
     var txt=((data.sections&&data.sections[key]&&data.sections[key].polished_text)||'- Nothing reported for this section.').trim();
     outputStore[key]=txt;rest.appendChild(makeSecCard(key,txt));
   }
@@ -1827,6 +1855,168 @@ function scheduleHodImageSync(){
     }).catch(function(){});
   },1500);
 }
+// ══════════════════════════════════════════════════════════════
+// TOOLS USED (table section). Stored inside sections as
+// { items:[{name,units}], polished_text } so drafts, the HOD copy and the
+// summary carry it through the same paths as every other section.
+// ══════════════════════════════════════════════════════════════
+var toolsStore=[];      // rows shown in the preview (may hold blank rows while editing)
+var toolsEditing=false;
+var TOOLS_NONE='- Nothing reported for this section.';
+// Keep only rows with a name; units are whole numbers, minimum 1.
+function cleanToolItems(arr){
+  var out=[];
+  (arr||[]).forEach(function(t){
+    if(!t)return;
+    var name=(typeof t==='string')?t:(t.name||t.tool||'');
+    name=String(name).replace(/\s+/g,' ').trim();
+    if(!name)return;
+    var raw=(typeof t==='object')?(t.units!==undefined?t.units:t.quantity):1;
+    var u=parseInt(raw,10);if(!(u>=1))u=1;if(u>9999)u=9999;
+    out.push({name:name,units:u});
+  });
+  return out;
+}
+// Accepts the stored object, a bare array, or older plain text.
+function normTools(x){
+  if(!x)return [];
+  if(Array.isArray(x))return cleanToolItems(x);
+  if(typeof x==='object'&&Array.isArray(x.items))return cleanToolItems(x.items);
+  var s=(typeof x==='string')?x:((x&&typeof x.polished_text==='string')?x.polished_text:'');
+  var rows=[];
+  s.split('\n').forEach(function(line){
+    var t=line.replace(/^[\s\u2022*\-]+/,'').trim();
+    if(!t||t.toLowerCase().indexOf('nothing reported')!==-1)return;
+    var m=t.match(/^(.*?)\s*[x\u00d7]\s*(\d+)\s*$/i);
+    rows.push(m?{name:m[1],units:m[2]}:{name:t,units:1});
+  });
+  return cleanToolItems(rows);
+}
+function toolsText(items){
+  var v=cleanToolItems(items);
+  if(!v.length)return TOOLS_NONE;
+  return v.map(function(t){return '\u2022 '+t.name+' x '+t.units;}).join('\n');
+}
+// Push the current table into the report state and autosave.
+function syncTools(){
+  var items=cleanToolItems(toolsStore);
+  var txt=toolsText(items);
+  outputStore['tools_used']=txt;
+  if(generatedDWR){
+    if(!generatedDWR.sections)generatedDWR.sections={};
+    generatedDWR.sections.tools_used={items:items,polished_text:txt};
+  }
+  scheduleLightSync();
+}
+function makeToolsCard(){
+  var card=el('div','out-card');card.id='oc-tools_used';
+  card.appendChild(el('div','out-label',SEC_LABELS.tools_used));
+  var pen=el('button','btn-pen',toolsEditing?'\ud83d\udcbe':'\u270f\ufe0f');pen.id='pen-tools_used';
+  if(toolsEditing)pen.classList.add('editing');
+  pen.addEventListener('click',toggleToolsEdit);
+  var body=el('div','tools-view');body.id='tools-body';
+  card.appendChild(pen);card.appendChild(body);
+  renderToolsBody(body);
+  return card;
+}
+function renderToolsBody(body){
+  body=body||document.getElementById('tools-body');if(!body)return;
+  body.innerHTML='';
+  if(!toolsEditing){
+    var valid=cleanToolItems(toolsStore);
+    if(!valid.length){body.appendChild(el('div','out-text',TOOLS_NONE));return;}
+    var tbl=el('table','mtable');var th=el('thead');var hr=el('tr');
+    hr.appendChild(el('th','','Name of Tool'));
+    var hu=el('th','','Units Used');hu.style.textAlign='center';hu.style.width='90px';hr.appendChild(hu);
+    th.appendChild(hr);tbl.appendChild(th);
+    var tb=el('tbody');
+    valid.forEach(function(t){
+      var tr=el('tr');tr.appendChild(el('td','',t.name));
+      var tu=el('td','',String(t.units));tu.style.textAlign='center';tr.appendChild(tu);
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);body.appendChild(tbl);
+    return;
+  }
+  var grid=el('div','tools-grid');
+  var head=el('div','tools-head');
+  head.appendChild(el('div','','Name of Tool'));
+  var hu2=el('div','','Units Used');hu2.style.textAlign='center';head.appendChild(hu2);
+  head.appendChild(el('div',''));
+  grid.appendChild(head);
+  toolsStore.forEach(function(t,i){
+    var row=el('div','tools-row');
+    var ni=document.createElement('input');ni.type='text';ni.placeholder='Tool name';ni.value=t.name||'';ni.id='tool-name-'+i;
+    ni.addEventListener('input',function(){toolsStore[i].name=ni.value;syncTools();});
+    var ui=document.createElement('input');ui.type='number';ui.min='1';ui.step='1';ui.inputMode='numeric';
+    ui.value=String(t.units||1);ui.id='tool-units-'+i;
+    // Accept a valid number as it is typed; settle anything invalid to 1 on leaving the box.
+    ui.addEventListener('input',function(){var n=parseInt(ui.value,10);if(n>=1){toolsStore[i].units=n;syncTools();}});
+    var settle=function(){var n=parseInt(ui.value,10);if(!(n>=1))n=1;toolsStore[i].units=n;ui.value=String(n);syncTools();};
+    ui.addEventListener('change',settle);ui.addEventListener('blur',settle);
+    var rm=el('button','btn-tool-rm','\u2715');rm.title='Remove this tool';
+    rm.addEventListener('click',function(){toolsStore.splice(i,1);syncTools();renderToolsBody();});
+    row.appendChild(ni);row.appendChild(ui);row.appendChild(rm);grid.appendChild(row);
+  });
+  var add=el('button','btn-tool-add','+ Add Tool');
+  add.addEventListener('click',function(){
+    toolsStore.push({name:'',units:1});renderToolsBody();
+    var n=document.getElementById('tool-name-'+(toolsStore.length-1));if(n)n.focus();
+  });
+  grid.appendChild(add);body.appendChild(grid);
+}
+function toggleToolsEdit(){
+  var pen=document.getElementById('pen-tools_used');
+  if(toolsEditing){
+    toolsStore=cleanToolItems(toolsStore);   // drop rows left without a name
+    toolsEditing=false;syncTools();
+    if(pen){pen.textContent='\u270f\ufe0f';pen.classList.remove('editing');}
+    renderToolsBody();toast('Changes saved.','ok');
+  }else{
+    toolsEditing=true;
+    if(!toolsStore.length)toolsStore.push({name:'',units:1});
+    if(pen){pen.textContent='\ud83d\udcbe';pen.classList.add('editing');}
+    renderToolsBody();
+  }
+}
+// Tidy a text section: once real points exist, drop the "Nothing reported"
+// placeholder and any empty bullets left behind by pressing Enter. If nothing
+// real remains, keep the placeholder.
+function cleanSectionText(txt){
+  var lines=String(txt||'').split('\n');
+  var isPh=function(l){return l.toLowerCase().indexOf('nothing reported')!==-1;};
+  var isBlank=function(l){return l.replace(/^[\s\u2022*\-]+/,'').trim()==='';};
+  var real=lines.filter(function(l){return !isBlank(l)&&!isPh(l);});
+  if(!real.length){var ph=lines.filter(isPh)[0];return ph?ph.trim():'- Nothing reported for this section.';}
+  return real.map(function(l){return l.replace(/\s+$/,'');}).join('\n');
+}
+// Enter starts a new bullet (same marker as the line above). A line that simply
+// wraps because it is long is not a new line, so no bullet appears there.
+// Shift+Enter still gives a plain line break.
+function insertBulletLine(ta){
+  var v=ta.value,s=ta.selectionStart,e=ta.selectionEnd;
+  var ls=v.lastIndexOf('\n',s-1)+1;
+  var m=v.slice(ls,s).match(/^(\s*)([\u2022\-*])\s*/);
+  var ins='\n'+(m?m[1]:'')+(m?m[2]:'\u2022')+' ';
+  if(typeof ta.setRangeText==='function'){ta.setRangeText(ins,s,e,'end');}
+  else{ta.value=v.slice(0,s)+ins+v.slice(e);ta.selectionStart=ta.selectionEnd=s+ins.length;}
+  ta.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function attachBulletEnter(ta){
+  var plain=false;
+  ta.addEventListener('keydown',function(ev){
+    if(ev.key!=='Enter'||ev.isComposing||ev.keyCode===229)return;
+    if(ev.shiftKey){plain=true;return;}
+    ev.preventDefault();insertBulletLine(ta);
+  });
+  // Mobile keyboards often don't report Enter in keydown; catch the line break here.
+  ta.addEventListener('beforeinput',function(ev){
+    if(ev.inputType!=='insertLineBreak'&&ev.inputType!=='insertParagraph')return;
+    if(plain){plain=false;return;}
+    ev.preventDefault();insertBulletLine(ta);
+  });
+  ta.addEventListener('keyup',function(){plain=false;});
+}
 function makeSecCard(key,txt){
   var card=el('div','out-card');card.id='oc-'+key;
   var lbl=el('div','out-label',SEC_LABELS[key]);
@@ -1835,16 +2025,19 @@ function makeSecCard(key,txt){
   var tx=el('div','out-text');tx.id='out-'+key;tx.textContent=txt;
   var edit=document.createElement('textarea');edit.className='out-edit';edit.id='edit-'+key;edit.value=txt;
   edit.addEventListener('input',(function(k){return function(){outputStore[k]=this.value;scheduleLightSync();};})(key));
+  attachBulletEnter(edit);
   card.appendChild(lbl);card.appendChild(pen);card.appendChild(tx);card.appendChild(edit);
   return card;
 }
 function toggleEdit(key){
+  if(key==='tools_used'){toggleToolsEdit();return;}
   var card=document.getElementById('oc-'+key);if(!card)return;
   var tx=document.getElementById('out-'+key),ed=document.getElementById('edit-'+key),pen=document.getElementById('pen-'+key);
   if(!tx||!ed)return;
   var editing=ed.style.display==='block';
   if(editing){
-    outputStore[key]=ed.value;tx.textContent=ed.value;
+    var _val=(SEC_ORDER.indexOf(key)!==-1)?cleanSectionText(ed.value):ed.value;
+    ed.value=_val;outputStore[key]=_val;tx.textContent=_val;
     ed.style.display='none';tx.style.display='block';
     pen.textContent='\u270f\ufe0f';pen.classList.remove('editing');toast('Changes saved.','ok');
   }else{
@@ -2019,7 +2212,24 @@ function generatePDFBlob(engineerNameOverride,callback){
     y=doc.lastAutoTable.finalY+5;
     for(var ki=0;ki<SEC_ORDER.length;ki++){
       var key=SEC_ORDER[ki],lbl=SEC_LABELS[key];
-      var txt=(outputStore[key]||'- Nothing reported for this section.').trim();
+      if(key==='tools_used'){
+        var tRows=cleanToolItems(toolsStore).map(function(t){return [t.name,String(t.units)];});
+        chk(tRows.length?24:19);
+        doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
+        doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+        doc.text(lbl,m+3,y+5);
+        if(!tRows.length){
+          y+=13;
+          doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+          doc.text(TOOLS_NONE,m+4,y);y+=9;
+        }else{
+          y+=9;
+          doc.autoTable({startY:y,head:[['Name of Tool','Units Used']],body:tRows,columnStyles:{0:{cellWidth:'auto'},1:{cellWidth:32,halign:'center'}},margin:{left:m,right:m},styles:{fontSize:8,cellPadding:2.5},headStyles:{fillColor:[27,58,107],textColor:[244,121,32],fontStyle:'bold'},theme:'grid'});
+          y=doc.lastAutoTable.finalY+6;
+        }
+        continue;
+      }
+      var txt=cleanSectionText(outputStore[key]||'- Nothing reported for this section.').trim();
       var lines=txt.split('\n').filter(function(l){return l.trim().length>0;});
       chk(14+Math.min(lines.length,3)*5+5);
       doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
@@ -2122,7 +2332,9 @@ function previewDraftPDF(draftId){
     var savedStore=JSON.parse(JSON.stringify(outputStore));
     var savedImages=siteImages.slice();
     var savedTeam=teamMembers.slice();
+    var savedTools=toolsStore.slice();
     generatedDWR={sections:d.sections};
+    toolsStore=normTools(d.sections&&d.sections.tools_used);
     var fd=d.formData||{};
     SEC_ORDER.forEach(function(key){
       var sec=d.sections&&d.sections[key];
@@ -2155,12 +2367,12 @@ function previewDraftPDF(draftId){
     Object.keys(tempFields).forEach(function(id){var el2=document.getElementById(id);if(el2){savedFieldValues[id]=el2.value;el2.value=tempFields[id];}});
     var savedClockSt=JSON.parse(JSON.stringify(clockSt));
     try{generatePDFBlob(d.engineerName||savedUser.name,function(blob){
-      generatedDWR=savedDWR;outputStore=savedStore;siteImages=savedImages;teamMembers=savedTeam;clockSt=savedClockSt;
+      generatedDWR=savedDWR;outputStore=savedStore;siteImages=savedImages;teamMembers=savedTeam;clockSt=savedClockSt;toolsStore=savedTools;
       Object.keys(savedFieldValues).forEach(function(id){var el2=document.getElementById(id);if(el2)el2.value=savedFieldValues[id];});
       if(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},60000);toast('PDF preview opened in new tab.','ok');}
       else{toast('Could not generate preview.','err');}
     });}catch(e){
-      generatedDWR=savedDWR;outputStore=savedStore;siteImages=savedImages;teamMembers=savedTeam;
+      generatedDWR=savedDWR;outputStore=savedStore;siteImages=savedImages;teamMembers=savedTeam;toolsStore=savedTools;
       Object.keys(savedFieldValues).forEach(function(id){var el2=document.getElementById(id);if(el2)el2.value=savedFieldValues[id];});
       toast('Preview error: '+e.message,'err');
     }
@@ -2682,7 +2894,7 @@ function generateHODSummaryPDF(data){
     }
 
     // Day-wise table: rows = days, columns = Day/Date + 12 buckets (short headers)
-    var shortHdr={scope_done:'Scope Done',scope_not_done:'Scope Not Done',additional_tasks:'Addl Tasks',critical_issues:'Critical Issues',lost_time:'Lost Time',spares_consumables:'Spares',customer_manpower:'Cust Manpower',accidents_safety:'Safety',tools_issues:'Tool Issues',customer_property:'Cust Property',plan_tomorrow:'Plan Next',additional_notes:'Notes/HSE'};
+    var shortHdr={scope_done:'Scope Done',scope_not_done:'Scope Not Done',additional_tasks:'Addl Tasks',critical_issues:'Critical Issues',lost_time:'Lost Time',spares_consumables:'Spares',tools_used:'Tools Used',customer_manpower:'Cust Manpower',accidents_safety:'Safety',tools_issues:'Tool Issues',customer_property:'Cust Property',plan_tomorrow:'Plan Next',additional_notes:'Notes/HSE'};
     var head=[['Day / Date'].concat(SEC_ORDER.map(function(k){return shortHdr[k];}))];
     function cleanCell(txt){
       if(!txt)return '';
@@ -2695,7 +2907,7 @@ function generateHODSummaryPDF(data){
       var row=[dateStr];
       SEC_ORDER.forEach(function(k){
         var sec=d.sections&&d.sections[k];
-        row.push(cleanCell(sec&&sec.polished_text));
+        row.push(k==='tools_used'?cleanCell(toolsText(normTools(sec))):cleanCell(sec&&sec.polished_text));
       });
       return row;
     });
@@ -2777,8 +2989,9 @@ function hodFileProjectCopy(pc){
   // Build sections from the current edited outputStore (falls back to generatedDWR)
   var sections={};
   SEC_ORDER.forEach(function(k){
+    if(k==='tools_used'){var _ti=cleanToolItems(toolsStore);sections[k]={items:_ti,polished_text:toolsText(_ti)};return;}
     var txt=(outputStore[k]!==undefined?outputStore[k]:((generatedDWR&&generatedDWR.sections&&generatedDWR.sections[k]&&generatedDWR.sections[k].polished_text)||''));
-    sections[k]={polished_text:txt};
+    sections[k]={polished_text:cleanSectionText(txt)};
   });
   var images=siteImages.map(function(img){return{base64:img.base64,key:img.key||'',url:img.url||'',mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};});
   // Date of Report = Neptunus sign-off date; fall back to customer sign-off date, then start date.
