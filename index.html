@@ -856,6 +856,7 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('team-inp').addEventListener('keydown',function(e){if(e.key==='Enter')addTeamMember();});
   document.getElementById('btn-add-member').addEventListener('click',addTeamMember);
   document.getElementById('f-start-date').addEventListener('input',updateChecklist);
+  (function(){var _tl=document.getElementById('f-team-leader');if(_tl)_tl.addEventListener('input',function(){syncMetaFromTeamLeader();scheduleLightSync();});})();
   document.getElementById('btn-finalise').addEventListener('click',finalise);
   document.getElementById('btn-convert').addEventListener('click',convertToDWR);
   document.getElementById('btn-pdf').addEventListener('click',downloadPDF);
@@ -1293,6 +1294,25 @@ function onReportDateChange(){
 // is what prints. The Neptunus signature is NOT this name; that stays the maker.
 function defaultTeamLeader(){ return verifiedUser?verifiedUser.name:''; }
 function setTeamLeaderField(v){ var e=document.getElementById('f-team-leader'); if(e)e.value=v||''; }
+// Reopening a downloaded report lands on the Preview, so Report Details is the
+// card people actually edit. Keep it and the Step 2 box saying the same thing,
+// whichever one was changed, so the PDF always prints what was typed.
+var TL_LINE=/^([ \t]*Team Leader[ \t]*:[ \t]*)(.*)$/mi;
+function syncTeamLeaderFromMeta(txt){
+  var m=String(txt||'').match(TL_LINE);
+  if(!m)return;
+  var name=(m[2]||'').trim();
+  if(name&&name!=='--')setTeamLeaderField(name);
+}
+function syncMetaFromTeamLeader(){
+  if(outputStore['meta']===undefined)return;
+  var name=getTeamLeader();
+  var updated=String(outputStore['meta']).replace(TL_LINE,function(_,lead){return lead+name;});
+  if(updated===outputStore['meta'])return;
+  outputStore['meta']=updated;
+  var o=document.getElementById('out-meta'); if(o)o.textContent=updated;
+  var e2=document.getElementById('edit-meta'); if(e2&&e2.style.display!=='block')e2.value=updated;
+}
 function getTeamLeader(){
   var e=document.getElementById('f-team-leader');
   var v=e?e.value.trim():'';
@@ -2053,6 +2073,7 @@ function toggleEdit(key){
   if(editing){
     var _val=(SEC_ORDER.indexOf(key)!==-1)?cleanSectionText(ed.value):ed.value;
     ed.value=_val;outputStore[key]=_val;tx.textContent=_val;
+    if(key==='meta')syncTeamLeaderFromMeta(_val);
     ed.style.display='none';tx.style.display='block';
     pen.textContent='\u270f\ufe0f';pen.classList.remove('editing');toast('Changes saved.','ok');
   }else{
