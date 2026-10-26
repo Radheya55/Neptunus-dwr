@@ -1694,6 +1694,7 @@ function mergeAdditions(additions){
     var curr=(outputStore[key]!==undefined?outputStore[key]:((generatedDWR.sections[key]&&generatedDWR.sections[key].polished_text)||'')).trim();
     var isEmpty=(!curr)||curr.indexOf('Nothing reported')!==-1||curr==='- Nothing reported for this section.';
     var merged=isEmpty?add:(curr+'\n'+add);
+    merged=numberLines(merged);
     outputStore[key]=merged;
     generatedDWR.sections[key]={polished_text:merged};
   });
@@ -1813,6 +1814,7 @@ function renderOutput(data){
   document.getElementById('edit-meetings').value=outputStore['meetings'];
   var secOut=document.getElementById('out-scope-done-card');secOut.innerHTML='';
   var scopeTxt=((data.sections&&data.sections['scope_done']&&data.sections['scope_done'].polished_text)||'- Nothing reported for this section.').trim();
+  scopeTxt=numberLines(scopeTxt);
   outputStore['scope_done']=scopeTxt;secOut.appendChild(makeSecCard('scope_done',scopeTxt));
   var photoDiv=document.getElementById('out-photos-inline');photoDiv.innerHTML='';
   siteImages.forEach(function(img,i){
@@ -1844,6 +1846,7 @@ function renderOutput(data){
       continue;
     }
     var txt=((data.sections&&data.sections[key]&&data.sections[key].polished_text)||'- Nothing reported for this section.').trim();
+    txt=numberLines(txt);
     outputStore[key]=txt;rest.appendChild(makeSecCard(key,txt));
   }
   document.getElementById('so-nep-name').textContent=verifiedUser.name;
@@ -1920,7 +1923,7 @@ function normTools(x){
   var s=(typeof x==='string')?x:((x&&typeof x.polished_text==='string')?x.polished_text:'');
   var rows=[];
   s.split('\n').forEach(function(line){
-    var t=line.replace(/^[\s\u2022*\-]+/,'').trim();
+    var t=stripMarker(line);
     if(!t||t.toLowerCase().indexOf('nothing reported')!==-1)return;
     var m=t.match(/^(.*?)\s*[x\u00d7]\s*(\d+)\s*$/i);
     rows.push(m?{name:m[1],units:m[2]}:{name:t,units:1});
@@ -1930,7 +1933,7 @@ function normTools(x){
 function toolsText(items){
   var v=cleanToolItems(items);
   if(!v.length)return TOOLS_NONE;
-  return v.map(function(t){return '\u2022 '+t.name+' x '+t.units;}).join('\n');
+  return v.map(function(t,i){return (i+1)+'. '+t.name+' x '+t.units;}).join('\n');
 }
 // Push the current table into the report state and autosave.
 function syncTools(){
@@ -2017,10 +2020,29 @@ function toggleToolsEdit(){
 // Tidy a text section: once real points exist, drop the "Nothing reported"
 // placeholder and any empty bullets left behind by pressing Enter. If nothing
 // real remains, keep the placeholder.
+// Points are shown as 1. 2. 3. instead of bullets. The marker is stripped and
+// rewritten every time a section is saved, so the numbering stays in order no
+// matter where a point was added or removed.
+var LINE_MARKER=/^[ \t]*(?:[•·\-*]+[ \t]*|\d+[.)][ \t]*)+/;
+function stripMarker(line){ return String(line).replace(LINE_MARKER,'').trim(); }
+function numberLines(txt){
+  var cleaned=cleanSectionText(txt);
+  var lines=cleaned.split('\n');
+  // The AI writes the placeholder with a bullet sometimes and a dash other
+  // times. Settle it to one wording so no stray bullet reaches the PDF.
+  if(lines.length===1&&lines[0].toLowerCase().indexOf('nothing reported')!==-1)return '- Nothing reported for this section.';
+  var n=0,out=[];
+  lines.forEach(function(l){
+    var t=stripMarker(l);
+    if(!t)return;
+    n++;out.push(n+'. '+t);
+  });
+  return out.length?out.join('\n'):'- Nothing reported for this section.';
+}
 function cleanSectionText(txt){
   var lines=String(txt||'').split('\n');
   var isPh=function(l){return l.toLowerCase().indexOf('nothing reported')!==-1;};
-  var isBlank=function(l){return l.replace(/^[\s\u2022*\-]+/,'').trim()==='';};
+  var isBlank=function(l){return stripMarker(l)==='';};
   var real=lines.filter(function(l){return !isBlank(l)&&!isPh(l);});
   if(!real.length){var ph=lines.filter(isPh)[0];return ph?ph.trim():'- Nothing reported for this section.';}
   return real.map(function(l){return l.replace(/\s+$/,'');}).join('\n');
@@ -2030,9 +2052,8 @@ function cleanSectionText(txt){
 // Shift+Enter still gives a plain line break.
 function insertBulletLine(ta){
   var v=ta.value,s=ta.selectionStart,e=ta.selectionEnd;
-  var ls=v.lastIndexOf('\n',s-1)+1;
-  var m=v.slice(ls,s).match(/^(\s*)([\u2022\-*])\s*/);
-  var ins='\n'+(m?m[1]:'')+(m?m[2]:'\u2022')+' ';
+  var done=v.slice(0,s).split('\n').filter(function(l){return stripMarker(l)!=='';}).length;
+  var ins='\n'+(done+1)+'. ';
   if(typeof ta.setRangeText==='function'){ta.setRangeText(ins,s,e,'end');}
   else{ta.value=v.slice(0,s)+ins+v.slice(e);ta.selectionStart=ta.selectionEnd=s+ins.length;}
   ta.dispatchEvent(new Event('input',{bubbles:true}));
@@ -2071,7 +2092,7 @@ function toggleEdit(key){
   if(!tx||!ed)return;
   var editing=ed.style.display==='block';
   if(editing){
-    var _val=(SEC_ORDER.indexOf(key)!==-1)?cleanSectionText(ed.value):ed.value;
+    var _val=(SEC_ORDER.indexOf(key)!==-1)?numberLines(ed.value):ed.value;
     ed.value=_val;outputStore[key]=_val;tx.textContent=_val;
     if(key==='meta')syncTeamLeaderFromMeta(_val);
     ed.style.display='none';tx.style.display='block';
@@ -2269,7 +2290,7 @@ function generatePDFBlob(engineerNameOverride,callback){
         }
         continue;
       }
-      var txt=cleanSectionText(outputStore[key]||'- Nothing reported for this section.').trim();
+      var txt=numberLines(outputStore[key]||'- Nothing reported for this section.').trim();
       var lines=txt.split('\n').filter(function(l){return l.trim().length>0;});
       chk(14+Math.min(lines.length,3)*5+5);
       doc.setFillColor(27,58,107);doc.rect(m,y,cW,7,'F');
@@ -2278,7 +2299,7 @@ function generatePDFBlob(engineerNameOverride,callback){
       doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
       lines.forEach(function(line){
         var l=line.trim();if(!l)return;
-        var tx=l.charAt(0)==='-'||l.charCodeAt(0)===8226?l:'- '+l;
+        var tx=l;   // numberLines has already put 1. 2. 3. on each point
         var wr=doc.splitTextToSize(tx,cW-6);chk(wr.length*5+2);
         doc.text(wr[0],m+4,y);y+=5;
         for(var wi=1;wi<wr.length;wi++){doc.text(wr[wi],m+7,y);y+=5;}y+=1;
@@ -2432,7 +2453,7 @@ function criticalIssuesLines(){
     : ((generatedDWR&&generatedDWR.sections&&generatedDWR.sections['critical_issues']&&generatedDWR.sections['critical_issues'].polished_text)||'');
   if(!raw)return [];
   return String(raw).split('\n').filter(function(line){
-    var t=line.replace(/^[\s\u2022*\-]+/,'').trim();   // strip bullet marker
+    var t=stripMarker(line);   // strip whatever marker is there
     if(!t)return false;
     if(t.toLowerCase().indexOf('nothing reported')!==-1)return false;
     return true;
@@ -2445,8 +2466,8 @@ function showCriticalGate(lines,onYes){
   var list=document.getElementById('ci-list');
   list.innerHTML='';
   lines.forEach(function(line){
-    var t=line.replace(/^[\s\u2022*\-]+/,'').trim();
-    list.appendChild(el('div','ci-line','\u2022 '+t));
+    var t=stripMarker(line);
+    list.appendChild(el('div','ci-line',(list.children.length+1)+'. '+t));
   });
   var yes=document.getElementById('btn-ci-yes');
   var no=document.getElementById('btn-ci-no');
@@ -3032,7 +3053,7 @@ function hodFileProjectCopy(pc){
   SEC_ORDER.forEach(function(k){
     if(k==='tools_used'){var _ti=cleanToolItems(toolsStore);sections[k]={items:_ti,polished_text:toolsText(_ti)};return;}
     var txt=(outputStore[k]!==undefined?outputStore[k]:((generatedDWR&&generatedDWR.sections&&generatedDWR.sections[k]&&generatedDWR.sections[k].polished_text)||''));
-    sections[k]={polished_text:cleanSectionText(txt)};
+    sections[k]={polished_text:numberLines(txt)};
   });
   var images=siteImages.map(function(img){return{base64:img.base64,key:img.key||'',url:img.url||'',mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};});
   // Date of Report = Neptunus sign-off date; fall back to customer sign-off date, then start date.
