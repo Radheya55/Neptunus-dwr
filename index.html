@@ -592,6 +592,7 @@ body{background:#f0f4f8;color:#1B3A6B;font-family:-apple-system,BlinkMacSystemFo
       <div class="field"><label>Rig / Vessel Name</label><input type="text" id="f-vessel" placeholder="Auto-filled or enter manually"/></div>
       <div class="field"><label>Project Details / Engine Info</label><textarea id="f-proj-details" placeholder="Auto-filled or enter manually" style="min-height:55px;"></textarea></div>
       <div class="field"><label>Offering / Type of Work</label><input type="text" id="f-offering" placeholder="Auto-filled or enter manually"/></div>
+      <div class="field"><label>Team Leader</label><input type="text" id="f-team-leader" placeholder="Auto-filled from base data or enter manually"/><div class="field-note">Printed as Team Leader at the top of the PDF. Change it if someone else is the team leader on this job.</div></div>
       <div class="field"><label>Job Location <span class="badge-opt">Optional</span></label><input type="text" id="f-location" placeholder="e.g. Mumbai Dockyard, Berth 4"/></div>
       <div class="field"><label>Start Date <span class="badge-req">Required</span></label><input type="date" id="f-start-date"/></div>
       <div class="field"><label>Estimated End Date <span class="badge-opt">Optional</span></label><input type="date" id="f-end-date"/></div>
@@ -1098,7 +1099,7 @@ function collectLightState(){
     type:currentDraftType||'in_progress',
     formData:{
       projectCode:v('f-proj-code'),customer:v('f-customer'),vessel:v('f-vessel'),
-      projectDetails:v('f-proj-details'),offering:v('f-offering'),location:v('f-location'),
+      projectDetails:v('f-proj-details'),offering:v('f-offering'),location:v('f-location'),teamLeader:v('f-team-leader'),
       startDate:v('f-start-date'),endDate:v('f-end-date'),teamMembers:teamMembers.slice(),
       tbTime:getMeetingTime('tb'),tbAtt:getAttText('tb'),smTime:getMeetingTime('sm'),smAtt:getAttText('sm')
     },
@@ -1203,6 +1204,7 @@ function tryLocalRecovery(){
     if(fd.projectCode){setv('f-proj-code',fd.projectCode);projectData={projectCode:fd.projectCode};}
     setv('f-customer',fd.customer);setv('f-vessel',fd.vessel);setv('f-proj-details',fd.projectDetails);
     setv('f-offering',fd.offering);setv('f-location',fd.location);
+    setTeamLeaderField((fd.teamLeader||'').trim()||defaultTeamLeader());
     if(fd.startDate)setv('f-start-date',fd.startDate);setv('f-end-date',fd.endDate);
     if(fd.teamMembers&&fd.teamMembers.length){teamMembers=fd.teamMembers.slice();renderTeamList();refreshAttendance();}
     // Restore meeting clock state
@@ -1255,7 +1257,8 @@ function initForm(){
   document.getElementById('form-body').classList.remove('locked');
   document.getElementById('identity-display').textContent=verifiedUser.name+' | '+verifiedUser.email;
   document.getElementById('f-start-date').value=new Date().toISOString().split('T')[0];
-  ['f-proj-code','f-customer','f-vessel','f-proj-details','f-offering','f-location','f-end-date','f-report-date'].forEach(function(id){document.getElementById(id).value='';});
+  ['f-proj-code','f-customer','f-vessel','f-proj-details','f-offering','f-location','f-end-date','f-report-date','f-team-leader'].forEach(function(id){var _e=document.getElementById(id);if(_e)_e.value='';});
+  setTeamLeaderField(defaultTeamLeader());
   document.getElementById('proj-status').textContent='';
   document.getElementById('site-img-grid').innerHTML='';
   document.getElementById('recordings-list').innerHTML='';
@@ -1283,6 +1286,17 @@ function onReportDateChange(){
   if(nepD)nepD.value=val;
   if(cstD)cstD.value=val;
   updateChecklist();
+}
+// ── Team Leader (printed at the top of the PDF) ──────────────────────────
+// Filled from the project's base data when there is one, otherwise the person
+// writing the report. Always editable: whatever is in the box at download time
+// is what prints. The Neptunus signature is NOT this name; that stays the maker.
+function defaultTeamLeader(){ return verifiedUser?verifiedUser.name:''; }
+function setTeamLeaderField(v){ var e=document.getElementById('f-team-leader'); if(e)e.value=v||''; }
+function getTeamLeader(){
+  var e=document.getElementById('f-team-leader');
+  var v=e?e.value.trim():'';
+  return v||defaultTeamLeader();
 }
 function addTeamMember(){
   var inp=document.getElementById('team-inp'),name=inp.value.trim();
@@ -1345,6 +1359,7 @@ function lookupProject(){
     document.getElementById('f-vessel').value=r.data.rigVesselName||'';
     document.getElementById('f-proj-details').value=r.data.projectDetails||'';
     document.getElementById('f-offering').value=r.data.offering||'';
+    setTeamLeaderField((r.data.teamLeader||'').trim()||defaultTeamLeader());
     if(r.data.teamMembers&&r.data.teamMembers.length){teamMembers=r.data.teamMembers.slice();renderTeamList();refreshAttendance();}
     st.textContent='Project found: '+code;st.style.color='var(--teal)';
     updateChecklist();toast('Project data loaded!','ok');
@@ -1737,7 +1752,7 @@ function clearAudioFileUI(){
 }
 function autoSaveDraft(result){
   if(!verifiedUser)return;
-  var fd={projectCode:document.getElementById('f-proj-code').value,customer:document.getElementById('f-customer').value,vessel:document.getElementById('f-vessel').value,projectDetails:document.getElementById('f-proj-details').value,offering:document.getElementById('f-offering').value,location:document.getElementById('f-location').value,startDate:document.getElementById('f-start-date').value,endDate:document.getElementById('f-end-date').value,reportDate:document.getElementById('f-report-date').value,teamMembers:teamMembers.slice(),tbTime:getMeetingTime('tb'),tbAtt:getAttText('tb'),smTime:getMeetingTime('sm'),smAtt:getAttText('sm')};
+  var fd={projectCode:document.getElementById('f-proj-code').value,customer:document.getElementById('f-customer').value,vessel:document.getElementById('f-vessel').value,projectDetails:document.getElementById('f-proj-details').value,offering:document.getElementById('f-offering').value,location:document.getElementById('f-location').value,teamLeader:getTeamLeader(),startDate:document.getElementById('f-start-date').value,endDate:document.getElementById('f-end-date').value,reportDate:document.getElementById('f-report-date').value,teamMembers:teamMembers.slice(),tbTime:getMeetingTime('tb'),tbAtt:getAttText('tb'),smTime:getMeetingTime('sm'),smAtt:getAttText('sm')};
   var imgs=siteImages.map(function(img){return{base64:img.base64,key:img.key||'',url:img.url||'',mime:img.file?img.file.type:'image/jpeg',title:img.title,desc:img.desc};});
   var meta={tb:{h:clockSt.tb.h,m:clockSt.tb.m,ap:clockSt.tb.ap},sm:{h:clockSt.sm.h,m:clockSt.sm.m,ap:clockSt.sm.ap}};
   setSavePill('saving');
@@ -1766,7 +1781,7 @@ function renderOutput(data){
   var ed=fmtDateShort(ev);
   var cust=document.getElementById('f-customer').value,ves=document.getElementById('f-vessel').value,loc=document.getElementById('f-location').value;
   var pd=document.getElementById('f-proj-details').value,off=document.getElementById('f-offering').value;
-  var metaParts=['Team Leader: '+verifiedUser.name,'Project Code: '+(document.getElementById('f-proj-code').value||'--'),'Start Date: '+sd,'Estimated End Date: '+ed];
+  var metaParts=['Team Leader: '+getTeamLeader(),'Project Code: '+(document.getElementById('f-proj-code').value||'--'),'Start Date: '+sd,'Estimated End Date: '+ed];
   if(cust)metaParts.push('Customer: '+cust);if(ves)metaParts.push('Vessel / Rig: '+ves);if(loc)metaParts.push('Location: '+loc);if(off)metaParts.push('Offering: '+off);if(pd)metaParts.push('Project Details: '+pd);
   if(teamMembers.length)metaParts.push('Team Members: '+teamMembers.join(', '));
   outputStore['meta']=metaParts.join('\n');
@@ -2114,6 +2129,8 @@ function openDraft(draftId){
     if(fd.projectDetails)document.getElementById('f-proj-details').value=fd.projectDetails;
     if(fd.offering)document.getElementById('f-offering').value=fd.offering;
     if(fd.location)document.getElementById('f-location').value=fd.location;
+    // Older drafts have no stored team leader: fall back to whoever made it.
+    setTeamLeaderField((fd.teamLeader||'').trim()||d.engineerName||defaultTeamLeader());
     if(fd.startDate)document.getElementById('f-start-date').value=fd.startDate;
     if(fd.endDate)document.getElementById('f-end-date').value=fd.endDate;
     if(fd.reportDate){document.getElementById('f-report-date').value=fd.reportDate;onReportDateChange();}
@@ -2176,7 +2193,9 @@ function generatePDFBlob(engineerNameOverride,callback){
     var ed=fmtDateShort(ev);
     var cust=document.getElementById('f-customer').value,ves=document.getElementById('f-vessel').value,loc=document.getElementById('f-location').value;
     var pd=document.getElementById('f-proj-details').value,off=document.getElementById('f-offering').value;
-    var useName=engineerNameOverride||verifiedUser.name;
+    var useName=engineerNameOverride||verifiedUser.name;        // the person who made this DWR
+    var _tlEl=document.getElementById('f-team-leader');
+    var tlName=(_tlEl&&_tlEl.value.trim())?_tlEl.value.trim():useName;  // printed as Team Leader
     // Read editable sign-off fields
     var _soND=document.getElementById('so-nep-date-input');
     var _soCD=document.getElementById('so-cust-date-input');
@@ -2195,7 +2214,7 @@ function generatePDFBlob(engineerNameOverride,callback){
     y=36;
     var rdv=document.getElementById('f-report-date').value;
     var rdd=rdv?fmtDate(rdv):'--';
-    var lRows=[['Team Leader',useName],['Project Code',document.getElementById('f-proj-code').value||'--'],['Start Date',sd],['Est. End Date',ed],['Date of Report',rdd]];
+    var lRows=[['Team Leader',tlName],['Project Code',document.getElementById('f-proj-code').value||'--'],['Start Date',sd],['Est. End Date',ed],['Date of Report',rdd]];
     if(teamMembers.length)lRows.push(['Team Members',teamMembers.join(', ')]);
     var rRows=[['Customer',cust||'--'],['Vessel / Rig',ves||'--'],['Location',loc||'--'],['Offering',off||'--']];
     if(pd)rRows.push(['Project Details',pd]);
@@ -2344,7 +2363,7 @@ function previewDraftPDF(draftId){
     var sd=sv?fmtDate(sv):'--';
     var ev=fd.endDate||'';
     var ed=ev?fmtDateShort(ev):'--';
-    var metaParts=['Team Leader: '+(d.engineerName||'--'),'Project Code: '+(fd.projectCode||'--'),'Start Date: '+sd,'Estimated End Date: '+ed];
+    var metaParts=['Team Leader: '+((fd.teamLeader||'').trim()||d.engineerName||'--'),'Project Code: '+(fd.projectCode||'--'),'Start Date: '+sd,'Estimated End Date: '+ed];
     if(fd.customer)metaParts.push('Customer: '+fd.customer);
     if(fd.vessel)metaParts.push('Vessel / Rig: '+fd.vessel);
     if(fd.location)metaParts.push('Location: '+fd.location);
@@ -2362,7 +2381,7 @@ function previewDraftPDF(draftId){
       });
     }
     teamMembers=fd.teamMembers||[];
-    var tempFields={'f-proj-code':fd.projectCode||'','f-customer':fd.customer||'','f-vessel':fd.vessel||'','f-proj-details':fd.projectDetails||'','f-offering':fd.offering||'','f-location':fd.location||'','f-start-date':fd.startDate||'','f-end-date':fd.endDate||''};
+    var tempFields={'f-proj-code':fd.projectCode||'','f-customer':fd.customer||'','f-vessel':fd.vessel||'','f-proj-details':fd.projectDetails||'','f-offering':fd.offering||'','f-location':fd.location||'','f-team-leader':(fd.teamLeader||'').trim()||d.engineerName||'','f-start-date':fd.startDate||'','f-end-date':fd.endDate||''};
     var savedFieldValues={};
     Object.keys(tempFields).forEach(function(id){var el2=document.getElementById(id);if(el2){savedFieldValues[id]=el2.value;el2.value=tempFields[id];}});
     var savedClockSt=JSON.parse(JSON.stringify(clockSt));
@@ -2883,6 +2902,7 @@ function generateHODSummaryPDF(data){
     function addBase(label,val){ if(val&&String(val).trim())baseRows.push([label,String(val)]); }
     addBase('Customer',base.customer);
     addBase('Vessel / Rig',base.vessel);
+    addBase('Team Leader',base.teamLeader);
     addBase('Project Details',base.projectDetails);
     addBase('Offering',base.offering);
     addBase('Location',base.location);
@@ -3000,7 +3020,7 @@ function hodFileProjectCopy(pc){
   var reportDate=(_nepD&&_nepD.value)?_nepD.value:((_cstD&&_cstD.value)?_cstD.value:v('f-start-date'));
   var baseData={
     customer:v('f-customer'),vessel:v('f-vessel'),projectDetails:v('f-proj-details'),
-    offering:v('f-offering'),location:v('f-location'),teamMembers:teamMembers.slice(),
+    offering:v('f-offering'),location:v('f-location'),teamLeader:getTeamLeader(),teamMembers:teamMembers.slice(),
     tbTime:getMeetingTime('tb'),tbAtt:getAttText('tb'),smTime:getMeetingTime('sm'),smAtt:getAttText('sm')
   };
   callWorker({
@@ -3025,4 +3045,3 @@ function toast(msg,type){var e=document.getElementById('toast');e.textContent=ms
 </script>
 </body>
 </html>
- 
